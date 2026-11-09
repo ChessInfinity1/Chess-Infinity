@@ -388,9 +388,12 @@ export default function Workspace({
                 " to move" +
                 (view.inCheck() ? " · Check" : "");
   function playerName(color: "White" | "Black") { const name = game.getHeaders()[color]; return name && name !== "?" ? name : "Player"; }
-  const liveStatus = game.isGameOver()
+  const boardMoves = view.history({ verbose: true });
+  const captures: { w: string[]; b: string[] } = { w: [], b: [] };
+  for (const move of boardMoves) if (move.captured) captures[move.color].push(move.captured);
+  const liveStatus = timeoutColor !== null ? status : game.isGameOver()
     ? game.isCheckmate()
-      ? "Checkmate"
+      ? `Checkmate · ${game.turn() === "w" ? "Black" : "White"} wins`
       : "Draw"
     : status;
   if (["play"].includes(mode)) return <PracticeArena
@@ -398,6 +401,7 @@ export default function Workspace({
     fen={current} startFen={positions[0]} theme={boardTheme} flip={flip} blind={blind} skill={skill} seconds={seconds}
     started={started} working={working} finished={timeoutColor !== null || game.isGameOver()}
     status={liveStatus} error={error} clock={time.clock} moves={moves} index={index} saved={saved}
+    lastMove={boardMoves.at(-1)} captures={captures}
     onMove={move} onClose={onClose} onGuided={onGuided}
     onStart={() => { setStarted(true); setError(""); time.run(game.turn()); if (game.turn() !== (flip ? "b" : "w")) void ai(game); }}
     onReset={reset}
