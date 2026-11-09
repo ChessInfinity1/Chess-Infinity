@@ -1,0 +1,9 @@
+Lichess puzzle subset — Creative Commons CC0 1.0 Universal
+
+The Lichess open database states that its database exports are released under CC0 and may be downloaded, modified, and redistributed for any purpose.
+Source: https://database.lichess.org/#puzzles
+Download: https://database.lichess.org/lichess_db_puzzle.csv.zst
+License: https://creativecommons.org/publicdomain/zero/1.0/
+Retrieved 2026-11-07. Upstream Last-Modified: 2026-11-01.
+
+This app includes a selected subset of 2,400 positions. Each published FEN is advanced by the first opponent move as specified by Lichess; all remaining solution moves are verified with chess.js. Source puzzle IDs and links are retained. Explanatory prompts and the app's original exercises are authored for Chess Infinity. This subset is not the entire Lichess database. Source puzzle ratings are distinct from any player's official ratings.

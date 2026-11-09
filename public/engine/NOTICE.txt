@@ -1,0 +1,7 @@
+Unmodified Stockfish.js 19.0.1, lite single-threaded build.
+Copyright the Stockfish developers and Stockfish.js contributors.
+License: GNU GPL version 3. See LICENSE.txt.
+Corresponding source and build scripts:
+https://github.com/nmrugg/stockfish.js/tree/v19.0.1
+Source archive: https://github.com/nmrugg/stockfish.js/archive/refs/tags/v19.0.1.tar.gz
+Engine distribution: npm stockfish@19.0.1

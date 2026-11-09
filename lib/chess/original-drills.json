@@ -1,0 +1,1682 @@
+[
+  {
+    "id": "infinity-rook-01",
+    "title": "Seal the back rank · 1",
+    "theme": "Mate in 1",
+    "fen": "6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1",
+    "line": [
+      "a1a8"
+    ],
+    "rating": 400,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "backRankMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Ra8# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "rook"
+  },
+  {
+    "id": "infinity-rook-02",
+    "title": "Seal the back rank · 2",
+    "theme": "Mate in 1",
+    "fen": "1k4r1/8/8/8/8/8/PPP5/1K6 b - - 0 1",
+    "line": [
+      "g8g1"
+    ],
+    "rating": 400,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "backRankMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Rg1# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "rook"
+  },
+  {
+    "id": "infinity-rook-03",
+    "title": "Seal the back rank · 3",
+    "theme": "Mate in 1",
+    "fen": "6k1/5ppp/8/8/8/8/8/2R3K1 w - - 0 1",
+    "line": [
+      "c1c8"
+    ],
+    "rating": 400,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "backRankMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Rc8# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "rook"
+  },
+  {
+    "id": "infinity-rook-04",
+    "title": "Seal the back rank · 4",
+    "theme": "Mate in 1",
+    "fen": "1k2r3/8/8/8/8/8/PPP5/1K6 b - - 0 1",
+    "line": [
+      "e8e1"
+    ],
+    "rating": 400,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "backRankMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Re1# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "rook"
+  },
+  {
+    "id": "infinity-rook-05",
+    "title": "Seal the back rank · 5",
+    "theme": "Mate in 1",
+    "fen": "6k1/5ppp/8/8/8/8/8/4R1K1 w - - 0 1",
+    "line": [
+      "e1e8"
+    ],
+    "rating": 400,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "backRankMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Re8# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "rook"
+  },
+  {
+    "id": "infinity-rook-06",
+    "title": "Seal the back rank · 6",
+    "theme": "Mate in 1",
+    "fen": "1k6/8/7r/8/8/8/PPP5/1K6 b - - 0 1",
+    "line": [
+      "h6h1"
+    ],
+    "rating": 400,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "backRankMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Rh1# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "rook"
+  },
+  {
+    "id": "infinity-rook-07",
+    "title": "Seal the back rank · 7",
+    "theme": "Mate in 1",
+    "fen": "6k1/5ppp/8/8/8/1R6/8/6K1 w - - 0 1",
+    "line": [
+      "b3b8"
+    ],
+    "rating": 400,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "backRankMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Rb8# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "rook"
+  },
+  {
+    "id": "infinity-rook-08",
+    "title": "Seal the back rank · 8",
+    "theme": "Mate in 1",
+    "fen": "1k6/8/5r2/8/8/8/PPP5/1K6 b - - 0 1",
+    "line": [
+      "f6f1"
+    ],
+    "rating": 400,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "backRankMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Rf1# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "rook"
+  },
+  {
+    "id": "infinity-rook-09",
+    "title": "Seal the back rank · 9",
+    "theme": "Mate in 1",
+    "fen": "6k1/5ppp/8/8/8/3R4/8/6K1 w - - 0 1",
+    "line": [
+      "d3d8"
+    ],
+    "rating": 400,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "backRankMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Rd8# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "rook"
+  },
+  {
+    "id": "infinity-rook-10",
+    "title": "Seal the back rank · 10",
+    "theme": "Mate in 1",
+    "fen": "1k6/8/3r4/8/8/8/PPP5/1K6 b - - 0 1",
+    "line": [
+      "d6d1"
+    ],
+    "rating": 400,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "backRankMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Rd1# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "rook"
+  },
+  {
+    "id": "infinity-rook-11",
+    "title": "Seal the back rank · 11",
+    "theme": "Mate in 1",
+    "fen": "6k1/5ppp/8/8/8/8/P7/1R4K1 w - - 0 1",
+    "line": [
+      "b1b8"
+    ],
+    "rating": 400,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "backRankMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Rb8# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "rook"
+  },
+  {
+    "id": "infinity-rook-12",
+    "title": "Seal the back rank · 12",
+    "theme": "Mate in 1",
+    "fen": "1k3r2/7p/8/8/8/8/PPP5/1K6 b - - 0 1",
+    "line": [
+      "f8f1"
+    ],
+    "rating": 400,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "backRankMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Rf1# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "rook"
+  },
+  {
+    "id": "infinity-rook-13",
+    "title": "Seal the back rank · 13",
+    "theme": "Mate in 1",
+    "fen": "6k1/5ppp/8/8/8/8/P7/3R2K1 w - - 0 1",
+    "line": [
+      "d1d8"
+    ],
+    "rating": 400,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "backRankMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Rd8# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "rook"
+  },
+  {
+    "id": "infinity-rook-14",
+    "title": "Seal the back rank · 14",
+    "theme": "Mate in 1",
+    "fen": "1k1r4/7p/8/8/8/8/PPP5/1K6 b - - 0 1",
+    "line": [
+      "d8d1"
+    ],
+    "rating": 400,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "backRankMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Rd1# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "rook"
+  },
+  {
+    "id": "infinity-rook-15",
+    "title": "Seal the back rank · 15",
+    "theme": "Mate in 1",
+    "fen": "6k1/5ppp/8/8/8/R7/P7/6K1 w - - 0 1",
+    "line": [
+      "a3a8"
+    ],
+    "rating": 400,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "backRankMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Ra8# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "rook"
+  },
+  {
+    "id": "infinity-rook-16",
+    "title": "Seal the back rank · 16",
+    "theme": "Mate in 1",
+    "fen": "1k6/7p/6r1/8/8/8/PPP5/1K6 b - - 0 1",
+    "line": [
+      "g6g1"
+    ],
+    "rating": 400,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "backRankMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Rg1# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "rook"
+  },
+  {
+    "id": "infinity-queen-01",
+    "title": "Close the king’s last exits · 1",
+    "theme": "Mate in 1",
+    "fen": "7k/8/5K2/8/6Q1/8/8/8 w - - 0 1",
+    "line": [
+      "g4g7"
+    ],
+    "rating": 450,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Qg7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "queen"
+  },
+  {
+    "id": "infinity-queen-02",
+    "title": "Close the king’s last exits · 2",
+    "theme": "Mate in 1",
+    "fen": "8/8/1q6/8/8/2k5/8/K7 b - - 0 1",
+    "line": [
+      "b6b2"
+    ],
+    "rating": 450,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Qb2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "queen"
+  },
+  {
+    "id": "infinity-queen-03",
+    "title": "Close the king’s last exits · 3",
+    "theme": "Mate in 1",
+    "fen": "7k/8/5K2/8/8/8/6Q1/8 w - - 0 1",
+    "line": [
+      "g2g7"
+    ],
+    "rating": 450,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Qg7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "queen"
+  },
+  {
+    "id": "infinity-queen-04",
+    "title": "Close the king’s last exits · 4",
+    "theme": "Mate in 1",
+    "fen": "1q6/8/8/8/8/2k5/8/K7 b - - 0 1",
+    "line": [
+      "b8b2"
+    ],
+    "rating": 450,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Qb2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "queen"
+  },
+  {
+    "id": "infinity-queen-05",
+    "title": "Close the king’s last exits · 5",
+    "theme": "Mate in 1",
+    "fen": "7k/Q7/5K2/8/8/8/8/8 w - - 0 1",
+    "line": [
+      "a7g7"
+    ],
+    "rating": 450,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Qg7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "queen"
+  },
+  {
+    "id": "infinity-queen-06",
+    "title": "Close the king’s last exits · 6",
+    "theme": "Mate in 1",
+    "fen": "8/8/8/8/8/2k5/6q1/K7 b - - 0 1",
+    "line": [
+      "g2b2"
+    ],
+    "rating": 450,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Qb2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "queen"
+  },
+  {
+    "id": "infinity-queen-07",
+    "title": "Close the king’s last exits · 7",
+    "theme": "Mate in 1",
+    "fen": "7k/2Q5/5K2/8/8/8/8/8 w - - 0 1",
+    "line": [
+      "c7g7"
+    ],
+    "rating": 450,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Qg7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "queen"
+  },
+  {
+    "id": "infinity-queen-08",
+    "title": "Close the king’s last exits · 8",
+    "theme": "Mate in 1",
+    "fen": "8/8/8/8/8/2k5/4q3/K7 b - - 0 1",
+    "line": [
+      "e2b2"
+    ],
+    "rating": 450,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Qb2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "queen"
+  },
+  {
+    "id": "infinity-queen-09",
+    "title": "Close the king’s last exits · 9",
+    "theme": "Mate in 1",
+    "fen": "7k/4Q3/5K2/8/8/8/8/8 w - - 0 1",
+    "line": [
+      "e7g7"
+    ],
+    "rating": 450,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Qg7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "queen"
+  },
+  {
+    "id": "infinity-queen-10",
+    "title": "Close the king’s last exits · 10",
+    "theme": "Mate in 1",
+    "fen": "8/7p/8/8/8/1qk5/8/K7 b - - 0 1",
+    "line": [
+      "b3b2"
+    ],
+    "rating": 450,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Qb2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "queen"
+  },
+  {
+    "id": "infinity-queen-11",
+    "title": "Close the king’s last exits · 11",
+    "theme": "Mate in 1",
+    "fen": "7k/8/5K2/6Q1/8/8/P7/8 w - - 0 1",
+    "line": [
+      "g5g7"
+    ],
+    "rating": 450,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Qg7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "queen"
+  },
+  {
+    "id": "infinity-queen-12",
+    "title": "Close the king’s last exits · 12",
+    "theme": "Mate in 1",
+    "fen": "8/7p/8/1q6/8/2k5/8/K7 b - - 0 1",
+    "line": [
+      "b5b2"
+    ],
+    "rating": 450,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Qb2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "queen"
+  },
+  {
+    "id": "infinity-queen-13",
+    "title": "Close the king’s last exits · 13",
+    "theme": "Mate in 1",
+    "fen": "7k/8/5K2/8/8/6Q1/P7/8 w - - 0 1",
+    "line": [
+      "g3g7"
+    ],
+    "rating": 450,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Qg7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "queen"
+  },
+  {
+    "id": "infinity-queen-14",
+    "title": "Close the king’s last exits · 14",
+    "theme": "Mate in 1",
+    "fen": "8/1q5p/8/8/8/2k5/8/K7 b - - 0 1",
+    "line": [
+      "b7b2"
+    ],
+    "rating": 450,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Qb2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "queen"
+  },
+  {
+    "id": "infinity-queen-15",
+    "title": "Close the king’s last exits · 15",
+    "theme": "Mate in 1",
+    "fen": "7k/8/5K2/8/8/8/P7/6Q1 w - - 0 1",
+    "line": [
+      "g1g7"
+    ],
+    "rating": 450,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Qg7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "queen"
+  },
+  {
+    "id": "infinity-queen-16",
+    "title": "Close the king’s last exits · 16",
+    "theme": "Mate in 1",
+    "fen": "8/7p/8/8/8/2k5/7q/K7 b - - 0 1",
+    "line": [
+      "h2b2"
+    ],
+    "rating": 450,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Qb2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "queen"
+  },
+  {
+    "id": "infinity-bishop-01",
+    "title": "Finish on the diagonal · 1",
+    "theme": "Mate in 1",
+    "fen": "7k/5Kpp/8/8/8/8/8/B7 w - - 0 1",
+    "line": [
+      "a1g7"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Bxg7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "bishop"
+  },
+  {
+    "id": "infinity-bishop-02",
+    "title": "Finish on the diagonal · 2",
+    "theme": "Mate in 1",
+    "fen": "8/6b1/8/8/8/8/PPk5/K7 b - - 0 1",
+    "line": [
+      "g7b2"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Bxb2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "bishop"
+  },
+  {
+    "id": "infinity-bishop-03",
+    "title": "Finish on the diagonal · 3",
+    "theme": "Mate in 1",
+    "fen": "7k/5Kpp/8/8/8/2B5/8/8 w - - 0 1",
+    "line": [
+      "c3g7"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Bxg7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "bishop"
+  },
+  {
+    "id": "infinity-bishop-04",
+    "title": "Finish on the diagonal · 4",
+    "theme": "Mate in 1",
+    "fen": "8/8/8/4b3/8/8/PPk5/K7 b - - 0 1",
+    "line": [
+      "e5b2"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Bxb2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "bishop"
+  },
+  {
+    "id": "infinity-bishop-05",
+    "title": "Finish on the diagonal · 5",
+    "theme": "Mate in 1",
+    "fen": "7k/5Kpp/8/4B3/8/8/8/8 w - - 0 1",
+    "line": [
+      "e5g7"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Bxg7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "bishop"
+  },
+  {
+    "id": "infinity-bishop-06",
+    "title": "Finish on the diagonal · 6",
+    "theme": "Mate in 1",
+    "fen": "8/8/8/8/8/2b5/PPk5/K7 b - - 0 1",
+    "line": [
+      "c3b2"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Bxb2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "bishop"
+  },
+  {
+    "id": "infinity-bishop-07",
+    "title": "Finish on the diagonal · 7",
+    "theme": "Mate in 1",
+    "fen": "5B1k/5Kpp/8/8/8/8/8/8 w - - 0 1",
+    "line": [
+      "f8g7"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Bxg7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "bishop"
+  },
+  {
+    "id": "infinity-bishop-08",
+    "title": "Finish on the diagonal · 8",
+    "theme": "Mate in 1",
+    "fen": "7b/7p/8/8/8/8/PPk5/K7 b - - 0 1",
+    "line": [
+      "h8b2"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Bxb2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "bishop"
+  },
+  {
+    "id": "infinity-bishop-09",
+    "title": "Finish on the diagonal · 9",
+    "theme": "Mate in 1",
+    "fen": "7k/5Kpp/8/8/8/8/PB6/8 w - - 0 1",
+    "line": [
+      "b2g7"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Bxg7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "bishop"
+  },
+  {
+    "id": "infinity-bishop-10",
+    "title": "Finish on the diagonal · 10",
+    "theme": "Mate in 1",
+    "fen": "8/7p/5b2/8/8/8/PPk5/K7 b - - 0 1",
+    "line": [
+      "f6b2"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Bxb2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "bishop"
+  },
+  {
+    "id": "infinity-bishop-11",
+    "title": "Finish on the diagonal · 11",
+    "theme": "Mate in 1",
+    "fen": "7k/5Kpp/8/8/3B4/8/P7/8 w - - 0 1",
+    "line": [
+      "d4g7"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Bxg7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "bishop"
+  },
+  {
+    "id": "infinity-bishop-12",
+    "title": "Finish on the diagonal · 12",
+    "theme": "Mate in 1",
+    "fen": "8/7p/8/8/3b4/8/PPk5/K7 b - - 0 1",
+    "line": [
+      "d4b2"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Bxb2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "bishop"
+  },
+  {
+    "id": "infinity-bishop-13",
+    "title": "Finish on the diagonal · 13",
+    "theme": "Mate in 1",
+    "fen": "7k/5Kpp/5B2/8/8/8/P7/8 w - - 0 1",
+    "line": [
+      "f6g7"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Bxg7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "bishop"
+  },
+  {
+    "id": "infinity-bishop-14",
+    "title": "Finish on the diagonal · 14",
+    "theme": "Mate in 1",
+    "fen": "8/7p/8/8/8/8/PPk5/K1b5 b - - 0 1",
+    "line": [
+      "c1b2"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Bxb2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "bishop"
+  },
+  {
+    "id": "infinity-bishop-15",
+    "title": "Finish on the diagonal · 15",
+    "theme": "Mate in 1",
+    "fen": "7k/5Kpp/8/8/8/2B5/1P6/8 w - - 0 1",
+    "line": [
+      "c3g7"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Bxg7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "bishop"
+  },
+  {
+    "id": "infinity-bishop-16",
+    "title": "Finish on the diagonal · 16",
+    "theme": "Mate in 1",
+    "fen": "8/6p1/8/4b3/8/8/PPk5/K7 b - - 0 1",
+    "line": [
+      "e5b2"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Bxb2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "bishop"
+  },
+  {
+    "id": "infinity-knight-01",
+    "title": "A knight in a crowded corner · 1",
+    "theme": "Mate in 1",
+    "fen": "6rk/6pp/3N4/8/8/8/8/4K3 w - - 0 1",
+    "line": [
+      "d6f7"
+    ],
+    "rating": 650,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "smotheredMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Nf7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "knight"
+  },
+  {
+    "id": "infinity-knight-02",
+    "title": "A knight in a crowded corner · 2",
+    "theme": "Mate in 1",
+    "fen": "3k4/8/8/8/8/8/PP6/KR2n3 b - - 0 1",
+    "line": [
+      "e1c2"
+    ],
+    "rating": 650,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "smotheredMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Nc2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "knight"
+  },
+  {
+    "id": "infinity-knight-03",
+    "title": "A knight in a crowded corner · 3",
+    "theme": "Mate in 1",
+    "fen": "6rk/6pp/8/4N3/8/8/8/4K3 w - - 0 1",
+    "line": [
+      "e5f7"
+    ],
+    "rating": 650,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "smotheredMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Nf7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "knight"
+  },
+  {
+    "id": "infinity-knight-04",
+    "title": "A knight in a crowded corner · 4",
+    "theme": "Mate in 1",
+    "fen": "3k4/8/8/8/1n6/8/PP6/KR6 b - - 0 1",
+    "line": [
+      "b4c2"
+    ],
+    "rating": 650,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "smotheredMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Nc2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "knight"
+  },
+  {
+    "id": "infinity-knight-05",
+    "title": "A knight in a crowded corner · 5",
+    "theme": "Mate in 1",
+    "fen": "6rk/6pp/7N/8/8/8/8/4K3 w - - 0 1",
+    "line": [
+      "h6f7"
+    ],
+    "rating": 650,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "smotheredMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Nf7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "knight"
+  },
+  {
+    "id": "infinity-knight-06",
+    "title": "A knight in a crowded corner · 6",
+    "theme": "Mate in 1",
+    "fen": "3k4/7p/8/8/8/4n3/PP6/KR6 b - - 0 1",
+    "line": [
+      "e3c2"
+    ],
+    "rating": 650,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "smotheredMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Nc2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "knight"
+  },
+  {
+    "id": "infinity-knight-07",
+    "title": "A knight in a crowded corner · 7",
+    "theme": "Mate in 1",
+    "fen": "3N2rk/6pp/8/8/8/8/P7/4K3 w - - 0 1",
+    "line": [
+      "d8f7"
+    ],
+    "rating": 650,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "smotheredMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Nf7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "knight"
+  },
+  {
+    "id": "infinity-knight-08",
+    "title": "A knight in a crowded corner · 8",
+    "theme": "Mate in 1",
+    "fen": "3k4/7p/8/8/3n4/8/PP6/KR6 b - - 0 1",
+    "line": [
+      "d4c2"
+    ],
+    "rating": 650,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "smotheredMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Nc2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "knight"
+  },
+  {
+    "id": "infinity-knight-09",
+    "title": "A knight in a crowded corner · 9",
+    "theme": "Mate in 1",
+    "fen": "6rk/6pp/8/6N1/8/8/P7/4K3 w - - 0 1",
+    "line": [
+      "g5f7"
+    ],
+    "rating": 650,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "smotheredMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Nf7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "knight"
+  },
+  {
+    "id": "infinity-knight-10",
+    "title": "A knight in a crowded corner · 10",
+    "theme": "Mate in 1",
+    "fen": "3k4/7p/8/8/8/n7/PP6/KR6 b - - 0 1",
+    "line": [
+      "a3c2"
+    ],
+    "rating": 650,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "smotheredMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Nc2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "knight"
+  },
+  {
+    "id": "infinity-knight-11",
+    "title": "A knight in a crowded corner · 11",
+    "theme": "Mate in 1",
+    "fen": "6rk/6pp/3N4/8/8/8/1P6/4K3 w - - 0 1",
+    "line": [
+      "d6f7"
+    ],
+    "rating": 650,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "smotheredMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Nf7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "knight"
+  },
+  {
+    "id": "infinity-knight-12",
+    "title": "A knight in a crowded corner · 12",
+    "theme": "Mate in 1",
+    "fen": "3k4/6p1/8/8/8/8/PP6/KR2n3 b - - 0 1",
+    "line": [
+      "e1c2"
+    ],
+    "rating": 650,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "smotheredMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Nc2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "knight"
+  },
+  {
+    "id": "infinity-knight-13",
+    "title": "A knight in a crowded corner · 13",
+    "theme": "Mate in 1",
+    "fen": "6rk/6pp/8/4N3/8/8/1P6/4K3 w - - 0 1",
+    "line": [
+      "e5f7"
+    ],
+    "rating": 650,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "smotheredMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Nf7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "knight"
+  },
+  {
+    "id": "infinity-knight-14",
+    "title": "A knight in a crowded corner · 14",
+    "theme": "Mate in 1",
+    "fen": "3k4/6p1/8/8/1n6/8/PP6/KR6 b - - 0 1",
+    "line": [
+      "b4c2"
+    ],
+    "rating": 650,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "smotheredMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Nc2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "knight"
+  },
+  {
+    "id": "infinity-knight-15",
+    "title": "A knight in a crowded corner · 15",
+    "theme": "Mate in 1",
+    "fen": "6rk/6pp/7N/8/8/8/1P6/4K3 w - - 0 1",
+    "line": [
+      "h6f7"
+    ],
+    "rating": 650,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "smotheredMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Nf7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "knight"
+  },
+  {
+    "id": "infinity-knight-16",
+    "title": "A knight in a crowded corner · 16",
+    "theme": "Mate in 1",
+    "fen": "3k4/5p2/8/8/8/4n3/PP6/KR6 b - - 0 1",
+    "line": [
+      "e3c2"
+    ],
+    "rating": 650,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "smotheredMate"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "Nc2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "knight"
+  },
+  {
+    "id": "infinity-pawn-01",
+    "title": "The smallest mating piece · 1",
+    "theme": "Mate in 1",
+    "fen": "7k/5K1p/6P1/8/8/8/8/8 w - - 0 1",
+    "line": [
+      "g6g7"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "g7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "pawn"
+  },
+  {
+    "id": "infinity-pawn-02",
+    "title": "The smallest mating piece · 2",
+    "theme": "Mate in 1",
+    "fen": "8/7p/8/8/8/1p6/P1k5/K7 b - - 0 1",
+    "line": [
+      "b3b2"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "b2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "pawn"
+  },
+  {
+    "id": "infinity-pawn-03",
+    "title": "The smallest mating piece · 3",
+    "theme": "Mate in 1",
+    "fen": "7k/5K1p/6P1/8/8/8/1P6/8 w - - 0 1",
+    "line": [
+      "g6g7"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "g7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "pawn"
+  },
+  {
+    "id": "infinity-pawn-04",
+    "title": "The smallest mating piece · 4",
+    "theme": "Mate in 1",
+    "fen": "8/5p2/8/8/8/1p6/P1k5/K7 b - - 0 1",
+    "line": [
+      "b3b2"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "b2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "pawn"
+  },
+  {
+    "id": "infinity-pawn-05",
+    "title": "The smallest mating piece · 5",
+    "theme": "Mate in 1",
+    "fen": "7k/5K1p/6P1/8/8/8/3P4/8 w - - 0 1",
+    "line": [
+      "g6g7"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "g7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "pawn"
+  },
+  {
+    "id": "infinity-pawn-06",
+    "title": "The smallest mating piece · 6",
+    "theme": "Mate in 1",
+    "fen": "8/3p4/8/8/8/1p6/P1k5/K7 b - - 0 1",
+    "line": [
+      "b3b2"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "b2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "pawn"
+  },
+  {
+    "id": "infinity-pawn-07",
+    "title": "The smallest mating piece · 7",
+    "theme": "Mate in 1",
+    "fen": "7k/5K1p/6P1/8/8/8/5P2/8 w - - 0 1",
+    "line": [
+      "g6g7"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "g7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "pawn"
+  },
+  {
+    "id": "infinity-pawn-08",
+    "title": "The smallest mating piece · 8",
+    "theme": "Mate in 1",
+    "fen": "8/p7/8/8/8/1p6/P1k5/K7 b - - 0 1",
+    "line": [
+      "b3b2"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "b2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "pawn"
+  },
+  {
+    "id": "infinity-pawn-09",
+    "title": "The smallest mating piece · 9",
+    "theme": "Mate in 1",
+    "fen": "7k/5K1p/6P1/8/8/8/PP6/8 w - - 0 1",
+    "line": [
+      "g6g7"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "g7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "pawn"
+  },
+  {
+    "id": "infinity-pawn-10",
+    "title": "The smallest mating piece · 10",
+    "theme": "Mate in 1",
+    "fen": "8/5pp1/8/8/8/1p6/P1k5/K7 b - - 0 1",
+    "line": [
+      "b3b2"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "b2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "pawn"
+  },
+  {
+    "id": "infinity-pawn-11",
+    "title": "The smallest mating piece · 11",
+    "theme": "Mate in 1",
+    "fen": "7k/5K1p/6P1/8/8/8/P2P4/8 w - - 0 1",
+    "line": [
+      "g6g7"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "g7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "pawn"
+  },
+  {
+    "id": "infinity-pawn-12",
+    "title": "The smallest mating piece · 12",
+    "theme": "Mate in 1",
+    "fen": "8/3p2p1/8/8/8/1p6/P1k5/K7 b - - 0 1",
+    "line": [
+      "b3b2"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "b2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "pawn"
+  },
+  {
+    "id": "infinity-pawn-13",
+    "title": "The smallest mating piece · 13",
+    "theme": "Mate in 1",
+    "fen": "7k/5K1p/6P1/8/8/8/2P2P2/8 w - - 0 1",
+    "line": [
+      "g6g7"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "g7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "pawn"
+  },
+  {
+    "id": "infinity-pawn-14",
+    "title": "The smallest mating piece · 14",
+    "theme": "Mate in 1",
+    "fen": "8/p3p3/8/8/8/1p6/P1k5/K7 b - - 0 1",
+    "line": [
+      "b3b2"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "b2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "pawn"
+  },
+  {
+    "id": "infinity-pawn-15",
+    "title": "The smallest mating piece · 15",
+    "theme": "Mate in 1",
+    "fen": "7k/5K1p/6P1/8/8/P7/1P6/8 w - - 0 1",
+    "line": [
+      "g6g7"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "g7# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "pawn"
+  },
+  {
+    "id": "infinity-pawn-16",
+    "title": "The smallest mating piece · 16",
+    "theme": "Mate in 1",
+    "fen": "8/4p3/6p1/8/8/1p6/P1k5/K7 b - - 0 1",
+    "line": [
+      "b3b2"
+    ],
+    "rating": 550,
+    "themes": [
+      "mate",
+      "mateIn1"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "b2# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "pawn"
+  },
+  {
+    "id": "infinity-promotion-01",
+    "title": "Promote with a purpose · 1",
+    "theme": "Mate in 1",
+    "fen": "8/5KPk/7p/8/8/8/8/8 w - - 0 1",
+    "line": [
+      "g7g8q"
+    ],
+    "rating": 600,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "promotion"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "g8=Q# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "promotion"
+  },
+  {
+    "id": "infinity-promotion-02",
+    "title": "Promote with a purpose · 2",
+    "theme": "Mate in 1",
+    "fen": "8/7p/8/8/8/P7/Kpk5/8 b - - 0 1",
+    "line": [
+      "b2b1q"
+    ],
+    "rating": 600,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "promotion"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "b1=Q# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "promotion"
+  },
+  {
+    "id": "infinity-promotion-03",
+    "title": "Promote with a purpose · 3",
+    "theme": "Mate in 1",
+    "fen": "8/5KPk/7p/8/8/8/1P6/8 w - - 0 1",
+    "line": [
+      "g7g8q"
+    ],
+    "rating": 600,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "promotion"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "g8=Q# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "promotion"
+  },
+  {
+    "id": "infinity-promotion-04",
+    "title": "Promote with a purpose · 4",
+    "theme": "Mate in 1",
+    "fen": "8/5p2/8/8/8/P7/Kpk5/8 b - - 0 1",
+    "line": [
+      "b2b1q"
+    ],
+    "rating": 600,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "promotion"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "b1=Q# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "promotion"
+  },
+  {
+    "id": "infinity-promotion-05",
+    "title": "Promote with a purpose · 5",
+    "theme": "Mate in 1",
+    "fen": "8/5KPk/7p/8/8/8/3P4/8 w - - 0 1",
+    "line": [
+      "g7g8q"
+    ],
+    "rating": 600,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "promotion"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "g8=Q# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "promotion"
+  },
+  {
+    "id": "infinity-promotion-06",
+    "title": "Promote with a purpose · 6",
+    "theme": "Mate in 1",
+    "fen": "8/3p4/8/8/8/P7/Kpk5/8 b - - 0 1",
+    "line": [
+      "b2b1q"
+    ],
+    "rating": 600,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "promotion"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "b1=Q# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "promotion"
+  },
+  {
+    "id": "infinity-promotion-07",
+    "title": "Promote with a purpose · 7",
+    "theme": "Mate in 1",
+    "fen": "8/5KPk/7p/8/8/8/5P2/8 w - - 0 1",
+    "line": [
+      "g7g8q"
+    ],
+    "rating": 600,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "promotion"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "g8=Q# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "promotion"
+  },
+  {
+    "id": "infinity-promotion-08",
+    "title": "Promote with a purpose · 8",
+    "theme": "Mate in 1",
+    "fen": "8/p7/8/8/8/P7/Kpk5/8 b - - 0 1",
+    "line": [
+      "b2b1q"
+    ],
+    "rating": 600,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "promotion"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "b1=Q# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "promotion"
+  },
+  {
+    "id": "infinity-promotion-09",
+    "title": "Promote with a purpose · 9",
+    "theme": "Mate in 1",
+    "fen": "8/5KPk/7p/8/8/8/PP6/8 w - - 0 1",
+    "line": [
+      "g7g8q"
+    ],
+    "rating": 600,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "promotion"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "g8=Q# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "promotion"
+  },
+  {
+    "id": "infinity-promotion-10",
+    "title": "Promote with a purpose · 10",
+    "theme": "Mate in 1",
+    "fen": "8/5pp1/8/8/8/P7/Kpk5/8 b - - 0 1",
+    "line": [
+      "b2b1q"
+    ],
+    "rating": 600,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "promotion"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "b1=Q# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "promotion"
+  },
+  {
+    "id": "infinity-promotion-11",
+    "title": "Promote with a purpose · 11",
+    "theme": "Mate in 1",
+    "fen": "8/5KPk/7p/8/8/8/P2P4/8 w - - 0 1",
+    "line": [
+      "g7g8q"
+    ],
+    "rating": 600,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "promotion"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "g8=Q# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "promotion"
+  },
+  {
+    "id": "infinity-promotion-12",
+    "title": "Promote with a purpose · 12",
+    "theme": "Mate in 1",
+    "fen": "8/3p2p1/8/8/8/P7/Kpk5/8 b - - 0 1",
+    "line": [
+      "b2b1q"
+    ],
+    "rating": 600,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "promotion"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "b1=Q# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "promotion"
+  },
+  {
+    "id": "infinity-promotion-13",
+    "title": "Promote with a purpose · 13",
+    "theme": "Mate in 1",
+    "fen": "8/5KPk/7p/8/8/8/2P2P2/8 w - - 0 1",
+    "line": [
+      "g7g8q"
+    ],
+    "rating": 600,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "promotion"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "g8=Q# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "promotion"
+  },
+  {
+    "id": "infinity-promotion-14",
+    "title": "Promote with a purpose · 14",
+    "theme": "Mate in 1",
+    "fen": "8/p3p3/8/8/8/P7/Kpk5/8 b - - 0 1",
+    "line": [
+      "b2b1q"
+    ],
+    "rating": 600,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "promotion"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "b1=Q# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "promotion"
+  },
+  {
+    "id": "infinity-promotion-15",
+    "title": "Promote with a purpose · 15",
+    "theme": "Mate in 1",
+    "fen": "8/5KPk/7p/8/8/P7/1P6/8 w - - 0 1",
+    "line": [
+      "g7g8q"
+    ],
+    "rating": 600,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "promotion"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "g8=Q# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "promotion"
+  },
+  {
+    "id": "infinity-promotion-16",
+    "title": "Promote with a purpose · 16",
+    "theme": "Mate in 1",
+    "fen": "8/4p3/6p1/8/8/P7/Kpk5/8 b - - 0 1",
+    "line": [
+      "b2b1q"
+    ],
+    "rating": 600,
+    "themes": [
+      "mate",
+      "mateIn1",
+      "promotion"
+    ],
+    "hint": "Check the enemy king and cover every escape. There is one move that checkmates.",
+    "explanation": "b1=Q# is checkmate: the opposing king is attacked and has no legal reply. Replay the position to see the squares covered by your pieces.",
+    "authoredFamily": "promotion"
+  }
+]

@@ -1,0 +1,33 @@
+{
+  "app": "Chess Infinity Academy",
+  "export_kind": "published-source-snapshot",
+  "source_commit": "a1d3d5ab693c99ae0987f20011f9a6c40b71b63f",
+  "published_version": 20,
+  "exported_at_utc": "2026-11-09T01:37:18.335348+00:00",
+  "original_source_files": 244,
+  "source_integrity": "All original files byte-matched against the published Git revision before packaging.",
+  "added_documentation": [
+    "START_HERE.md",
+    "EXPORT_MANIFEST.json",
+    "SOURCE_CHECKSUMS.sha256",
+    "EXPORT_VALIDATION.md"
+  ],
+  "excluded": [
+    "node_modules/",
+    "dist/",
+    ".git/",
+    ".sites-runtime/",
+    ".wrangler/",
+    "local environment files",
+    "secrets and credentials",
+    "live user database records"
+  ],
+  "website_modified": false,
+  "note": "This archive contains the published source; unfinished local audit changes are not part of the published snapshot.",
+  "validation": {
+    "typecheck": "passed",
+    "tests_passed": 99,
+    "tests_failed": 0,
+    "clean_portable_build": "passed"
+  }
+}

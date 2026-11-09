@@ -1,0 +1,9 @@
+{
+  "provider": "Lichess open database",
+  "license": "CC0-1.0",
+  "source": "https://database.lichess.org/lichess_db_puzzle.csv.zst",
+  "retrieved": "2026-11-07",
+  "rawSha256": "e84f9954ee72f43f2f753bee1d98f6a5f000ef8a7a95008d286f7f5f41ced283",
+  "count": 2400,
+  "selection": "First matching rows, stratified by source rating: under 1000, 1000–1399, 1400–1799, 1800–2300. Popularity >=80, plays >=300, rating deviation <=100. Starting position advances the first opponent move; all remaining solution plies validated using chess.js. Duplicate FENs removed."
+}
