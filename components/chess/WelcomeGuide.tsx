@@ -416,7 +416,7 @@ export default function WelcomeGuide({
                     ) : (
                       <a
                         className="secondary full"
-                        href="/signin-with-chatgpt?return_to=%2F%3Fonboarding%3D1"
+                        href="/login?return_to=%2F%3Fonboarding%3D1"
                       >
                         Sign in to your academy to authorize Lichess
                       </a>

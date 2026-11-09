@@ -14,12 +14,17 @@
     "db:generate": "drizzle-kit generate",
     "test": "node --experimental-strip-types --test tests/*.test.mjs",
     "typecheck": "tsc --noEmit",
-    "build:offline": "node scripts/build-offline.mjs"
+    "build:offline": "node scripts/build-offline.mjs",
+    "deploy:cloudflare": "npm run typecheck && npm test && npm run build && wrangler d1 migrations apply DB --remote --config wrangler.jsonc && wrangler deploy --config dist/server/wrangler.json",
+    "db:migrate:local": "wrangler d1 migrations apply DB --local --config wrangler.jsonc",
+    "db:migrate:remote": "wrangler d1 migrations apply DB --remote --config wrangler.jsonc"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
+    "@better-auth/drizzle-adapter": "1.7.18",
     "@hookform/resolvers": "^5.7.1",
     "@shadcn/react": "^0.3.0",
+    "better-auth": "1.7.18",
     "chess.js": "^1.4.0",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
@@ -42,7 +47,7 @@
     "stockfish": "^19.0.1",
     "tailwind-merge": "3.6.0",
     "vaul": "^1.1.2",
-    "zod": "^3.25.76"
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.37.1",

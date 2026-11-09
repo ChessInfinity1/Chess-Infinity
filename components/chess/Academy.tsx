@@ -105,6 +105,7 @@ import {
   shouldStartWelcome,
   orderPuzzleLibrary,
 } from "../../lib/chess/learning";
+import { parseProgressBackup } from "../../lib/progress-backup";
 const PUZZLES_PER_PAGE = 12;
 const today = () => new Date().toLocaleDateString("en-CA");
 function getStreak(days: string[]) {
@@ -270,6 +271,8 @@ export default function Academy({
     if (
       requested &&
       [
+        "settings",
+        "connections",
         "puzzles",
         "arcade",
         "revenge",
@@ -2157,19 +2160,35 @@ export default function Academy({
                         <strong>{saveStatus}</strong>
                         <p>
                           {user
-                            ? "Your cloud records belong to your signed-in ChatGPT account. Pending changes are backed up on this device and retried automatically."
+                            ? "Your cloud records belong to your signed-in Academy account. Pending changes are backed up on this device and retried automatically."
                             : "Guest progress stays on this device. Sign in for cloud progress."}
                         </p>
                       </div>
                       {!user && (
                         <a
                           className="primary full"
-                          href="/signin-with-chatgpt?return_to=%2F"
+                          href="/login?return_to=%2F"
                           target="_top"
                         >
-                          Sign in with ChatGPT
+                          Sign in / Create account
                         </a>
                       )}
+                      <label className="secondary full" style={{cursor: "pointer", margin: "12px 0"}}>
+                        Import progress from the original site / JSON backup
+                        <input type="file" accept=".json,application/json" aria-label="Import Academy progress backup" onChange={async event => {
+                          const file = event.currentTarget.files?.[0];
+                          event.currentTarget.value = "";
+                          if (!file) return;
+                          try {
+                            if (saveRunning.current || conflict.current) throw new Error("Finish your pending save or resolve the cloud conflict before importing.");
+                            const imported = parseProgressBackup(await file.text());
+                            if (!window.confirm(`Replace progress on this account with ${imported.completed.length} completed lessons, ${imported.puzzles.length} puzzle attempts and ${imported.games.length} games? A copy of current progress will download first. Your original website stays unchanged.`)) return;
+                            jsonDownload(stateRef.current, "chess-infinity-before-import.json");
+                            update(() => imported);
+                            setNotice(user ? "Backup imported. Cloud save is queued; wait for All changes saved before closing. Reauthorize Lichess on this new website." : "Backup imported on this device. Create an Academy account for cloud saving. Lichess must be reauthorized.");
+                          } catch (e) { setNotice((e as Error).message); }
+                        }} />
+                      </label>
                       <button
                         className="secondary full"
                         onClick={() =>
@@ -2271,7 +2290,7 @@ export default function Academy({
                       {user && (
                         <a
                           className="text-btn"
-                          href="/signout-with-chatgpt?return_to=%2F"
+                          href="/logout?return_to=%2F"
                           target="_top"
                         >
                           <LogOut size={16} /> Sign out

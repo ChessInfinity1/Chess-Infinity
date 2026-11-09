@@ -1,30 +1,15 @@
 import handler from "vinext/server/fetch-handler";
-import { runWithConnectorBinding } from "../lib/connector-context";
-import type { ConnectorBinding } from "../lib/connector-contract.mjs";
-
-const worker = {
-  fetch(request: Request, env: Cloudflare.Env, ctx: ExecutionContext<{ CONNECTORS?: ConnectorBinding }>) {
-    let binding = ctx.props?.CONNECTORS;
-    // Local preview emulates the same request-scoped capability. This branch and
-    // the auxiliary service binding are absent from production builds.
-    if (import.meta.env.DEV && !binding && env.CONNECTORS) {
-      const preview = env.CONNECTORS;
-      const expiresAt = Date.now() + 60_000;
-      binding = {
-        async getContext() {
-          if (Date.now() >= expiresAt) return { status: "request_context_expired" };
-          return preview.getContext?.() ?? { status: "binding_unavailable" };
-        },
-        async invoke(connectorId, actionName, args) {
-          if (Date.now() >= expiresAt) {
-            return { status: "request_context_expired", message: "This request has expired. Please try again." };
-          }
-          return preview.invoke(connectorId, actionName, args);
-        },
-      };
-    }
-    return runWithConnectorBinding(binding, () => handler.fetch(request, env, ctx));
+export default {
+  async fetch(request: Request, env: Cloudflare.Env, ctx: ExecutionContext) {
+    const headers = new Headers(request.headers);
+    for (const key of [...headers.keys()]) if (key.startsWith("oai-authenticated-user-")) headers.delete(key);
+    const response = await handler.fetch(new Request(request, { headers }), env, ctx);
+    const result = new Response(response.body, response);
+    result.headers.set("X-Content-Type-Options", "nosniff");
+    result.headers.set("X-Frame-Options", "DENY");
+    result.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+    if (new URL(request.url).protocol === "https:") result.headers.set("Strict-Transport-Security", "max-age=31536000");
+    if (new URL(request.url).pathname.startsWith("/api/") || result.headers.get("content-type")?.includes("text/html")) result.headers.set("Cache-Control", "private, no-store");
+    return result;
   },
 };
-
-export default worker;
