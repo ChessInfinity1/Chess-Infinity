@@ -62,3 +62,15 @@ Limits and nonportable data:
 `/api/health` checks D1 tables and required auth configuration, and returns no user data. Authentication/progress responses and HTML are private/no-store. APIs preserve upstream Chess.com/Lichess failures rather than inventing results. The original website remains available throughout failures or rollback.
 
 Use Cloudflare's Worker versions for code rollback. Do not reverse or drop database migrations containing user data; take a D1 export before schema changes. Keep the authentication secret stable across deploys; changing it invalidates sessions. GitHub contains source, configuration, and migrations only—not production user records or secrets.
+
+## Owner developer panel
+
+`/developer` provides searchable Academy accounts, paginated account summaries, signup counts, cloud-progress totals, system status, and the latest 50 administrative security actions. The Academy sidebar shows the link only to its provisioned owner. Guest and original-site accounts are outside this database. Figures describe saved training data, not official chess ratings or all visitor activity.
+
+Access uses the existing signed Better Auth session and the server-only `ACADEMY_OWNER_USER_ID` setting. Provision it to the immutable ID of an existing Academy account using `npx wrangler secret put ACADEMY_OWNER_USER_ID --config wrangler.jsonc`. Confirm the intended account through the operator's authorized D1 lookup first. Never derive administrator access from a browser value, profile name, email address, or a future signup: email verification is not configured. Missing configuration denies access. Rotation requires an explicit operator change.
+
+Migration `0002_developer_audit.sql` only adds an audit table and index. Apply pending migrations before deploying the panel. It does not modify existing users or progress. The existing authentication secret must stay stable.
+
+Account detail responses explicitly select safe metadata and training summaries. They never return credentials, password hashes, provider tokens, session tokens, IP addresses, user agents, full progress documents, or private game contents. Authenticated owner requests receive private/no-store responses. Session sign-outs require a same-origin POST, protect the owner from self-revocation, and atomically delete only the selected learner's sessions while recording the action. They preserve the account and progress; the learner can sign in again normally. There is no impersonation, password viewing, automatic email-based promotion, or account deletion in this panel.
+
+Validate with `npm run typecheck`, `npm test`, and `npm run build`. Developer integration tests use real signed sessions and D1 in the Workers runtime, covering anonymous and non-owner denial, forged identity headers, cross-site actions, literal searches, response privacy, session revocation, audit records, and preserved progress.

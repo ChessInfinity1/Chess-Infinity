@@ -151,7 +151,7 @@ function jsonDownload(data: any, name: string) {
 export default function Academy({
   user,
 }: {
-  user: { id: string; name: string } | null;
+  user: { id: string; name: string; isOwner?: boolean } | null;
 }) {
   const [page, setPage] = useState("dashboard");
   const install = useAppInstall();
@@ -960,6 +960,7 @@ export default function Academy({
         xp={xp}
         completed={completed}
         lessonCount={lessons.length}
+        isOwner={user?.isOwner === true}
       />
       {sidebar && <div className="scrim" onClick={() => setSidebar(false)} />}
       <main className="main" inert={sidebar || profileOpen}>

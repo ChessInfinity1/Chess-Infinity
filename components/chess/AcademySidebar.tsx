@@ -4,7 +4,7 @@ import {
   Infinity as InfinityIcon, X, ChevronRight, BookOpen,
   LayoutDashboard, Puzzle, Network, Swords, ChartNoAxesCombined, Sparkles,
   RefreshCw, BrainCircuit, Link2, Download, Settings, Compass, CalendarDays,
-  Bookmark, Bell, ArrowUpRight, UserRound, Check,
+  Bookmark, Bell, ArrowUpRight, UserRound, Check, ShieldCheck,
 } from "lucide-react";
 import { ProfileAvatar } from "./ChessComProfile";
 
@@ -47,9 +47,10 @@ type Props = {
   xp: number;
   completed: number;
   lessonCount: number;
+  isOwner?: boolean;
 };
 
-export default function AcademySidebar({ sidebarRef, open, page, onClose, onNavigate, onProfile, profile, userName, xp, completed, lessonCount }: Props) {
+export default function AcademySidebar({ sidebarRef, open, page, onClose, onNavigate, onProfile, profile, userName, xp, completed, lessonCount, isOwner = false }: Props) {
   const [profileOpen, setProfileOpen] = useState(false);
   const [drawer, setDrawer] = useState(false);
   const profileId = useId();
@@ -128,6 +129,7 @@ export default function AcademySidebar({ sidebarRef, open, page, onClose, onNavi
         <nav aria-label="More training">{moreRoutes.map(route)}</nav>
       </details>
       <button className="modern-reminder-link" onClick={() => navigate("reminders")}><Bell size={17}/><span>A little practice, regularly.</span><ArrowUpRight size={14}/></button>
+      {isOwner && <a className="modern-nav-link" href="/developer"><ShieldCheck size={19}/><span>Developer panel</span><ArrowUpRight size={14}/></a>}
     </div>
     <footer className="modern-side-footer">
       <div className="modern-profile-zone" ref={profileZone} onKeyDown={event => {
