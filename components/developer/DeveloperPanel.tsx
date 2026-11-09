@@ -175,7 +175,7 @@ export default function DeveloperPanel({ ownerName }: { ownerName: string }) {
           ["Puzzles correct", `${detail.correctPuzzles} / ${detail.puzzleAttempts}`], ["Training puzzle rating", String(detail.puzzleRating)],
           ["Saved games / reviews", `${detail.games} / ${detail.analyses}`], ["Goal", detail.goal || "Not set"],
           ["Chess.com public profile", detail.chesscom ? `@${detail.chesscom}` : "Not linked"], ["Lichess profile", detail.lichess ? `@${detail.lichess}` : "Not linked"],
-          ["Progress payload", bytes(detail.progressBytes)], ["Email verification", detail.emailVerified ? "Verified" : "Not verified · email delivery unavailable"],
+          ["Progress payload", bytes(detail.progressBytes)], ["Email verification", detail.emailVerified ? "Verified" : "Not verified"],
         ].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
         {notice && <p className="dev-notice" role="status"><Check size={17}/>{notice}</p>}
         {!detail.isOwner && <section className="dev-session-action"><div><h3>Sign out all devices</h3><p>Ends this learner’s sessions. Their account and saved progress stay intact.</p></div><button className="dev-button" disabled={actionBusy || detail.activeSessions === 0} onClick={revoke}>{actionBusy ? <LoaderCircle className="dev-spin" size={16}/> : <LogOut size={16}/>}Sign out sessions</button></section>}

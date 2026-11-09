@@ -10,7 +10,7 @@ test("real D1 authentication: signup, signed cookies, password checks, isolation
  const mf = new Miniflare({ modules: true, script: 'export default {fetch(){return new Response("test")}}', d1Databases: ["DB"], compatibilityDate: "2026-05-15" });
  try {
   const binding = await mf.getD1Database("DB");
-  for (const name of ["0000_tearful_gunslinger.sql", "0001_overrated_the_anarchist.sql"]) {
+  for (const name of ["0000_tearful_gunslinger.sql", "0001_overrated_the_anarchist.sql", "0003_signup_email_verification.sql"]) {
    const raw = await readFile(new URL("../drizzle/" + name, import.meta.url), "utf8");
    for (const statement of raw.split("--> statement-breakpoint").filter(s=>s.trim())) await binding.prepare(statement).run();
   }

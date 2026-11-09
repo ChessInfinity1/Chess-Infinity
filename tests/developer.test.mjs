@@ -26,7 +26,7 @@ test('developer API enforces signed owner sessions, private output, bounded sear
  const mf=new Miniflare({modules:true,script:built.outputFiles[0].text,d1Databases:['DB'],compatibilityDate:'2026-05-15',compatibilityFlags:['nodejs_compat']});
  try{
   const db=await mf.getD1Database('DB');
-  for(const f of ['0000_tearful_gunslinger.sql','0001_overrated_the_anarchist.sql','0002_developer_audit.sql']){
+  for(const f of ['0000_tearful_gunslinger.sql','0001_overrated_the_anarchist.sql','0002_developer_audit.sql','0003_signup_email_verification.sql']){
    const raw=await readFile(new URL('../drizzle/'+f,import.meta.url),'utf8');
    for(const sql of raw.split('--> statement-breakpoint').filter(s=>s.trim()))await db.prepare(sql).run();
   }

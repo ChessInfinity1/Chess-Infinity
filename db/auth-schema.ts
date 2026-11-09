@@ -4,6 +4,7 @@ export const user = sqliteTable("auth_user", {
   id: text("id").primaryKey(), name: text("name").notNull(),
   email: text("email").notNull().unique(),
   emailVerified: integer("email_verified", { mode: "boolean" }).notNull().default(false),
+  requiresEmailVerification: integer("requires_email_verification", { mode: "boolean" }).notNull().default(false),
   image: text("image"), createdAt: timestamp("created_at"), updatedAt: timestamp("updated_at"),
 });
 export const session = sqliteTable("auth_session", {

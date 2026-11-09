@@ -19,7 +19,21 @@ No paid Cloudflare upgrade is enabled by this setup. Usage is subject to the acc
 
 Better Auth uses D1-backed users, credential accounts, sessions, and rate limits. Passwords are scrypt hashes with random salts; HTTPS session cookies are Secure, HttpOnly, and SameSite=Lax. Session lookup verifies the signed cookie against D1, and logout revokes it. Visitor-supplied `oai-authenticated-user-*` headers are stripped and never authenticate a user. Cross-origin authentication mutations are rejected. Login and registration have stricter rate limits keyed from Cloudflare's connecting IP header.
 
-Accounts are separate from ChatGPT, Chess.com and Lichess. Email delivery is **not configured**: email verification and forgotten-password recovery are not enabled or falsely represented as working. The registration form discloses this; use a password manager. Configure and test a transactional email provider before enabling email verification/recovery. Never grant identity or merge accounts merely because two unverified email addresses match.
+Accounts are separate from ChatGPT, Chess.com and Lichess. Signup supports a six-digit email-code popup, gated by the server setting `EMAIL_VERIFICATION_ENABLED=true`. Keep that setting absent until a real sender is configured and tested. Forgotten-password recovery is not implemented. Never grant identity or merge accounts merely because two email addresses match.
+
+### Enable signup email codes
+
+1. Set up a transactional email account in Brevo or Resend and verify a sender. Brevo's sender setup accepts verification of the sender address; free email domains may be temporarily rewritten to a provider sender address. An owned, authenticated domain is recommended for reliable long-term sending. Resend requires an owned, verified domain for unrestricted recipients. Complete any provider account/transactional approval before activation.
+2. Add `EMAIL_API_KEY` as a **Worker secret**, using `npx wrangler secret put EMAIL_API_KEY --config wrangler.jsonc` or Cloudflare's secret field. Never paste it into chat, source, client variables, screenshots, or build logs.
+3. Set server variables `EMAIL_PROVIDER=brevo` (or `resend`) and `EMAIL_FROM` to the verified sender's plain email address. Keep the activation flag absent while setting up. For persistent deploys, record nonsecret variables in `wrangler.jsonc` and rebuild; dashboard-only changes can be replaced by a later deploy.
+4. Apply migration `0003_signup_email_verification.sql` and deploy. It adds a boolean with a false default; it does not remove accounts, rewrite verification status, change owner permissions, or modify progress. Existing accounts retain their access.
+5. Test the configured sender with the provider, confirm an actual message arrives, then enable `EMAIL_VERIFICATION_ENABLED=true` and redeploy. Register a new test learner using an inbox you control, enter its code, confirm sign-in and saved progress, and verify resend and expiry behavior. Disable the flag if sender acceptance fails during rollout; previously pending accounts still require verification.
+
+With verification enabled, a new account is pending and receives no session cookie until its email is verified and its password is checked. The popup opens after valid signup submission. Only an accepted provider response with a message ID triggers the “code sent” state; provider errors stay visible with a retry option. Acceptance does not guarantee inbox delivery—check provider delivery logs for bounces or spam.
+
+Codes contain six digits, expire after 10 minutes, are stored as hashes, are bound to the email, and are consumed once. A resend replaces the previous code. Each code permits five incorrect attempts. The UI uses a 60-second resend cooldown; D1-backed IP rate limits also restrict sends and verification attempts. Same-origin checks protect the public OTP endpoints. Passwordless login, public OTP lookup/check, email changes, and OTP password resets are disabled. Verification never grants developer access.
+
+Automated tests exercise the real Better Auth and D1 Workers runtime with an isolated test email outbox. The outbox is test-only code and is not deployed or exposed through a route. Delivery adapters are tested for provider rejection, invalid acknowledgments, and network failures; real inbox delivery requires the operator's provider configuration and smoke test.
 
 ## Database and deployment
 
@@ -55,7 +69,7 @@ Limits and nonportable data:
 - A Chess.com linked public username is not proof of account ownership; it can be imported or linked again without an external password.
 - Notification permission and external calendar reminders must be renewed/updated on the new domain. Calendar files exported on the old domain still contain the old URL.
 - The import limit is 1.8 MB and cloud progress requests are capped below D1's single-row limit. Very large collections need individual PGN exports or a future normalized game table; do not delete the original data when a file exceeds the limit.
-- This deployment preserves existing feature limits. The coach provides engine-supported facts and rule-based plans; no conversational language-model service or email service is connected. Lichess studies/unlimited imports are not newly invented by this migration.
+- This deployment preserves existing feature limits. The coach provides engine-supported facts and rule-based plans; no conversational language-model service is connected. Email delivery requires the separate setup above. Lichess studies/unlimited imports are not newly invented by this migration.
 
 ## Operations and rollback
 
@@ -67,7 +81,7 @@ Use Cloudflare's Worker versions for code rollback. Do not reverse or drop datab
 
 `/developer` provides searchable Academy accounts, paginated account summaries, signup counts, cloud-progress totals, system status, and the latest 50 administrative security actions. The Academy sidebar shows the link only to its provisioned owner. Guest and original-site accounts are outside this database. Figures describe saved training data, not official chess ratings or all visitor activity.
 
-Access uses the existing signed Better Auth session and the server-only `ACADEMY_OWNER_USER_ID` setting. Provision it to the immutable ID of an existing Academy account using `npx wrangler secret put ACADEMY_OWNER_USER_ID --config wrangler.jsonc`. Confirm the intended account through the operator's authorized D1 lookup first. Never derive administrator access from a browser value, profile name, email address, or a future signup: email verification is not configured. Missing configuration denies access. Rotation requires an explicit operator change.
+Access uses the existing signed Better Auth session and the server-only `ACADEMY_OWNER_USER_ID` setting. Provision it to the immutable ID of an existing Academy account using `npx wrangler secret put ACADEMY_OWNER_USER_ID --config wrangler.jsonc`. Confirm the intended account through the operator's authorized D1 lookup first. Never derive administrator access from a browser value, profile name, email address, verification status, or a future signup. Missing configuration denies access. Rotation requires an explicit operator change.
 
 Migration `0002_developer_audit.sql` only adds an audit table and index. Apply pending migrations before deploying the panel. It does not modify existing users or progress. The existing authentication secret must stay stable.
 

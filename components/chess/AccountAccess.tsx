@@ -1,8 +1,20 @@
 "use client";
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, Eye, EyeOff, Infinity as InfinityIcon, LoaderCircle, LockKeyhole, Mail, ShieldCheck, Sparkles, Swords, UserRound } from "lucide-react";
 import "./account-access.css";
+import EmailCodeDialog from "./EmailCodeDialog";
+
+class AuthRequestError extends Error {
+  constructor(message: string, readonly code: string, readonly status: number, readonly retryAfter: number) { super(message); }
+}
+async function authRequest(path: string, payload: Record<string, unknown>) {
+  const response = await fetch(`/api/auth/${path}`, { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+  const body: unknown = await response.json().catch(() => null);
+  const data = body && typeof body === "object" ? body as Record<string, unknown> : {};
+  if (!response.ok) throw new AuthRequestError(response.status === 429 ? "Please wait a minute before trying again." : typeof data.message === "string" ? data.message : "We couldn’t complete that request. Please try again.", typeof data.code === "string" ? data.code : "", response.status, Math.max(1, Number(response.headers.get("retry-after")) || 60));
+  return data;
+}
 
 function AcademyArtwork() {
   return <div className="access-artwork" aria-hidden="true">
@@ -45,31 +57,88 @@ export default function AccountAccess({ logout = false }: { logout?: boolean }) 
   const [showConfirm, setShowConfirm] = useState(false);
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [email, setEmail] = useState("");
+  const [notice, setNotice] = useState("");
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
+  const [codeSentAt, setCodeSentAt] = useState<number | null>(null);
+  const [resendAt, setResendAt] = useState(0);
+  const [codeBusy, setCodeBusy] = useState(false);
+  const [verifyBusy, setVerifyBusy] = useState(false);
+  const [codeError, setCodeError] = useState("");
+  const pendingPassword = useRef<string | null>(null);
   const id = useId();
   const recoveryId = id + "-recovery";
   const passwordHelpId = id + "-password-help";
 
   function switchMode(value: boolean) {
-    setRegister(value); setError(""); setShowPassword(false); setShowConfirm(false); setPassword(""); setConfirm("");
+    setRegister(value); setError(""); setNotice(""); setShowPassword(false); setShowConfirm(false); setPassword(""); setConfirm("");
+  }
+  function openAcademy() {
+    setSuccess(true);
+    const value = new URLSearchParams(location.search).get("return_to") || "/";
+    const next = new URL(value, location.origin);
+    location.assign(next.origin === location.origin && !["/login", "/logout"].includes(next.pathname) ? next.href : "/");
+  }
+  async function sendCode(address: string) {
+    setCodeBusy(true); setCodeError(""); setCodeSentAt(null);
+    try {
+      await authRequest("email-otp/send-verification-otp", { email: address, type: "email-verification" });
+      setCodeSentAt(Date.now()); setResendAt(Date.now() + 60000);
+    } catch (cause) {
+      setCodeError(cause instanceof Error ? cause.message : "We couldn’t send your code. Please try again.");
+      if (cause instanceof AuthRequestError && cause.status === 429) setResendAt(Date.now() + cause.retryAfter * 1000);
+    } finally { setCodeBusy(false); }
+  }
+  async function startVerification(address: string, value: string) {
+    pendingPassword.current = value;
+    setPendingEmail(address); setCodeSentAt(null); setResendAt(0); setCodeError("");
+    await sendCode(address);
+  }
+  function closeVerification() {
+    if (codeBusy || verifyBusy) return;
+    pendingPassword.current = null;
+    setPendingEmail(null); setCodeSentAt(null); setCodeError("");
+  }
+  async function verifyCode(code: string) {
+    if (!pendingEmail || codeBusy || verifyBusy) return;
+    setVerifyBusy(true); setCodeError("");
+    let verified = false;
+    try {
+      await authRequest("email-otp/verify-email", { email: pendingEmail, otp: code });
+      verified = true;
+      const value = pendingPassword.current;
+      pendingPassword.current = null;
+      if (!value) throw new Error("Sign in to continue.");
+      await authRequest("sign-in/email", { email: pendingEmail, password: value });
+      openAcademy();
+    } catch (cause) {
+      if (verified) {
+        pendingPassword.current = null; setPendingEmail(null); switchMode(false);
+        setNotice("Your email is verified. Sign in with your account’s password to continue.");
+      } else {
+        const code = cause instanceof AuthRequestError ? cause.code : "";
+        setCodeError(code === "INVALID_OTP" ? "That code didn’t match. Try again or request a new one." : code === "OTP_EXPIRED" ? "Your code has expired. Request a new code below." : code === "TOO_MANY_ATTEMPTS" ? "Too many incorrect attempts. Request a new code below." : cause instanceof Error ? cause.message : "Please try again.");
+      }
+    } finally { setVerifyBusy(false); }
   }
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (busy || success) return;
-    setBusy(true); setError("");
+    setBusy(true); setError(""); setNotice("");
     try {
       const form = new FormData(event.currentTarget);
       if (register && form.get("password") !== form.get("confirm")) throw new Error("Your passwords don’t match. Check them and try again.");
-      const response = await fetch(`/api/auth/${logout ? "sign-out" : register ? "sign-up/email" : "sign-in/email"}`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(logout ? {} : { name: String(form.get("name") || "Chess player").trim(), email: String(form.get("email")).trim(), password: form.get("password") }),
-      });
-      const body: unknown = await response.json().catch(() => null);
-      const message = body && typeof body === "object" && "message" in body && typeof body.message === "string" ? body.message : undefined;
-      if (!response.ok) throw new Error(response.status === 429 ? "A few too many attempts. Please wait a minute and try again." : message || "We couldn’t sign you in. Please try again.");
-      setSuccess(true);
-      const value = new URLSearchParams(location.search).get("return_to") || "/";
-      const next = new URL(value, location.origin);
-      location.assign(next.origin === location.origin && !["/login", "/logout"].includes(next.pathname) ? next.href : "/");
+      const address = String(form.get("email") || "").trim().toLowerCase();
+      const value = String(form.get("password") || "");
+      let result;
+      try {
+        result = await authRequest(logout ? "sign-out" : register ? "sign-up/email" : "sign-in/email", logout ? {} : { name: String(form.get("name") || "Chess player").trim(), email: address, password: value });
+      } catch (cause) {
+        if (!logout && cause instanceof AuthRequestError && cause.code === "EMAIL_NOT_VERIFIED") { await startVerification(address, value); return; }
+        throw cause;
+      }
+      if (register && !result.token) { await startVerification(address, value); return; }
+      openAcademy();
     } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
   }
 
@@ -101,12 +170,13 @@ export default function AccountAccess({ logout = false }: { logout?: boolean }) 
             <form key={register ? "register" : "sign-in"} onSubmit={submit} className="access-form" aria-busy={busy}>
               {!logout && <>
                 {register && <label className="access-field"><span>Your name</span><span className="access-input-wrap"><UserRound size={18} aria-hidden="true" /><input name="name" placeholder="What should we call you?" autoComplete="name" required maxLength={80} disabled={busy || success} /></span></label>}
-                <label className="access-field"><span>Email address</span><span className="access-input-wrap"><Mail size={18} aria-hidden="true" /><input name="email" type="email" placeholder="you@example.com" autoComplete="email" autoCapitalize="none" spellCheck={false} required maxLength={254} disabled={busy || success} /></span></label>
+                <label className="access-field"><span>Email address</span><span className="access-input-wrap"><Mail size={18} aria-hidden="true" /><input name="email" type="email" placeholder="you@example.com" autoComplete="email" autoCapitalize="none" spellCheck={false} required maxLength={254} value={email} onChange={event => setEmail(event.target.value)} disabled={busy || success} /></span></label>
                 <div className="access-field"><label htmlFor={id + "-password"}>Password</label><span className="access-input-wrap"><LockKeyhole size={18} aria-hidden="true" /><input id={id + "-password"} name="password" type={showPassword ? "text" : "password"} placeholder={register ? "Create a strong password" : "Enter your password"} autoComplete={register ? "new-password" : "current-password"} required minLength={register ? 12 : 1} maxLength={128} defaultValue="" onChange={e => setPassword(e.target.value)} aria-describedby={register ? passwordHelpId : undefined} disabled={busy || success} /><button type="button" className="access-visibility" aria-label={showPassword ? "Hide password" : "Show password"} aria-pressed={showPassword} onClick={() => setShowPassword(value => !value)} disabled={busy || success}>{showPassword ? <EyeOff size={18} /> : <Eye size={18} />}</button></span></div>
                 {register && <div className="access-field"><label htmlFor={id + "-confirm"}>Confirm password</label><span className="access-input-wrap"><ShieldCheck size={18} aria-hidden="true" /><input id={id + "-confirm"} name="confirm" type={showConfirm ? "text" : "password"} placeholder="Enter your password again" autoComplete="new-password" required minLength={12} maxLength={128} defaultValue="" onChange={e => setConfirm(e.target.value)} disabled={busy || success} /><button type="button" className="access-visibility" aria-label={showConfirm ? "Hide confirmation password" : "Show confirmation password"} aria-pressed={showConfirm} onClick={() => setShowConfirm(value => !value)} disabled={busy || success}>{showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}</button></span></div>}
                 {register && <div className="access-password-help" id={passwordHelpId}><span className={password.length >= 12 ? "is-met" : ""}><Check size={13} />12 or more characters</span><span className={confirm && password === confirm ? "is-met" : ""}><Check size={13} />Passwords match</span></div>}
               </>}
               {error && <div className="access-error" role="alert"><ShieldCheck size={17} /><p>{error}</p></div>}
+              {notice && <p className="access-success" role="status"><Check size={17}/>{notice}</p>}
               {success && <p className="access-success" role="status"><Check size={17} />{logout ? "Signed out. See you soon." : "You’re in. Opening your academy…"}</p>}
               <button type="submit" className="access-submit" disabled={busy || success}><span>{busy ? "Just a moment…" : success ? "Opening your academy…" : logout ? "Sign out" : register ? "Create my account" : "Let’s make a move"}</span>{busy ? <LoaderCircle size={19} className="access-spinner" /> : <ArrowRight size={19} />}</button>
             </form>
@@ -115,7 +185,7 @@ export default function AccountAccess({ logout = false }: { logout?: boolean }) 
               <a className="access-guest" href="/">Continue as a guest<ArrowRight size={16} /></a>
               <p className="access-save-note"><ShieldCheck size={14} />Your progress. Saved across devices.</p>
               <div className="access-help-links">
-                <details className="access-help"><summary>{register ? "A quick note about your account" : "Need help signing in?"}<ChevronDown size={14} /></summary><div id={recoveryId}><p>{register ? "Create an Academy password and keep it in your password manager. Use at least 12 characters. Email recovery isn’t available yet." : "Use your Academy email and password. Accounts from the original ChatGPT website don’t carry over automatically. Email password recovery isn’t available yet."}</p><p>We never ask for your Chess.com or Lichess password.</p></div></details>
+                <details className="access-help"><summary>{register ? "A quick note about your account" : "Need help signing in?"}<ChevronDown size={14} /></summary><div id={recoveryId}><p>{register ? "Create an Academy password and keep it in your password manager. If email verification is required, enter the code sent to your inbox to finish signing up. Email password recovery isn’t available yet." : "Use your Academy email and password. If your signup is waiting for verification, signing in will let you request a fresh code. Accounts from the original ChatGPT website don’t carry over automatically. Email password recovery isn’t available yet."}</p><p>We never ask for your Chess.com or Lichess password.</p></div></details>
                 <details className="access-help"><summary>Bringing progress from the original site?<ChevronDown size={14} /></summary><div><p>Export your progress from Preferences on the original website. Create an account here, then import that JSON file in Preferences. Your original website and data stay intact.</p></div></details>
               </div>
             </>}
@@ -125,5 +195,6 @@ export default function AccountAccess({ logout = false }: { logout?: boolean }) 
       </div>
       <footer className="access-footer"><span>From your first move to grandmaster.</span><span><span className="access-footer-dot" />Made for the love of the game.</span></footer>
     </div>
+    {pendingEmail && <EmailCodeDialog email={pendingEmail} sentAt={codeSentAt} resendAt={resendAt} sending={codeBusy} verifying={verifyBusy} error={codeError} onResend={() => { if (!codeBusy && !verifyBusy && Date.now() >= resendAt) void sendCode(pendingEmail); }} onVerify={code => { void verifyCode(code); }} onClose={closeVerification}/>}
   </main>;
 }

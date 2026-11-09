@@ -1,0 +1,1 @@
+ALTER TABLE `auth_user` ADD `requires_email_verification` integer DEFAULT false NOT NULL;
