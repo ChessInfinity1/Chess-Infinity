@@ -17,6 +17,6 @@ Practice games and arcade puzzle boards include view flipping, legal-hint and co
 
 ![Promotion dialog on a 320px test viewport](previews/promotion-mobile.png)
 
-## Deployment status
+## Deployment
 
-This change needs no database migration. The source is based on main's existing owner-panel deployment, independently of the pending signup-email-code branch. The current connected GitHub app denied writing a branch with `Resource not accessible by integration`; the GitHub CLI and Cloudflare Wrangler were not authenticated. No production or original-site deployment was performed. Reauthorize the standard GitHub and Cloudflare CLIs before publishing this branch. Do not change authentication secrets, owner identity, or existing database data for this UI update.
+This change needs no database migration. It is based on the owner-panel deployment, independently of the pending signup-email-code branch. Publish using the standard repository checks and pinned Cloudflare Wrangler. Authentication secrets, owner identity, and existing database data do not need to change for this UI update. The original website remains separate.
