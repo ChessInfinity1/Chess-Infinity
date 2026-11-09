@@ -13,60 +13,10 @@ import {
   legalBoardMove,
   adjacentSquare,
 } from "../../lib/chess/board-interaction";
-export function Piece({ type, color }: { type: string; color: string }) {
-  const fill = color === "w" ? "#fffaf1" : "#33313f",
-    stroke = color === "w" ? "#55505e" : "#171520";
-  return (
-    <svg className="piece" viewBox="0 0 80 80" aria-hidden="true">
-      <g
-        fill={fill}
-        stroke={stroke}
-        strokeWidth="2.2"
-        strokeLinejoin="round"
-        strokeLinecap="round"
-      >
-        {type === "p" ? (
-          <>
-            <circle cx="40" cy="25" r="10" />
-            <path d="M34 35h12l3 17 7 7H24l7-7z" />
-          </>
-        ) : type === "r" ? (
-          <>
-            <path d="M22 16h9v9h6v-9h7v9h6v-9h9v17l-7 5v17H29V38l-7-5z" />
-            <path d="M28 34h25M29 52h23" />
-          </>
-        ) : type === "n" ? (
-          <>
-            <path d="M25 57l3-13 14-11-11-3-9 8-6-8 12-17 10-1 7-8 2 12c17 6 21 24 15 41z" />
-            <circle cx="35" cy="23" r="2" fill={stroke} />
-            <path d="M44 24c12 9 12 19 7 29" fill="none" />
-          </>
-        ) : type === "b" ? (
-          <>
-            <path d="M39 10c-3 9-15 13-15 24 0 8 7 13 13 15l-9 9h26l-10-9c10-5 14-9 13-16-1-10-13-15-18-23z" />
-            <path d="M43 22l-9 13" fill="none" />
-            <circle cx="39" cy="8" r="3" />
-          </>
-        ) : type === "q" ? (
-          <>
-            <path d="M20 25l9 28h25l8-28-14 13-7-20-8 20z" />
-            <circle cx="19" cy="23" r="4" />
-            <circle cx="41" cy="15" r="4" />
-            <circle cx="63" cy="23" r="4" />
-            <path d="M29 49h25" />
-          </>
-        ) : (
-          <>
-            <path d="M35 8h11v6h7v7h-7v10H35V21h-7v-7h7z" />
-            <path d="M26 30c-12 1-11 16 3 21l-2 8h28l-3-8c15-7 14-21 2-21-6 0-11 4-14 8-3-4-9-8-14-8z" />
-          </>
-        )}
-        <path d="M24 59h33l4 9H20z" />
-        <path d="M20 68h41v5H20z" />
-      </g>
-    </svg>
-  );
-}
+import { Piece } from "./Piece";
+export { Piece } from "./Piece";
+import PromotionDialog from "./PromotionDialog";
+import { CircleDot, Eraser, FlipVertical2, Grid2X2, PencilLine } from "lucide-react";
 export default function Board({
   fen,
   onMove,
@@ -75,6 +25,8 @@ export default function Board({
   theme = "violet",
   blind = false,
   movableColor,
+  showTools = false,
+  lastMove,
 }: {
   fen: string;
   onMove: (from: string, to: string, promotion?: string) => void;
@@ -83,6 +35,8 @@ export default function Board({
   theme?: string;
   blind?: boolean;
   movableColor?: "w" | "b";
+  showTools?: boolean;
+  lastMove?: { from: string; to: string } | null;
 }) {
   const boardRef = useRef<HTMLDivElement>(null);
   const previous = useRef(fen);
@@ -105,20 +59,25 @@ export default function Board({
     type: string;
     color: string;
   } | null>(null);
-  const promotionRef = useRef<HTMLDivElement>(null);
+  const [rotated, setRotated] = useState(false);
+  const [coordinates, setCoordinates] = useState(true);
+  const [hints, setHints] = useState(true);
+  const [annotating, setAnnotating] = useState(false);
+  const [annotationFrom, setAnnotationFrom] = useState<string | null>(null);
+  const viewFlipped = flipped !== rotated;
   const [selected, setSelected] = useState<string | null>(null);
   const selectedRef = useRef<string | null>(null);
   function select(square: string | null) {
     selectedRef.current = square;
     setSelected(square);
   }
-  const [promo, setPromo] = useState<{ from: string; to: string } | null>(null);
+  const [promo, setPromo] = useState<{ from: string; to: string; fen: string } | null>(null);
   const [marks, setMarks] = useState<string[]>([]);
   const [arrows, setArrows] = useState<[string, string][]>([]);
   const [arrowStart, setArrowStart] = useState<string | null>(null);
   const g = useMemo(() => new Chess(fen), [fen]);
-  const files = flipped ? "hgfedcba" : "abcdefgh",
-    ranks = flipped ? "12345678" : "87654321";
+  const files = viewFlipped ? "hgfedcba" : "abcdefgh",
+    ranks = viewFlipped ? "12345678" : "87654321";
   const squares = [...ranks].flatMap((r) => [...files].map((f) => f + r));
   const legal = selected
     ? g.moves({ square: selected as Square, verbose: true }).map((m) => m.to)
@@ -129,6 +88,18 @@ export default function Board({
         return p?.type === "k" && p.color === g.turn();
       })
     : null;
+  const checkmate = g.isCheckmate();
+  const winner = g.turn() === "w" ? "Black" : "White";
+  const kingIndex = king ? squares.indexOf(king) : -1;
+  const promotionChoices = promo?.fen === fen
+    ? g.moves({ verbose: true }).filter(move => move.from === promo.from && move.to === promo.to && move.promotion).map(move => move.promotion!)
+    : [];
+  function clearAnnotations() { setMarks([]); setArrows([]); setAnnotationFrom(null); }
+  function choosePromotion(piece: string) {
+    if (!promo || disabled || promo.fen !== fen || !promotionChoices.includes(piece as "q" | "r" | "b" | "n")) return;
+    onMove(promo.from, promo.to, piece);
+    setPromo(null); select(null); clearAnnotations();
+  }
   function attempt(from: string, to: string) {
     if (!/^[a-h][1-8]$/.test(from) || !/^[a-h][1-8]$/.test(to)) return;
     if (disabled || promo) return;
@@ -138,17 +109,25 @@ export default function Board({
       return;
     }
     if (m.promotion) {
-      setPromo({ from, to });
+      setPromo({ from, to, fen });
       return;
     }
     onMove(from, to);
     select(null);
-    setMarks([]);
-    setArrows([]);
+    clearAnnotations();
   }
   function click(s: string) {
     if (suppressClick.current) {
       suppressClick.current = false;
+      return;
+    }
+    if (annotating) {
+      if (!annotationFrom) setAnnotationFrom(s);
+      else {
+        if (annotationFrom === s) setMarks(marks => marks.includes(s) ? marks.filter(mark => mark !== s) : [...marks, s]);
+        else setArrows(arrows => arrows.some(([a,b]) => a === annotationFrom && b === s) ? arrows.filter(([a,b]) => a !== annotationFrom || b !== s) : [...arrows, [annotationFrom, s]]);
+        setAnnotationFrom(null);
+      }
       return;
     }
     if (disabled || promo || (movableColor && g.turn() !== movableColor))
@@ -170,7 +149,7 @@ export default function Board({
     }
   }, [disabled]);
   function pointerDown(e: React.PointerEvent<HTMLElement>, square: string) {
-    if (e.button !== 0 || !e.isPrimary || disabled || promo || gesture.current)
+    if (e.button !== 0 || !e.isPrimary || disabled || promo || annotating || gesture.current)
       return;
     const piece = g.get(square as Square);
     if (
@@ -204,7 +183,7 @@ export default function Board({
       from: d.from,
       x: e.clientX - rect.left,
       y: e.clientY - rect.top,
-      over: squareAtPoint(e.clientX, e.clientY, rect, flipped),
+      over: squareAtPoint(e.clientX, e.clientY, rect, viewFlipped),
       size: rect.width / 8,
       type: piece.type,
       color: piece.color,
@@ -223,7 +202,7 @@ export default function Board({
       suppressClick.current = false;
     }, 250);
     const rect = boardRef.current?.getBoundingClientRect();
-    const to = rect ? squareAtPoint(e.clientX, e.clientY, rect, flipped) : null;
+    const to = rect ? squareAtPoint(e.clientX, e.clientY, rect, viewFlipped) : null;
     if (to && d.fen === fen && !disabled) attempt(d.from, to);
   }
   function pointerCancel() {
@@ -231,45 +210,14 @@ export default function Board({
     setDrag(null);
   }
 
-  useEffect(() => {
-    if (!promo) return;
-    const previous = document.activeElement as HTMLElement;
-    promotionRef.current?.querySelector<HTMLButtonElement>("button")?.focus();
-    function keys(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        setPromo(null);
-      }
-      if (e.key === "Tab") {
-        const buttons = Array.from(
-          promotionRef.current?.querySelectorAll<HTMLButtonElement>("button") ||
-            [],
-        );
-        if (e.shiftKey && document.activeElement === buttons[0]) {
-          e.preventDefault();
-          buttons[buttons.length - 1]?.focus();
-        } else if (
-          !e.shiftKey &&
-          document.activeElement === buttons[buttons.length - 1]
-        ) {
-          e.preventDefault();
-          buttons[0]?.focus();
-        }
-      }
-    }
-    document.addEventListener("keydown", keys);
-    return () => {
-      document.removeEventListener("keydown", keys);
-      if (previous?.isConnected) previous.focus({ preventScroll: true });
-    };
-  }, [promo]);
+  useEffect(() => { setRotated(false); }, [flipped]);
   useLayoutEffect(() => {
     gesture.current = null;
     setDrag(null);
     select(null);
     setPromo(null);
-    setMarks([]);
-    setArrows([]);
+    if (previous.current !== fen) { setMarks([]); setArrows([]); }
+    setAnnotationFrom(null);
     const before = new Chess(previous.current);
     previous.current = fen;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -310,15 +258,15 @@ export default function Board({
         origins.splice(origins.indexOf(origin), 1);
       } else el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180 });
     }
-  }, [fen]);
-  const SquareElement = disabled ? "div" : "button";
+  }, [fen, viewFlipped]);
+  const SquareElement = disabled && !annotating ? "div" : "button";
   return (
     <div className={"board-wrap " + theme}>
       <div
         ref={boardRef}
         className="chessboard"
         role="group"
-        aria-label={(g.turn() === "w" ? "White" : "Black") + " to move"}
+        aria-label={checkmate ? `Checkmate. ${winner} wins.` : (g.turn() === "w" ? "White" : "Black") + " to move"}
       >
         {squares.map((s, i) => {
           const p = g.get(s as Square);
@@ -327,7 +275,7 @@ export default function Board({
               key={s}
               data-square={s}
               tabIndex={
-                disabled
+                disabled && !annotating
                   ? -1
                   : selected === s || (!selected && i === 56)
                     ? 0
@@ -357,7 +305,10 @@ export default function Board({
                   ? "dark-square"
                   : "light-square") +
                 (selected === s ? " selected" : "") +
+                (lastMove?.from === s || lastMove?.to === s ? " last-move" : "") +
+                (annotationFrom === s ? " annotation-anchor" : "") +
                 (king === s ? " in-check" : "") +
+                (king === s && checkmate ? " checkmated-king" : "") +
                 (marks.includes(s) ? " marked" : "") +
                 (!disabled &&
                 p?.color === g.turn() &&
@@ -382,7 +333,7 @@ export default function Board({
                       q: "queen",
                       k: "king",
                     }[p.type]
-                  : " empty")
+                  : " empty") + (king === s && checkmate ? " · checkmated" : "")
               }
               aria-pressed={selected === s}
               onClick={() => click(s)}
@@ -409,12 +360,13 @@ export default function Board({
               }}
               onDragStart={(e) => e.preventDefault()}
             >
-              {i % 8 === 0 && <small className="rank">{s[1]}</small>}
-              {i >= 56 && <small className="file">{s[0]}</small>}
+              {coordinates && i % 8 === 0 && <small className="rank">{s[1]}</small>}
+              {coordinates && i >= 56 && <small className="file">{s[0]}</small>}
               {p && !blind && <Piece type={p.type} color={p.color} />}{" "}
-              {legal.includes(s as Square) && (
+              {hints && !annotating && legal.includes(s as Square) && (
                 <span className={p ? "legal capture" : "legal"} />
               )}
+              {king === s && checkmate && <span className="king-mate-symbol" aria-hidden="true">#</span>}
             </SquareElement>
           );
         })}
@@ -463,37 +415,22 @@ export default function Board({
             <Piece type={drag.type} color={drag.color} />
           </div>
         )}
+        {checkmate && kingIndex >= 0 && <div key={fen} className={"king-mate-callout " + (kingIndex < 8 ? "below" : "above")} role="status"
+          style={{ left: `clamp(57px,${(kingIndex % 8 + .5) * 12.5}%,calc(100% - 57px))`, top: `${(Math.floor(kingIndex / 8) + (kingIndex < 8 ? 1 : 0)) * 12.5}%` }}>
+          <span aria-hidden="true">Checkmate</span><span className="sr-only">Checkmate. {winner} wins.</span>
+        </div>}
       </div>
-      {promo && (
-        <div
-          className="promotion"
-          ref={promotionRef}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Choose your promotion"
-        >
-          <strong>Choose your promotion</strong>
-          <div>
-            {["q", "r", "b", "n"].map((p) => (
-              <button
-                key={p}
-                onClick={() => {
-                  onMove(promo.from, promo.to, p);
-                  setPromo(null);
-                  select(null);
-                }}
-                aria-label={
-                  "Promote to " +
-                  { q: "queen", r: "rook", b: "bishop", n: "knight" }[p]
-                }
-              >
-                <Piece type={p} color={g.turn()} />
-              </button>
-            ))}
-            <button onClick={() => setPromo(null)}>Cancel</button>
-          </div>
+      {showTools && <>
+        <div className="board-control-strip" role="group" aria-label="Practice board controls">
+          <button type="button" onClick={() => { pointerCancel(); select(null); setRotated(value => !value); }} aria-label="Flip board view"><FlipVertical2 size={16}/><span>Flip</span></button>
+          <button type="button" onClick={() => setHints(value => !value)} aria-pressed={hints} aria-label="Show legal move hints"><CircleDot size={16}/><span>Hints</span></button>
+          <button type="button" onClick={() => setCoordinates(value => !value)} aria-pressed={coordinates} aria-label="Show board coordinates"><Grid2X2 size={16}/><span>Coords</span></button>
+          <button type="button" onClick={() => { pointerCancel(); select(null); setAnnotationFrom(null); setAnnotating(value => !value); }} aria-pressed={annotating} aria-label="Annotate board"><PencilLine size={16}/><span>Mark</span></button>
+          <button type="button" onClick={clearAnnotations} disabled={!marks.length && !arrows.length && !annotationFrom} aria-label="Clear board annotations"><Eraser size={16}/><span>Clear</span></button>
         </div>
-      )}
+        {annotating && <p className="board-annotation-help" role="status">{annotationFrom ? `Tap a destination for an arrow, or tap ${annotationFrom} again to circle it.` : "Tap two squares to draw an arrow. Tap one square twice to circle it."} <button type="button" onClick={() => { setAnnotating(false); setAnnotationFrom(null); }}>Done</button></p>}
+      </>}
+      {promo && promo.fen === fen && !!promotionChoices.length && <PromotionDialog color={g.turn()} square={promo.to} choices={promotionChoices} onChoose={choosePromotion} onCancel={() => { setPromo(null); select(null); }}/>}
     </div>
   );
 }

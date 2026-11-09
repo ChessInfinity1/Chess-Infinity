@@ -277,7 +277,7 @@ export default function TrainingArcade({
       );
       nextTimer.current = setTimeout(() => {
         if (!done.current) choose();
-      }, 650);
+      }, new Chess(answer.fen).isCheckmate() ? 1200 : 650);
     }
   }
   function vision(square: string) {
@@ -616,6 +616,7 @@ export default function TrainingArcade({
                   flipped={exercise.fen.split(" ")[1] === "b"}
                   disabled={busy}
                   theme={boardTheme}
+                  showTools
                 />
               </>
             )

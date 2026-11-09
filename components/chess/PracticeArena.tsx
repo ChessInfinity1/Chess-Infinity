@@ -10,6 +10,8 @@ type Props = {
   fen: string; startFen: string; theme: string; flip: boolean; blind: boolean; skill: number; seconds: number;
   started: boolean; working: boolean; finished: boolean; status: string; error: string;
   clock: ChessClock; moves: string[]; index: number; saved: boolean;
+  lastMove?: { from: string; to: string };
+  captures?: { w: string[]; b: string[] };
   onMove: (from: string, to: string, promotion?: string) => void;
   onStart: () => void; onReset: () => void; onTakeback: () => void;
   onColor: (black: boolean) => void; onSkill: (value: number) => void;
@@ -49,12 +51,12 @@ export default function PracticeArena(p: Props) {
   const player = p.flip ? "b" : "w";
   const bot = p.flip ? "w" : "b";
   const atEnd = p.index === p.moves.length;
-  const canTakeback = !p.working && !p.clock.flagged && p.moves.length >= (p.flip ? 2 : 1);
+  const canTakeback = atEnd && !p.working && !p.clock.flagged && p.moves.length >= (p.flip ? 2 : 1);
   const running = !!p.clock.active;
   const sheet = p.startFen.split(" ")[1] === "b" ? [-1, ...p.moves.map((_, i) => i)] : p.moves.map((_, i) => i);
   const firstMoveNumber = Number(p.startFen.split(" ")[5]) || 1;
   const level = p.skill <= 4 ? "Starter" : p.skill <= 10 ? "Club" : p.skill <= 16 ? "Advanced" : "Expert";
-  const phase = p.finished ? p.status : p.working ? p.bot.name + " is thinking" : !atEnd ? "Viewing an earlier position" : p.started ? (p.status.includes("Check") ? "Your turn · Check" : "Your turn") : "Ready when you are";
+  const phase = !atEnd ? "Viewing an earlier position" : p.finished ? p.status : p.working ? p.bot.name + " is thinking" : p.started ? (p.status.includes("Check") ? "Your turn · Check" : "Your turn") : "Ready when you are";
   function start() { p.onStart(); setOpen(false); }
   function settings() {
     setTab("game");
@@ -105,9 +107,9 @@ export default function PracticeArena(p: Props) {
       <section className="arena-game" aria-label="Practice game board">
         <div className="arena-match-heading"><span><Swords size={16}/>{p.bot.id === "custom" ? level : p.bot.tier} opponent <i/> {p.seconds/60} min</span><button aria-label="Open game settings" onClick={settings}><Settings2 size={17}/><span>Game settings</span></button></div>
         <div className="arena-board-frame">
-          <div className={"arena-player " + (p.clock.active === bot ? "is-playing" : "")}><BotAvatar bot={p.bot}/><span className="arena-player-name"><strong>{p.bot.name}</strong><span>{p.working ? <><LoaderCircle size={11} className="arena-spin"/>Thinking…</> : `${p.bot.id === "custom" ? "Skill " + p.skill : p.bot.style} · ${p.flip ? "White" : "Black"}`}</span></span><span className="arena-clock" aria-label="Bot remaining time"><i/>{formatClock(p.clock.remaining[p.flip ? 0 : 1])}</span></div>
-          <Board fen={p.fen} onMove={p.onMove} theme={p.theme} flipped={p.flip} blind={p.blind} movableColor={player} disabled={p.working || p.finished || !atEnd || (p.fen.split(" ")[1] !== player)}/>
-          <div className={"arena-player " + (p.clock.active === player ? "is-playing" : "")}><span className="arena-player-avatar"><Piece type="k" color={player}/></span><span className="arena-player-name"><strong>You</strong><span>{p.flip ? "Playing Black" : "Playing White"}</span></span><span className="arena-clock" aria-label="Your remaining time"><i/>{formatClock(p.clock.remaining[p.flip ? 1 : 0])}</span></div>
+          <div className={"arena-player " + (p.clock.active === bot ? "is-playing" : "")}><BotAvatar bot={p.bot}/><span className="arena-player-name"><strong>{p.bot.name}</strong><span>{p.working ? <><LoaderCircle size={11} className="arena-spin"/>Thinking…</> : `${p.bot.id === "custom" ? "Skill " + p.skill : p.bot.style} · ${p.flip ? "White" : "Black"}`}</span>{!!p.captures?.[bot].length && <span className="arena-captures" aria-label={`Captured by ${p.bot.name}: ${p.captures[bot].join(", ")}`}>{p.captures[bot].map((piece,i) => <Piece key={i} type={piece} color={player}/>)}</span>}</span><span className="arena-clock" aria-label="Bot remaining time"><i/>{formatClock(p.clock.remaining[p.flip ? 0 : 1])}</span></div>
+          <Board fen={p.fen} onMove={p.onMove} theme={p.theme} flipped={p.flip} blind={p.blind} movableColor={player} showTools lastMove={p.lastMove} disabled={p.working || p.finished || !atEnd || (p.fen.split(" ")[1] !== player)}/>
+          <div className={"arena-player " + (p.clock.active === player ? "is-playing" : "")}><span className="arena-player-avatar"><Piece type="k" color={player}/></span><span className="arena-player-name"><strong>You</strong><span>{p.flip ? "Playing Black" : "Playing White"}</span>{!!p.captures?.[player].length && <span className="arena-captures" aria-label={`Captured by you: ${p.captures[player].join(", ")}`}>{p.captures[player].map((piece,i) => <Piece key={i} type={piece} color={bot}/>)}</span>}</span><span className="arena-clock" aria-label="Your remaining time"><i/>{formatClock(p.clock.remaining[p.flip ? 1 : 0])}</span></div>
         </div>
         <div className="arena-turn"><span className={"arena-turn-dot " + (p.working ? "thinking" : "")}/><strong role="status">{phase}</strong>{!atEnd && <button onClick={() => p.onIndex(p.moves.length)}>Return to live board <ArrowRight size={14}/></button>}</div>
         {p.error && <p className="arena-error" role="alert">{p.error}</p>}
