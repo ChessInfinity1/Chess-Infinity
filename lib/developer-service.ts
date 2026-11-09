@@ -66,7 +66,7 @@ export async function handleDeveloperRequest(request: Request, context: Develope
       if (!await db.prepare("SELECT id FROM auth_user WHERE id=?").bind(targetId).first()) return json({ error: "Account not found." }, 404);
       // D1 batches are atomic: an audited action and its session deletion succeed together.
       const results = await db.batch<Record<string, unknown>>([
-        db.prepare("DELETE FROM auth_session WHERE user_id=?").bind(targetId),
+        db.prepare("DELETE FROM auth_session WHERE user_id=? AND expires_at>?").bind(targetId, now),
         db.prepare("INSERT INTO developer_audit(id,actor_id,target_id,action,created_at) VALUES(?,?,?,?,?)")
           .bind(crypto.randomUUID(), session.user.id, targetId, "revoke_sessions", new Date(now).toISOString()),
       ]);

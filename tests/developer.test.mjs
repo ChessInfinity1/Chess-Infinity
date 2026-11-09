@@ -69,6 +69,7 @@ test('developer API enforces signed owner sessions, private output, bounded sear
   assert.equal((await call('revoke-sessions',owner,{...mutation,headers:{...mutation.headers,origin:'https://evil.example'}})).status,403);
   assert.equal((await call('revoke-sessions',learner,{...mutation,headers:{...mutation.headers,origin:'https://academy.example'}})).status,403);
   const valid={...mutation,headers:{...mutation.headers,origin:'https://academy.example'}};
+  await db.prepare('INSERT INTO auth_session(id,expires_at,token,created_at,updated_at,user_id) VALUES(?,?,?,?,?,?)').bind('expired-test-session',Date.now()-1000,'expired-test-token',Date.now()-2000,Date.now()-2000,learner.user.id).run();
   assert.equal((await call('revoke-sessions',owner,{...valid,body:JSON.stringify({userId:owner.user.id})})).status,409,'owner cannot revoke itself');
   assert.equal((await call('revoke-sessions',owner,{...valid,body:'x'.repeat(513)})).status,413);
   assert.equal((await call('revoke-sessions',owner,{...valid,body:'not-json'})).status,400);
