@@ -5,3 +5,5 @@ export const progress = sqliteTable("progress", {
   version: integer("version").notNull().default(0),
   updatedAt: text("updated_at").notNull(),
 });
+
+export * from "./auth-schema.ts";

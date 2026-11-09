@@ -6,6 +6,7 @@ import {
   deleteProgress,
   SaveConflict,
 } from "../../../lib/progress-store";
+import { validateProgress } from "../../../lib/progress-backup";
 export async function GET() {
   const u = await getChatGPTUser();
   if (!u)
@@ -23,7 +24,7 @@ export async function PUT(req: Request) {
   if (req.headers.get("origin") !== new URL(req.url).origin)
     return new Response(null, { status: 403 });
   const raw = await req.text();
-  if (raw.length > 2500000)
+  if (raw.length > 1900000)
     return new Response(
       "Progress is too large. Export and remove older games.",
       { status: 413 },
@@ -41,6 +42,8 @@ export async function PUT(req: Request) {
     b.version < 0
   )
     return new Response("Invalid progress", { status: 400 });
+  try { b.data = validateProgress(b.data); }
+  catch (e) { return Response.json({ error: (e as Error).message }, { status: 400 }); }
   try {
     return Response.json(
       await writeProgress(getDb(), u.userId, b.data, b.version),
