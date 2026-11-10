@@ -8,6 +8,7 @@
   ],
   "workers_dev": true,
   "preview_urls": false,
+  "triggers": { "crons": ["* * * * *"] },
   "vars": {
     "APP_ORIGIN": "https://chess-infinity-academy.chessinfinity1.workers.dev"
   },

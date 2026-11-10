@@ -1162,9 +1162,9 @@ export default function Academy({
                   }}
                 />
               )}
-              {page === "reminders" && <PracticeReminders value={progress.practiceReminder} minutes={progress.minutes} onSave={value => update(p => ({...p,practiceReminder:value}))} />}
+              {page === "reminders" && <PracticeReminders value={progress.practiceReminder} minutes={progress.minutes} signedIn={!!user} onSave={value => update(p => ({...p,practiceReminder:value}))} />}
               {page === "saved" && <SavedPractice ids={progress.savedExercises || []} onPractice={train} onRemove={toggleBookmark} onNavigate={go} />}
-              {page === "dashboard" && <ReminderNudge value={progress.practiceReminder} practicedDays={progress.days} onChange={value => update(p => ({...p,practiceReminder:value}))} onStart={() => train(nextLesson,nextLesson)} />}
+              {page !== "reminders" && <ReminderNudge value={progress.practiceReminder} practicedDays={progress.days} onChange={value => update(p => ({...p,practiceReminder:value}))} onStart={() => train(nextLesson,nextLesson)} />}
               {page === "dashboard" && (
                 <HomeDashboard
                   progress={progress}

@@ -7,6 +7,7 @@ import {
   SaveConflict,
 } from "../../../lib/progress-store";
 import { validateProgress } from "../../../lib/progress-backup";
+import { env } from "cloudflare:workers";
 export async function GET() {
   const u = await getChatGPTUser();
   if (!u)
@@ -63,5 +64,6 @@ export async function DELETE(req: Request) {
   if (req.headers.get("origin") !== new URL(req.url).origin)
     return new Response(null, { status: 403 });
   await deleteProgress(getDb(), u.userId);
+  await env.DB!.prepare("DELETE FROM practice_push WHERE user_id = ?").bind(u.userId).run();
   return Response.json({ deleted: true });
 }

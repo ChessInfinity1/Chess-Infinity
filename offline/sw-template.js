@@ -14,6 +14,40 @@ const CORE_FILES = [
   "/icon-192.png",
   "/icon-512.png",
 ];
+
+// Web Push wakes this worker even when no academy tab is open.
+self.addEventListener("push", (event) => {
+  event.waitUntil((async () => {
+    let payload = {};
+    try { payload = event.data?.json() || {}; } catch { /* Still show the required visible notification. */ }
+    const isTest = payload.tag === "chess-infinity-test";
+    await self.registration.showNotification(
+      typeof payload.title === "string" ? payload.title.slice(0, 100) : "Time for a little chess",
+      {
+        body: typeof payload.body === "string" ? payload.body.slice(0, 250) : "Your Chess Infinity practice is ready.",
+        icon: "/icon-192.png", badge: "/icon-192.png",
+        tag: isTest ? "chess-infinity-test" : "chess-infinity-practice",
+        data: { url: "/?screen=learn" },
+      },
+    );
+    if (isTest) for (const client of await self.clients.matchAll({ type: "window", includeUncontrolled: true }))
+      client.postMessage({ type: "PRACTICE_NOTIFICATION_SHOWN" });
+  })());
+});
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  event.waitUntil((async () => {
+    // The notification cannot navigate to an external or payload-provided URL.
+    const target = new URL("/?screen=learn", self.location.origin).href;
+    const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+    for (const client of windows) {
+      if (new URL(client.url).origin !== self.location.origin) continue;
+      if ("navigate" in client) await client.navigate(target);
+      return client.focus();
+    }
+    return self.clients.openWindow(target);
+  })());
+});
 async function cleanTrainingResponse(response) {
   return new Response(await response.arrayBuffer(), {
     status: response.status,
