@@ -1,5 +1,9 @@
 import handler from "vinext/server/fetch-handler";
+import { sendDueReminders } from "../lib/push-reminders";
 export default {
+  async scheduled(controller: ScheduledController, env: Cloudflare.Env) {
+    await sendDueReminders(env, controller.scheduledTime);
+  },
   async fetch(request: Request, env: Cloudflare.Env, ctx: ExecutionContext) {
     const headers = new Headers(request.headers);
     for (const key of [...headers.keys()]) if (key.startsWith("oai-authenticated-user-")) headers.delete(key);

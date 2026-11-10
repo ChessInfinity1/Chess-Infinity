@@ -11276,3 +11276,21 @@ body,
 @media(min-width:1101px) { .review-layout > section { position: sticky; top: 112px; scroll-margin-top: 110px; } }
 @media(max-width:1100px) { .review-layout { grid-template-columns: minmax(0,1fr); max-width: 650px; } .review-layout > section { scroll-margin-top: 96px; } }
 @media(max-width:760px) { .review-layout .workspace-panel { padding: 18px; } .review-panel .eyebrow { font-size: 9px; } .review-move-card { padding: 15px; } }
+
+/* Practice notifications share the academy's compact, touch-friendly controls. */
+.practice-reminders .reminder-time-zone { margin: 9px 0 0; font-size: 11px; overflow-wrap: anywhere; }
+.reminder-device { margin-top: 25px; padding: 21px 18px; border: 1px solid var(--border); background: var(--bg); border-radius: 20px; }
+.reminder-device-heading { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.reminder-device-heading > svg { color: var(--purple); flex-shrink: 0; }
+.reminder-device-heading h3 { flex: 1; font-size: 14px; }
+.reminder-device-heading > span { font-size: 10px; font-weight: 700; border-radius: 100px; padding: 6px 10px; color: var(--muted); background: var(--card); }
+.reminder-device-heading > span.is-on { color: #268568; background: color-mix(in srgb, #46aa89 14%, transparent); }
+.reminder-device p { font-size: 12px; line-height: 1.8; }
+.reminder-device p a { color: var(--purple); text-decoration: underline; }
+.reminder-device-actions { display: grid; gap: 10px; }
+.reminder-device-actions > button { min-height: 46px; justify-content: center; }
+.reminder-device small { display: block; font-size: 10px; line-height: 1.8; margin-top: 14px; color: var(--muted); }
+.practice-reminders .reminder-next { color: var(--purple); font-weight: 650; margin-bottom: 16px; }
+.practice-reminders .feedback { overflow-wrap: anywhere; }
+.practice-reminders button:disabled { opacity: .55; cursor: not-allowed; }
+@media(max-width:380px) { .reminder-device { padding: 18px 13px; } .reminder-device-heading h3 { font-size: 12px; } }
