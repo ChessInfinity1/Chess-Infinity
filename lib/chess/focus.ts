@@ -31,15 +31,28 @@ export function createFocusSession(progress: Progress, minutes: 5 | 10 | 15, id:
   const recent = new Set((progress.focusSessions || []).slice(-3).flatMap(session => session.steps.map(step => step.id)));
   const ordered = orderPuzzleLibrary(puzzles, progress.puzzles, progress.puzzleRating);
   const duePuzzles = due.map(id => puzzles.find(item => item.id === id)).filter((item): item is Exercise => !!item);
-  const candidates = [...duePuzzles, ...ordered.filter(item => !recent.has(item.id)), ...ordered];
   const selected: Exercise[] = [];
   const used = new Set([lesson.id]);
-  // Due reviews come first; new positions come from the learner's current difficulty band.
-  for (const puzzle of candidates) {
-    if (used.has(puzzle.id)) continue;
+  const patterns = new Set<string>();
+  const families = new Set<string>();
+  const count = minutes === 5 ? 2 : minutes === 10 ? 4 : 6;
+  const family = (puzzle: Exercise) => puzzle.id.startsWith("infinity-") ? puzzle.id.replace(/-\d+$/, "") : puzzle.id;
+  function add(puzzle: Exercise) {
+    if (selected.length >= count || used.has(puzzle.id)) return;
     used.add(puzzle.id);
+    patterns.add(puzzle.theme);
+    families.add(family(puzzle));
     selected.push(puzzle);
-    if (selected.length === (minutes === 5 ? 2 : minutes === 10 ? 4 : 6)) break;
+  }
+  // Due reviews come first; new positions come from the learner's current difficulty band.
+  duePuzzles.forEach(add);
+  const fresh = ordered.filter(item => !recent.has(item.id));
+  const near = fresh.filter(item => Math.abs(item.rating - progress.puzzleRating) <= 250);
+  // Mix tactical patterns without jumping far beyond the learner's difficulty.
+  for (const puzzle of near) if (!patterns.has(puzzle.theme)) add(puzzle);
+  for (const puzzle of near) if (!families.has(family(puzzle))) add(puzzle);
+  for (const pool of [near, fresh, ordered]) {
+    for (const puzzle of pool) add(puzzle);
   }
   return {
     id, minutes, startedAt: now.toISOString(),

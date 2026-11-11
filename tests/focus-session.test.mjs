@@ -45,6 +45,13 @@ test("fresh sessions avoid the previous session's puzzles and adapt to recorded 
   const difficulty = puzzles.find(item=>item.id===first.steps[1].id).rating;
   assert.ok(Math.abs(difficulty-1500)<=100);
 });
+test("fresh sessions mix patterns instead of repeating one family of generated drills", () => {
+  const session = createFocusSession(structuredClone(initialProgress),15,"variety",now);
+  const selected = session.steps.slice(1).map(step=>puzzles.find(puzzle=>puzzle.id===step.id));
+  assert.ok(new Set(selected.map(puzzle=>puzzle.theme)).size>=4);
+  assert.ok(selected.filter(puzzle=>puzzle.id.startsWith("infinity-promotion-")).length<=1);
+  assert.ok(selected.every(puzzle=>Math.abs(puzzle.rating-initialProgress.puzzleRating)<=250));
+});
 test("only the current step advances; repeated results and unrelated practice do not count", () => {
   const session = createFocusSession(structuredClone(initialProgress),5,"s",now);
   let sessions = [session];
