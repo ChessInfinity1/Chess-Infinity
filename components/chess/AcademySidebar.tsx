@@ -4,7 +4,7 @@ import {
   Infinity as InfinityIcon, X, ChevronRight, BookOpen,
   LayoutDashboard, Puzzle, Network, Swords, ChartNoAxesCombined, Sparkles,
   RefreshCw, BrainCircuit, Link2, Download, Settings, Compass, CalendarDays,
-  Bookmark, Bell, ArrowUpRight, UserRound, Check, ShieldCheck,
+  Bookmark, Bell, ArrowUpRight, UserRound, Check, ShieldCheck, Target,
 } from "lucide-react";
 import { ProfileAvatar } from "./ChessComProfile";
 
@@ -16,6 +16,7 @@ const mainRoutes = [
   { id: "review", label: "Game review", icon: ChartNoAxesCombined },
 ];
 const exploreRoutes = [
+  { id: "focus", label: "Focus session", icon: Target },
   { id: "openings", label: "Openings", icon: Network },
   { id: "coach", label: "Training plan", icon: BrainCircuit },
   { id: "weekly", label: "Weekly report", icon: CalendarDays },

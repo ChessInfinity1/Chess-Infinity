@@ -25,6 +25,8 @@ export default function Training({
   explainMoves = true,
   bookmarked = false,
   onToggleBookmark,
+  backLabel,
+  nextLabel,
 }: {
   exercise: Exercise;
   lesson?: Lesson;
@@ -33,6 +35,8 @@ export default function Training({
   explainMoves?: boolean;
   bookmarked?: boolean;
   onToggleBookmark?: () => void;
+  backLabel?: string;
+  nextLabel?: string;
   boardTheme: string;
   onNext?: () => void;
 }) {
@@ -112,7 +116,7 @@ export default function Training({
     <div className="training-page">
       <div className="training-top-actions">
       <button className="text-btn back" onClick={onClose}>
-        <ArrowLeft size={17} /> Back to {lesson ? "lessons" : "puzzles"}
+        <ArrowLeft size={17} /> Back to {backLabel || (lesson ? "lessons" : "puzzles")}
       </button>
       {onToggleBookmark && <button className="training-bookmark" aria-pressed={bookmarked} onClick={onToggleBookmark}><Bookmark size={17} fill={bookmarked ? "currentColor" : "none"}/>{bookmarked ? "Saved for later" : "Save for later"}</button>}
       </div>
@@ -246,7 +250,7 @@ export default function Training({
           )}
           {saved && onNext && (
             <button className="secondary full" onClick={onNext}>
-              Next recommended position <ArrowRight size={17} />
+              {nextLabel || "Next recommended position"} <ArrowRight size={17} />
             </button>
           )}
           {exercise.source && (

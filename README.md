@@ -56,6 +56,12 @@ On the original website, open **Preferences → Export my progress & games**. On
 
 ChatGPT identities and login sessions cannot transfer to this independent host. Lichess authorization and installed offline packs must be set up again on the new domain. Chess.com uses linked public profiles, never Chess.com passwords or an invented OAuth login. See migration limits in [the deployment guide](docs/CLOUDFLARE.md).
 
+## Focus sessions
+
+Open **Focus session** from Home or the sidebar. Choose a roughly 5-, 10-, or 15-minute plan: one interactive lesson followed by two, four, or six puzzles. Due spaced reviews take priority; fresh positions use the learner's puzzle difficulty and avoid puzzles from their last three sessions. The checklist advances only when the current exercise result is saved after its board challenge and quiz. Hints and wrong moves still allow completion and are shown in the recap.
+
+The current checklist and up to twenty sessions save through the existing account progress API and JSON backups. Guests save on their device. Resume after a refresh, or revisit completed positions from the recap. Focus sessions add no bonus XP, do not change external ratings, and require no database migration. The downloaded offline pack continues to use its separate training interface; Focus sessions require the main app.
+
 ## Source layout
 
 | Folder | Contents |
