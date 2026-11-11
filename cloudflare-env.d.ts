@@ -3,6 +3,8 @@ declare namespace Cloudflare {
     DB?: D1Database;
     APP_ORIGIN?: string;
     BETTER_AUTH_SECRET?: string;
+    GOOGLE_CLIENT_ID?: string;
+    GOOGLE_CLIENT_SECRET?: string;
     ACADEMY_OWNER_USER_ID?: string;
     VAPID_PUBLIC_KEY?: string;
     VAPID_PRIVATE_KEY?: string;

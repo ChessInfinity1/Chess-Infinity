@@ -109,6 +109,7 @@ import {
 } from "../../lib/chess/learning";
 import { parseProgressBackup } from "../../lib/progress-backup";
 import { useAcademyMotion, useAnimatedPresence } from "../../hooks/use-academy-motion";
+import GoogleAccountSettings from "./GoogleSignIn";
 const PUZZLES_PER_PAGE = 12;
 const today = () => new Date().toLocaleDateString("en-CA");
 function getStreak(days: string[]) {
@@ -2178,6 +2179,7 @@ export default function Academy({
                     </section>
                     <section className="card">
                       <h2>Your data & account</h2>
+                      {user && <GoogleAccountSettings/>}
                       <div className="feedback">
                         <strong>{saveStatus}</strong>
                         <p>

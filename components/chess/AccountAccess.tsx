@@ -1,8 +1,10 @@
 "use client";
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import type { FormEvent } from "react";
 import { ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, Eye, EyeOff, Infinity as InfinityIcon, LoaderCircle, LockKeyhole, Mail, ShieldCheck, Sparkles, Swords, UserRound } from "lucide-react";
 import "./account-access.css";
+import { accountReturnPath, googleAuthError } from "../../lib/google-auth";
+import { GoogleMark, startGoogleSignIn } from "./GoogleSignIn";
 
 function AcademyArtwork() {
   return <div className="access-artwork" aria-hidden="true">
@@ -36,9 +38,10 @@ function AcademyArtwork() {
   </div>;
 }
 
-export default function AccountAccess({ logout = false }: { logout?: boolean }) {
+export default function AccountAccess({ logout = false, googleEnabled = false }: { logout?: boolean; googleEnabled?: boolean }) {
   const [register, setRegister] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [googleBusy, setGoogleBusy] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -48,6 +51,20 @@ export default function AccountAccess({ logout = false }: { logout?: boolean }) 
   const id = useId();
   const recoveryId = id + "-recovery";
   const passwordHelpId = id + "-password-help";
+  useEffect(() => {
+    if (logout) return;
+    setError(googleAuthError(new URLSearchParams(location.search).get("error")));
+    const restore = () => { setBusy(false); setGoogleBusy(false); };
+    window.addEventListener("pageshow", restore);
+    return () => window.removeEventListener("pageshow", restore);
+  }, [logout]);
+
+  async function google() {
+    if (!googleEnabled || busy || success) return;
+    setBusy(true); setGoogleBusy(true); setError("");
+    try { await startGoogleSignIn(); }
+    catch (error) { setError((error as Error).message); setBusy(false); setGoogleBusy(false); }
+  }
 
   function switchMode(value: boolean) {
     setRegister(value); setError(""); setShowPassword(false); setShowConfirm(false); setPassword(""); setConfirm("");
@@ -67,9 +84,7 @@ export default function AccountAccess({ logout = false }: { logout?: boolean }) 
       const message = body && typeof body === "object" && "message" in body && typeof body.message === "string" ? body.message : undefined;
       if (!response.ok) throw new Error(response.status === 429 ? "A few too many attempts. Please wait a minute and try again." : message || "We couldn’t sign you in. Please try again.");
       setSuccess(true);
-      const value = new URLSearchParams(location.search).get("return_to") || "/";
-      const next = new URL(value, location.origin);
-      location.assign(next.origin === location.origin && !["/login", "/logout"].includes(next.pathname) ? next.href : "/");
+      location.assign(accountReturnPath(new URLSearchParams(location.search).get("return_to"), location.origin));
     } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
   }
 
@@ -98,6 +113,8 @@ export default function AccountAccess({ logout = false }: { logout?: boolean }) 
               <button type="button" aria-pressed={!register} onClick={() => switchMode(false)} disabled={busy || success}>Sign in</button>
               <button type="button" aria-pressed={register} onClick={() => switchMode(true)} disabled={busy || success}>Create account</button>
             </div>}
+            {!logout && googleEnabled && <div className="access-google-section"><button type="button" className="access-google-button" disabled={busy || success} onClick={google}>{googleBusy ? <LoaderCircle size={20} className="access-spinner"/> : <GoogleMark/>}<span>{googleBusy ? "Opening Google…" : "Continue with Google"}</span></button><div className="access-email-divider"><span/>or continue with email<span/></div></div>}
+            {error && <div className="access-error" role="alert"><ShieldCheck size={17} /><p>{error}</p></div>}
             <form key={register ? "register" : "sign-in"} onSubmit={submit} className="access-form" aria-busy={busy}>
               {!logout && <>
                 {register && <label className="access-field"><span>Your name</span><span className="access-input-wrap"><UserRound size={18} aria-hidden="true" /><input name="name" placeholder="What should we call you?" autoComplete="name" required maxLength={80} disabled={busy || success} /></span></label>}
@@ -106,7 +123,6 @@ export default function AccountAccess({ logout = false }: { logout?: boolean }) 
                 {register && <div className="access-field"><label htmlFor={id + "-confirm"}>Confirm password</label><span className="access-input-wrap"><ShieldCheck size={18} aria-hidden="true" /><input id={id + "-confirm"} name="confirm" type={showConfirm ? "text" : "password"} placeholder="Enter your password again" autoComplete="new-password" required minLength={12} maxLength={128} defaultValue="" onChange={e => setConfirm(e.target.value)} disabled={busy || success} /><button type="button" className="access-visibility" aria-label={showConfirm ? "Hide confirmation password" : "Show confirmation password"} aria-pressed={showConfirm} onClick={() => setShowConfirm(value => !value)} disabled={busy || success}>{showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}</button></span></div>}
                 {register && <div className="access-password-help" id={passwordHelpId}><span className={password.length >= 12 ? "is-met" : ""}><Check size={13} />12 or more characters</span><span className={confirm && password === confirm ? "is-met" : ""}><Check size={13} />Passwords match</span></div>}
               </>}
-              {error && <div className="access-error" role="alert"><ShieldCheck size={17} /><p>{error}</p></div>}
               {success && <p className="access-success" role="status"><Check size={17} />{logout ? "Signed out. See you soon." : "You’re in. Opening your academy…"}</p>}
               <button type="submit" className="access-submit" disabled={busy || success}><span>{busy ? "Just a moment…" : success ? "Opening your academy…" : logout ? "Sign out" : register ? "Create my account" : "Let’s make a move"}</span>{busy ? <LoaderCircle size={19} className="access-spinner" /> : <ArrowRight size={19} />}</button>
             </form>
@@ -115,7 +131,7 @@ export default function AccountAccess({ logout = false }: { logout?: boolean }) 
               <a className="access-guest" href="/">Continue as a guest<ArrowRight size={16} /></a>
               <p className="access-save-note"><ShieldCheck size={14} />Your progress. Saved across devices.</p>
               <div className="access-help-links">
-                <details className="access-help"><summary>{register ? "A quick note about your account" : "Need help signing in?"}<ChevronDown size={14} /></summary><div id={recoveryId}><p>{register ? "Create an Academy password and keep it in your password manager. Use at least 12 characters. Email recovery isn’t available yet." : "Use your Academy email and password. Accounts from the original ChatGPT website don’t carry over automatically. Email password recovery isn’t available yet."}</p><p>We never ask for your Chess.com or Lichess password.</p></div></details>
+                <details className="access-help"><summary>{register ? "A quick note about your account" : "Need help signing in?"}<ChevronDown size={14} /></summary><div id={recoveryId}><p>{googleEnabled ? "Use the method you used to create your account. If you already have an Academy password, sign in with it first and link Google from Preferences → Your data & account to keep your saved progress. Google-only accounts do not have an Academy password." : register ? "Create an Academy password and keep it in your password manager. Use at least 12 characters. Email recovery isn’t available yet." : "Use your Academy email and password. Accounts from the original ChatGPT website don’t carry over automatically. Email password recovery isn’t available yet."}</p><p>We never ask for your Chess.com or Lichess password.</p></div></details>
                 <details className="access-help"><summary>Bringing progress from the original site?<ChevronDown size={14} /></summary><div><p>Export your progress from Preferences on the original website. Create an account here, then import that JSON file in Preferences. Your original website and data stay intact.</p></div></details>
               </div>
             </>}

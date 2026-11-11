@@ -1,0 +1,23 @@
+.access-google-button{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:50px;padding:12px 18px;border:1px solid #dadce0;border-radius:12px;background:#fff;color:#1f1f1f;font-size:14px;font-weight:550;transition:background .18s,box-shadow .18s,transform .18s}
+.access-google-button:hover:not(:disabled){background:#f4f6fa;box-shadow:0 3px 14px #0002;transform:translateY(-1px)}
+.access-google-button:active:not(:disabled){transform:none}
+.access-google-button>svg{flex-shrink:0}
+.access-email-divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--access-muted);font-size:10px}
+.access-email-divider>span{flex:1;height:1px;background:var(--access-line)}
+.access-form-content>.access-error{margin-bottom:15px}
+.google-account-settings{padding:18px 0;margin:0 0 20px;border-bottom:1px solid var(--border);line-height:1.7}
+.google-account-settings>strong{display:block;font-size:14px}
+.google-account-settings p{font-size:12px;line-height:1.7;margin:10px 0}
+.google-account-settings .secondary{margin-top:12px;min-height:48px}
+.google-linked{display:flex;gap:8px;align-items:flex-start}
+.google-linked>svg{flex-shrink:0;margin-top:2px;color:var(--green)}
+.google-sign-in-error{color:var(--ink);border-left:3px solid var(--purple);padding-left:12px}
+.google-spinner{animation:google-spin .9s linear infinite}
+@keyframes google-spin{to{transform:rotate(360deg)}
+}
+@media(max-width:760px){.access-google-button{min-height:54px;font-size:14px}
+.access-email-divider{margin:20px 0 23px;font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){.access-google-button,.google-spinner{animation:none!important;transition:none!important}
+}
+
