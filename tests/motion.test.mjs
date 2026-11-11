@@ -1,87 +1,81 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { createViewMotion, dropOffset } from "../lib/ui-motion.ts";
+import { createPageMotion, dropOffset } from "../lib/ui-motion.ts";
 
-function nativeHarness() {
-  const transitions = [];
-  const state = { reduced: false, destination: "home" };
-  const motion = createViewMotion({
-    reduced: () => state.reduced,
-    commit: update => update(),
-    start(update) {
-      let finish;
-      const transition = {
-        update, skipped: false,
-        ready: Promise.resolve(),
-        finished: new Promise(resolve => { finish = resolve; }),
-        skipTransition() { this.skipped = true; },
-        finish() { finish(); },
-      };
-      transitions.push(transition);
-      return transition;
-    },
-  });
-  return { state, motion, transitions };
+function harness() {
+  const animations = [];
+  const state = { reduced: false };
+  const element = { animate(frames, options) {
+    let finish, reject;
+    const animation = {
+      frames, options, cancelled: false,
+      finished: new Promise((resolve, fail) => { finish = resolve; reject = fail; }),
+      cancel() { this.cancelled = true; reject(Error("cancelled")); },
+      finish() { finish(); },
+    };
+    animations.push(animation);
+    return animation;
+  }};
+  return { state, element, animations, motion: createPageMotion(() => state.reduced) };
 }
-test("rapid navigation commits only the latest destination, even when skipped callbacks run late", () => {
-  const { state, motion, transitions } = nativeHarness();
-  motion.run(() => { state.destination = "puzzles"; });
-  motion.run(() => { state.destination = "learn"; });
-  assert.equal(transitions[0].skipped, true);
-  transitions[1].update();
-  transitions[0].update();
-  assert.equal(state.destination, "learn");
+
+test("rapid page changes cancel the old fade without deferring the next destination", () => {
+  const { motion, element, animations } = harness();
+  let page = "home";
+  const navigate = destination => { page = destination; motion.play(element); };
+  navigate("puzzles");
+  navigate("learn");
+  assert.equal(page,"learn");
+  assert.equal(animations.length,2);
+  assert.equal(animations[0].cancelled,true);
+  assert.equal(animations[1].cancelled,false);
+  assert.equal(motion.running,true);
 });
-test("reduced motion changes the page immediately and invalidates pending animation callbacks", () => {
-  const { state, motion, transitions } = nativeHarness();
-  motion.run(() => { state.destination = "puzzles"; });
-  state.reduced = true;
-  motion.run(() => { state.destination = "play"; });
-  transitions[0].update();
-  assert.equal(state.destination,"play");
-  assert.equal(transitions.length,1);
+test("reduced motion cancels an active fade and starts no additional animation", async () => {
+  const {state,element,motion,animations}=harness();
+  motion.play(element);
+  state.reduced=true;
+  motion.play(element);
+  assert.equal(animations.length,1);
+  assert.equal(animations[0].cancelled,true);
+  assert.equal(motion.running,false);
+  await new Promise(resolve=>setImmediate(resolve));
+});
+test("missing animation support and removed content remain safe", () => {
+  const {motion,element,animations}=harness();
+  motion.play(element);
+  motion.play(null);
+  assert.equal(animations[0].cancelled,true);
+  assert.equal(motion.running,false);
+  assert.doesNotThrow(()=>motion.play({}));
+  assert.doesNotThrow(()=>motion.play({animate(){throw Error("unavailable");}}));
   assert.equal(motion.running,false);
 });
-test("unavailable native motion or an open drawer never delays navigation", () => {
-  let committed = 0;
-  createViewMotion({ reduced:()=>false, commit:update=>update() }).run(()=>committed++);
-  assert.equal(committed,1);
-  const {state,motion,transitions}=nativeHarness();
-  motion.run(()=>{state.destination="review";},false);
-  assert.equal(state.destination,"review");
-  assert.equal(transitions.length,0);
-});
-test("a finishing old transition cannot clear a newer transition; unmount prevents stale updates", async () => {
-  const {state,motion,transitions}=nativeHarness();
-  motion.run(()=>{state.destination="puzzles";});
-  motion.run(()=>{state.destination="learn";});
-  transitions[0].finish();
+test("a finishing old fade cannot clear a newer fade, and unmount cancels pending motion", async () => {
+  const {motion,element,animations}=harness();
+  motion.play(element);
+  animations[0].finish();
+  motion.play(element);
   await Promise.resolve();
   assert.equal(motion.running,true);
   motion.dispose();
-  transitions[1].update();
-  assert.equal(state.destination,"home");
+  assert.equal(animations[1].cancelled,true);
+  assert.equal(motion.running,false);
+  await new Promise(resolve=>setImmediate(resolve));
+});
+test("page fades use only opacity and leave no persistent style after completion", async () => {
+  const {motion,element,animations}=harness();
+  motion.play(element);
+  assert.deepEqual(animations[0].frames,[{opacity:.15},{opacity:1}]);
+  assert.ok(animations[0].options.duration<=250);
+  assert.equal(animations[0].options.fill,undefined);
+  animations[0].finish();
+  await Promise.resolve();
   assert.equal(motion.running,false);
 });
-test("native startup failures fall back exactly once and skipped animations consume rejections", async () => {
-  let count=0;
-  const fallback=createViewMotion({ reduced:()=>false,commit:update=>update(),start:()=>{throw Error("unavailable");} });
-  fallback.run(()=>count++);
-  assert.equal(count,1);
-  const skipped=createViewMotion({reduced:()=>false,commit:update=>update(),start:update=>{
-    queueMicrotask(update);
-    return {ready:Promise.reject(Error("skipped")),finished:Promise.resolve(),skipTransition(){}};
-  }});
-  skipped.run(()=>count++);
-  await new Promise(resolve=>setImmediate(resolve));
-  assert.equal(count,2);
-  assert.equal(skipped.running,false);
-});
 test("dropped pieces settle from the finger position, rather than jumping back to their source", () => {
-  // White-view e4 at index 36, with a 50px square size.
   assert.deepEqual(dropOffset(36,225,225,50),{x:0,y:0});
   assert.deepEqual(dropOffset(36,234,219,50),{x:9,y:-6});
-  // The same square is index 27 when the board is flipped.
   assert.deepEqual(dropOffset(27,175,175,50),{x:0,y:0});
   assert.deepEqual(dropOffset(27,170,184,50),{x:-5,y:9});
 });

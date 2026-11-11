@@ -1,14 +1,6 @@
 /* Short, consistent motion; chess moves and clocks never wait for a transition. */
-html { scrollbar-gutter: stable; view-transition-name: none; }
+html { scrollbar-gutter: stable; }
 .app-shell { --motion-ease: cubic-bezier(.22,.8,.25,1); --motion-panel: 220ms; }
-.app-shell .content { view-transition-name: academy-content; }
-::view-transition-group(root), ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
-::view-transition-group(academy-content) { animation: none; }
-::view-transition-old(academy-content) { animation: academy-view-out 160ms ease-out both; }
-::view-transition-new(academy-content) { animation: academy-view-in 220ms cubic-bezier(.22,.8,.25,1) both; }
-::view-transition, ::view-transition-group(*), ::view-transition-image-pair(*), ::view-transition-old(*), ::view-transition-new(*) { pointer-events: none; }
-@keyframes academy-view-out { to { opacity: 0; } }
-@keyframes academy-view-in { from { opacity: 0; } to { opacity: 1; } }
 .app-shell .content > :is(.home-v2,.training-page,.saved-practice,.practice-reminders) { animation: none; }
 .app-shell .scrim[data-motion-open] { animation: none; opacity: 0; transition: opacity var(--motion-panel) ease; }
 .app-shell .scrim[data-motion-open="true"] { opacity: 1; }
@@ -34,6 +26,5 @@ html { scrollbar-gutter: stable; view-transition-name: none; }
 .app-shell .learning-quick-tools { scroll-snap-type: none; }
 .board-drag-ghost { will-change: transform; }
 @media (prefers-reduced-motion: reduce) {
-  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
   .app-shell *, .app-shell *::before, .app-shell *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }

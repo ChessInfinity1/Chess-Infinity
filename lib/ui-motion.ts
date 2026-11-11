@@ -5,52 +5,34 @@ export function dropOffset(index: number, x: number, y: number, squareSize: numb
   return { x: x - (index % 8 + .5) * squareSize, y: y - (Math.floor(index / 8) + .5) * squareSize };
 }
 
-type ViewAnimation = { ready: Promise<unknown>; finished: Promise<unknown>; skipTransition: () => void };
-type ViewMotionOptions = {
-  start?: (update: () => void) => ViewAnimation;
-  commit: (update: () => void) => void;
-  reduced: () => boolean;
-};
+type PageAnimation = { finished: Promise<unknown>; cancel: () => void };
+type MotionElement = { animate: (frames: Keyframe[], options: KeyframeAnimationOptions) => PageAnimation };
 
-// A skipped native transition still runs its callback. Guard stale callbacks so
-// rapid taps cannot send the player back to an older destination.
-export function createViewMotion(options: ViewMotionOptions) {
-  let generation = 0;
-  let active: ViewAnimation | undefined;
+// Animate the live content after React commits. There is no snapshot overlay,
+// deferred navigation callback, or input-blocking delay.
+export function createPageMotion(reduced: () => boolean) {
+  let active: PageAnimation | undefined;
   return {
     get running() { return !!active; },
-    run(update: () => void, native = true) {
-      const current = ++generation;
-      active?.skipTransition();
+    play(element: MotionElement | null) {
+      active?.cancel();
       active = undefined;
-      if (!native || !options.start || options.reduced()) {
-        options.commit(update);
-        return;
-      }
-      let committed = false;
+      if (reduced() || typeof element?.animate !== "function") return;
       try {
-        const transition = options.start(() => {
-          if (current !== generation) return;
-          committed = true;
-          options.commit(update);
-        });
-        active = transition;
-        // ready rejects when the browser skips an animation (e.g. background tab).
-        void transition.ready.catch(() => {});
-        void transition.finished.then(() => {
-          if (active === transition) active = undefined;
+        const animation = element.animate([{ opacity: .15 }, { opacity: 1 }], { duration: panelMotionMs, easing: motionEase });
+        active = animation;
+        void animation.finished.then(() => {
+          if (active === animation) active = undefined;
         }, () => {
-          if (active === transition) active = undefined;
+          if (active === animation) active = undefined;
         });
-      } catch (error) {
+      } catch {
+        // Animation support must never prevent a committed page from displaying.
         active = undefined;
-        if (!committed) options.commit(update);
-        else throw error;
       }
     },
     dispose() {
-      ++generation;
-      active?.skipTransition();
+      active?.cancel();
       active = undefined;
     },
   };
