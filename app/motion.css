@@ -1,0 +1,39 @@
+/* Short, consistent motion; chess moves and clocks never wait for a transition. */
+html { scrollbar-gutter: stable; }
+.app-shell { --motion-ease: cubic-bezier(.22,.8,.25,1); --motion-panel: 220ms; }
+.app-shell .content { view-transition-name: academy-content; }
+::view-transition-group(root), ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+::view-transition-group(academy-content) { animation: none; }
+::view-transition-old(academy-content) { animation: academy-view-out 160ms ease-out both; }
+::view-transition-new(academy-content) { animation: academy-view-in 220ms cubic-bezier(.22,.8,.25,1) both; }
+::view-transition { pointer-events: none; }
+@keyframes academy-view-out { to { opacity: 0; } }
+@keyframes academy-view-in { from { opacity: 0; } to { opacity: 1; } }
+.app-shell .content > :is(.home-v2,.training-page,.saved-practice,.practice-reminders) { animation: none; }
+.app-shell .scrim[data-motion-open] { animation: none; opacity: 0; transition: opacity var(--motion-panel) ease; }
+.app-shell .scrim[data-motion-open="true"] { opacity: 1; }
+.app-shell .scrim[data-motion-open="false"] { pointer-events: none; }
+.app-shell .academy-actions-panel[data-motion-open] { opacity: 0; transform: translateY(-7px) scale(.98); transform-origin: top right; transition: opacity var(--motion-panel) ease, transform var(--motion-panel) var(--motion-ease); }
+.app-shell .academy-actions-panel[data-motion-open="true"] { opacity: 1; transform: none; }
+.app-shell .academy-actions-panel[data-motion-open="false"] { pointer-events: none; }
+.app-shell .profile-backdrop[data-motion-open] { animation: none; opacity: 0; transition: opacity var(--motion-panel) ease; }
+.app-shell .profile-backdrop[data-motion-open="true"] { opacity: 1; }
+.app-shell .profile-backdrop[data-motion-open="false"] { pointer-events: none; }
+.app-shell .profile-backdrop[data-motion-open] .profile-dialog { animation: none; transform: translateY(16px) scale(.99); transition: transform var(--motion-panel) var(--motion-ease); }
+.app-shell .profile-backdrop[data-motion-open="true"] .profile-dialog { transform: none; }
+.app-shell :is(.card,.home-v2-practice-tile,.home-v2-continue,.bot-card,.opening-card,.lesson-card) { transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease; }
+.app-shell :is(.primary,.secondary,.text-btn,.quiz-choice,.puzzle-scope-controls>button,.filter-tabs>button) { transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, scale 140ms var(--motion-ease); }
+.app-shell :is(.primary,.secondary,.quiz-choice):active:not(:disabled) { scale: .98; }
+.app-shell .modern-sidebar.sidebar { transition-timing-function: var(--motion-ease), linear; }
+.app-shell .liquid-dock-highlight { transition: transform 300ms var(--motion-ease), opacity 180ms ease; }
+.app-shell .liquid-dock > button svg { transition: scale 180ms var(--motion-ease), stroke-width 180ms ease; }
+.app-shell .liquid-dock > button.active svg { scale: 1.04; }
+.app-shell .modern-more-training[open] > nav { animation: none; }
+.app-shell :is(.home-v2,.home-mobile-ready) { overflow-anchor: none; }
+/* Free scrolling avoids the forced horizontal snapping on small screens. */
+.app-shell .learning-quick-tools { scroll-snap-type: none; }
+.board-drag-ghost { will-change: transform; }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+  .app-shell *, .app-shell *::before, .app-shell *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}

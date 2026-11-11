@@ -17,6 +17,7 @@ import { Piece } from "./Piece";
 export { Piece } from "./Piece";
 import PromotionDialog from "./PromotionDialog";
 import { CircleDot, Eraser, FlipVertical2, Grid2X2, PencilLine } from "lucide-react";
+import { dropOffset, motionEase } from "../../lib/ui-motion";
 export default function Board({
   fen,
   onMove,
@@ -40,6 +41,8 @@ export default function Board({
 }) {
   const boardRef = useRef<HTMLDivElement>(null);
   const previous = useRef(fen);
+  const lastDrop = useRef<{ fen: string; from: string; to: string; x: number; y: number } | null>(null);
+  const moveAnimations = useRef<Animation[]>([]);
   const markerId = "arrow-" + useId().replace(/:/g, "");
   const gesture = useRef<{
     id: number;
@@ -121,6 +124,7 @@ export default function Board({
       suppressClick.current = false;
       return;
     }
+    lastDrop.current = null;
     if (annotating) {
       if (!annotationFrom) setAnnotationFrom(s);
       else {
@@ -151,6 +155,7 @@ export default function Board({
   function pointerDown(e: React.PointerEvent<HTMLElement>, square: string) {
     if (e.button !== 0 || !e.isPrimary || disabled || promo || annotating || gesture.current)
       return;
+    lastDrop.current = null;
     const piece = g.get(square as Square);
     if (
       !piece ||
@@ -203,22 +208,32 @@ export default function Board({
     }, 250);
     const rect = boardRef.current?.getBoundingClientRect();
     const to = rect ? squareAtPoint(e.clientX, e.clientY, rect, viewFlipped) : null;
-    if (to && d.fen === fen && !disabled) attempt(d.from, to);
+    if (to && rect && d.fen === fen && !disabled) {
+      lastDrop.current = { fen, from: d.from, to, x: e.clientX - rect.left, y: e.clientY - rect.top };
+      attempt(d.from, to);
+    }
   }
   function pointerCancel() {
+    lastDrop.current = null;
     gesture.current = null;
     setDrag(null);
   }
 
   useEffect(() => { setRotated(false); }, [flipped]);
+  useEffect(() => () => moveAnimations.current.forEach(animation => animation.cancel()), []);
   useLayoutEffect(() => {
+    moveAnimations.current.forEach(animation => animation.cancel());
+    moveAnimations.current = [];
+    const drop = lastDrop.current;
+    lastDrop.current = null;
     gesture.current = null;
     setDrag(null);
     select(null);
     setPromo(null);
     if (previous.current !== fen) { setMarks([]); setArrows([]); }
     setAnnotationFrom(null);
-    const before = new Chess(previous.current);
+    const beforeFen = previous.current;
+    const before = new Chess(beforeFen);
     previous.current = fen;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const origins = squares.filter((s) => {
@@ -246,17 +261,21 @@ export default function Board({
         const a = squares.indexOf(origin),
           b = squares.indexOf(s),
           size = (boardRef.current?.clientWidth || 0) / 8;
-        el.animate(
+        const offset = drop && drop.fen === beforeFen && drop.from === origin && drop.to === s
+          ? dropOffset(b, drop.x, drop.y, size)
+          : { x: ((a % 8) - (b % 8)) * size, y: (Math.floor(a / 8) - Math.floor(b / 8)) * size };
+        moveAnimations.current.push(el.animate(
           [
             {
-              transform: `translate(${((a % 8) - (b % 8)) * size}px,${(Math.floor(a / 8) - Math.floor(b / 8)) * size}px)`,
+              transform: `translate(${offset.x}px,${offset.y}px)`,
+              zIndex: 8,
             },
-            { transform: "translate(0,0)" },
+            { transform: "translate(0,0)", zIndex: 8 },
           ],
-          { duration: 180, easing: "ease-out" },
-        );
+          { duration: drop?.to === s ? 110 : 200, easing: motionEase },
+        ));
         origins.splice(origins.indexOf(origin), 1);
-      } else el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180 });
+      } else moveAnimations.current.push(el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180 }));
     }
   }, [fen, viewFlipped]);
   const SquareElement = disabled && !annotating ? "div" : "button";
@@ -406,8 +425,9 @@ export default function Board({
             className="board-drag-ghost"
             aria-hidden="true"
             style={{
-              left: drag.x,
-              top: drag.y,
+              left: 0,
+              top: 0,
+              transform: `translate3d(${drag.x}px,${drag.y}px,0) translate(-50%,-50%)`,
               width: drag.size,
               height: drag.size,
             }}

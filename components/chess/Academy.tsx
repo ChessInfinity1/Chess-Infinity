@@ -108,6 +108,7 @@ import {
   orderPuzzleLibrary,
 } from "../../lib/chess/learning";
 import { parseProgressBackup } from "../../lib/progress-backup";
+import { useAcademyMotion, useAnimatedPresence } from "../../hooks/use-academy-motion";
 const PUZZLES_PER_PAGE = 12;
 const today = () => new Date().toLocaleDateString("en-CA");
 function getStreak(days: string[]) {
@@ -167,6 +168,7 @@ export default function Academy({
   const [saveStatus, setSaveStatus] = useState("Loading progress");
   const [notice, setNotice] = useState("");
   const [sidebar, setSidebar] = useState(false);
+  const scrim = useAnimatedPresence(sidebar);
   const sidebarRef = useRef<HTMLElement>(null);
   const [profileOpen, setProfileOpen] = useState(false);
   const closeProfile = useCallback(() => setProfileOpen(false), []);
@@ -182,6 +184,7 @@ export default function Academy({
     opening?: Opening;
   } | null>(null);
   const [query, setQuery] = useState("");
+  const motion = useAcademyMotion(`${ready}:${page}:${active?.exercise.id || ""}:${workspace?.mode || ""}:${workspace?.opening?.id || ""}:${workspace?.pgn || ""}`);
   const [level, setLevel] = useState(1);
   const [puzzleTheme, setPuzzleTheme] = useState("All patterns");
   const [puzzleRange, setPuzzleRange] = useState("all");
@@ -555,25 +558,29 @@ export default function Academy({
     }
   }
   function go(p: string) {
-    setPage(p);
-    setActive(null);
-    setWorkspace(null);
-    setQuery("");
-    setSidebar(false);
-    setNotice("");
-    if (p === "learn") setLevel(nextLearningLesson(stateRef.current).level);
-    if (p === "play") setWorkspace({ mode: "play" });
-    if (p === "review" && progress.games.length === 0)
-      setWorkspace({ mode: "review" });
-    window.scrollTo({ top: 0 });
+    motion.changeView(() => {
+      setPage(p);
+      setActive(null);
+      setWorkspace(null);
+      setQuery("");
+      setSidebar(false);
+      setNotice("");
+      if (p === "learn") setLevel(nextLearningLesson(stateRef.current).level);
+      if (p === "play") setWorkspace({ mode: "play" });
+      if (p === "review" && progress.games.length === 0)
+        setWorkspace({ mode: "review" });
+      window.scrollTo({ top: 0 });
+    }, !sidebar && !profileOpen);
   }
   function toggleBookmark(id: string) {
     update(p => ({...p,savedExercises:(p.savedExercises || []).includes(id) ? p.savedExercises!.filter(value => value !== id) : [...(p.savedExercises || []),id]}));
   }
   function train(exercise: Exercise, lesson?: Lesson) {
-    setActive({ exercise, lesson });
-    setWorkspace(null);
-    window.scrollTo({ top: 0 });
+    motion.changeView(() => {
+      setActive({ exercise, lesson });
+      setWorkspace(null);
+      window.scrollTo({ top: 0 });
+    });
   }
   function award(id: string, isLesson: boolean, correct: boolean, understanding?: { correctFirstTry: boolean }, focusSessionId?: string) {
     update((p) => {
@@ -879,8 +886,11 @@ export default function Academy({
     pgn?: string,
     opening?: Opening,
   ) => {
+    motion.changeView(() => {
     setWorkspace({ mode, pgn, opening });
     setActive(null);
+    window.scrollTo({ top: 0 });
+    });
   };
   function hash(s: string) {
     let h = 0;
@@ -950,7 +960,7 @@ export default function Academy({
     );
   }
   return (
-    <div className="app-shell">
+    <div className="app-shell" ref={motion.shell}>
       <AcademySidebar
         sidebarRef={sidebarRef}
         open={sidebar}
@@ -968,7 +978,7 @@ export default function Academy({
         lessonCount={lessons.length}
         isOwner={user?.isOwner === true}
       />
-      {sidebar && <div className="scrim" onClick={() => setSidebar(false)} />}
+      {scrim.mounted && <div className="scrim" data-motion-open={scrim.visible} aria-hidden="true" onClick={() => setSidebar(false)} />}
       <main className="main" inert={sidebar || profileOpen}>
         <AcademyHeader
           title={titleMap[page]}
@@ -981,7 +991,7 @@ export default function Academy({
           saveStatus={saveStatus}
           onNavigate={go}
         />
-        <div className="content">
+        <div className="content" ref={motion.content}>
           {notice && (
             <div className="notice">
               <CheckCircle2 size={17} />
@@ -1010,13 +1020,13 @@ export default function Academy({
               bookmarked={(progress.savedExercises || []).includes(active.exercise.id)}
               onToggleBookmark={() => toggleBookmark(active.exercise.id)}
               onNext={
-                active.focusSessionId ? () => setActive(null) : !active.lesson
+                active.focusSessionId ? () => motion.changeView(() => setActive(null)) : !active.lesson
                   ? () => train(practiceRecommendation(stateRef.current).puzzle)
                   : undefined
               }
               backLabel={active.focusSessionId ? "focus session" : undefined}
               nextLabel={active.focusSessionId ? "Continue focus session" : undefined}
-              onClose={() => setActive(null)}
+              onClose={() => motion.changeView(() => setActive(null))}
               onComplete={(correct, understanding) =>
                 award(active.exercise.id, !!active.lesson, correct, understanding, active.focusSessionId)
               }
@@ -1032,8 +1042,10 @@ export default function Academy({
               onGuided={() => go("guided")}
               boardTheme={progress.boardTheme}
               onClose={() => {
+                motion.changeView(() => {
                 setWorkspace(null);
                 if (page === "play") setPage("dashboard");
+                });
               }}
               onSave={(pgn) =>
                 saveGame(
@@ -1172,7 +1184,7 @@ export default function Academy({
               )}
               {page === "reminders" && <PracticeReminders value={progress.practiceReminder} minutes={progress.minutes} signedIn={!!user} onSave={value => update(p => ({...p,practiceReminder:value}))} />}
               {page === "saved" && <SavedPractice ids={progress.savedExercises || []} onPractice={train} onRemove={toggleBookmark} onNavigate={go} />}
-              {page === "focus" && <FocusSession progress={progress} signedIn={!!user} onStart={minutes => update(p => ({ ...p, focusSessions: appendFocusSession(p.focusSessions, createFocusSession(p, minutes, crypto.randomUUID())) }))} onPractice={(exercise, lesson, focusSessionId) => { setActive({ exercise, lesson, focusSessionId }); window.scrollTo({top:0}); }} />}
+              {page === "focus" && <FocusSession progress={progress} signedIn={!!user} onStart={minutes => update(p => ({ ...p, focusSessions: appendFocusSession(p.focusSessions, createFocusSession(p, minutes, crypto.randomUUID())) }))} onPractice={(exercise, lesson, focusSessionId) => motion.changeView(() => { setActive({ exercise, lesson, focusSessionId }); window.scrollTo({top:0}); })} />}
               {page !== "reminders" && <ReminderNudge value={progress.practiceReminder} practicedDays={progress.days} onChange={value => update(p => ({...p,practiceReminder:value}))} onStart={() => train(nextLesson,nextLesson)} />}
               {page === "dashboard" && (
                 <HomeDashboard
