@@ -1,4 +1,5 @@
 "use client";
+import { useAnimatedPresence } from "../../hooks/use-academy-motion";
 import { useEffect, useRef, useState } from "react";
 import {
   X,
@@ -136,7 +137,7 @@ export default function ChessComProfile({
     const previous = document.activeElement as HTMLElement;
     const overflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    dialog.current?.focus();
+    dialog.current?.focus({ preventScroll: true });
     function keys(e: KeyboardEvent) {
       if (e.key === "Escape") {
         e.preventDefault();
@@ -193,7 +194,8 @@ export default function ChessComProfile({
       dialog.current?.querySelector(".profile-scroll")?.scrollTo({ top: 0 });
   }, [tab, open]);
   useEffect(() => setVisibleLimit(40), [query, speed, result, username]);
-  if (!open) return null;
+  const presence = useAnimatedPresence(open);
+  if (!presence.mounted) return null;
   const country = profileCountry(profile.country);
   const href =
     chessComUrl(profile.url) ||
@@ -216,6 +218,9 @@ export default function ChessComProfile({
   return (
     <div
       className="profile-backdrop"
+      data-motion-open={presence.visible}
+      inert={!open}
+      aria-hidden={!open}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}

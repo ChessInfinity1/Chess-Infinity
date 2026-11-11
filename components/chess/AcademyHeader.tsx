@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { Cloud, CloudOff, Download, EllipsisVertical, Flame, Infinity as InfinityIcon, Moon, Settings, Sun, Zap } from "lucide-react";
 import ScreenMode from "./ScreenMode";
+import { useAnimatedPresence } from "../../hooks/use-academy-motion";
 
 type Props = {
   title: string;
@@ -18,6 +19,7 @@ type Props = {
 
 export default function AcademyHeader({ title, sidebarOpen, onOpenNavigation, theme, onToggleTheme, streak, xp, saveStatus, onNavigate }: Props) {
   const [open, setOpen] = useState(false);
+  const presence = useAnimatedPresence(open);
   const panelId = useId();
   const actions = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -26,7 +28,7 @@ export default function AcademyHeader({ title, sidebarOpen, onOpenNavigation, th
   useEffect(() => { setOpen(false); }, [title, sidebarOpen]);
   useEffect(() => {
     if (!open) return;
-    panel.current?.querySelector<HTMLButtonElement>("button")?.focus();
+    panel.current?.querySelector<HTMLButtonElement>("button")?.focus({ preventScroll: true });
     function outside(event: PointerEvent) {
       if (!actions.current?.contains(event.target as Node)) setOpen(false);
     }
@@ -34,7 +36,7 @@ export default function AcademyHeader({ title, sidebarOpen, onOpenNavigation, th
       if (event.key === "Escape") {
         event.preventDefault();
         setOpen(false);
-        trigger.current?.focus();
+        trigger.current?.focus({ preventScroll: true });
       }
     }
     function focus(event: FocusEvent) {
@@ -52,7 +54,7 @@ export default function AcademyHeader({ title, sidebarOpen, onOpenNavigation, th
 
   function navigate(page: string) {
     setOpen(false);
-    trigger.current?.focus();
+    trigger.current?.focus({ preventScroll: true });
     onNavigate(page);
   }
 
@@ -72,8 +74,8 @@ export default function AcademyHeader({ title, sidebarOpen, onOpenNavigation, th
           </button>
           <button ref={trigger} aria-label="Academy actions" aria-expanded={open} aria-controls={panelId} aria-haspopup="dialog" onClick={() => setOpen((value) => !value)}><EllipsisVertical /></button>
         </div>
-        {open && (
-          <div className="academy-actions-panel" id={panelId} ref={panel} role="dialog" aria-label="Academy actions">
+        {presence.mounted && (
+          <div className="academy-actions-panel" data-motion-open={presence.visible} inert={!open} aria-hidden={!open} id={panelId} ref={panel} role="dialog" aria-label="Academy actions">
             <div className="academy-actions-heading">Your momentum</div>
             <div className="academy-header-stats">
               <div><Flame /><strong>{streak}</strong><span>day streak</span></div>
