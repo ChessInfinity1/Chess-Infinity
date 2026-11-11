@@ -7,6 +7,7 @@ import type { RevengeProgress } from "./revenge.ts";
 import type { AssessmentDraft, AssessmentResult } from "./assessment.ts";
 import type { GuidedSession } from "./guided.ts";
 import type { ArcadeProgress } from "./arcade";
+import type { FocusSession } from "./focus.ts";
 export type Exercise = {
   id: string;
   title: string;
@@ -38,6 +39,7 @@ export type Opening = {
   mistake: string;
 };
 export type Progress = {
+  focusSessions?: FocusSession[];
   practiceReminder?: PracticeReminder;
   explainMoves?: boolean;
   savedExercises?: string[];
@@ -985,6 +987,7 @@ export const openings: Opening[] = [
 ];
 
 export const initialProgress: Progress = {
+  focusSessions: [],
   practiceReminder: { enabled: false, time: "18:00", days: [1,2,3,4,5] },
   explainMoves: true,
   savedExercises: [],

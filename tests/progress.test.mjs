@@ -9,6 +9,9 @@ import {
   SaveConflict,
 } from "../lib/progress-store.ts";
 import { readFile } from "node:fs/promises";
+import { initialProgress } from "../lib/chess/content.ts";
+import { createFocusSession, completeFocusStep } from "../lib/chess/focus.ts";
+import { validateProgress } from "../lib/progress-backup.ts";
 test("D1 persistence, user isolation, conflicts, concurrent writes, deletion", async () => {
   const mf = new Miniflare({
     modules: true,
@@ -61,6 +64,11 @@ test("D1 persistence, user isolation, conflicts, concurrent writes, deletion", a
     };
     await writeProgress(db, "bob", { xp: 20, revenge }, 0);
     assert.deepEqual((await readProgress(db, "bob")).data.revenge, revenge);
+    const focus = createFocusSession(initialProgress, 10, "persisted-focus");
+    const focusSessions = completeFocusStep([focus], focus.id, focus.steps[0].id, "lesson", true);
+    await writeProgress(db, "bob", validateProgress({ ...initialProgress, xp: 20, focusSessions }), 1);
+    assert.deepEqual((await readProgress(db, "bob")).data.focusSessions, focusSessions);
+    assert.equal((await readProgress(db, "alice")).data.focusSessions, undefined);
     await deleteProgress(db, "alice");
     assert.equal((await readProgress(db, "alice")).data, null);
     assert.equal((await readProgress(db, "bob")).data.xp, 20);

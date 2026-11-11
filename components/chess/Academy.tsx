@@ -64,6 +64,8 @@ import HomeDashboard from "./HomeDashboard";
 import PracticeReminders from "./PracticeReminders";
 import ReminderNudge from "./ReminderNudge";
 import SavedPractice from "./SavedPractice";
+import FocusSession from "./FocusSession";
+import { appendFocusSession, createFocusSession, completeFocusStep } from "../../lib/chess/focus";
 import MobileDock from "./MobileDock";
 import { mergeGuidedSession } from "../../lib/chess/guided";
 import {
@@ -123,6 +125,7 @@ const titleMap: Record<string, string> = {
   dashboard: "Your academy",
   reminders: "Practice reminders",
   saved: "Saved practice",
+  focus: "Focus session",
   learn: "Learning path",
   puzzles: "Tactics lab",
   openings: "Opening library",
@@ -171,6 +174,7 @@ export default function Academy({
   const [active, setActive] = useState<{
     exercise: Exercise;
     lesson?: Lesson;
+    focusSessionId?: string;
   } | null>(null);
   const [workspace, setWorkspace] = useState<{
     mode: "play" | "review" | "opening";
@@ -284,6 +288,7 @@ export default function Academy({
         "weekly",
         "reminders",
         "saved",
+        "focus",
       ].includes(requested)
     ) {
       setPage(requested);
@@ -570,7 +575,7 @@ export default function Academy({
     setWorkspace(null);
     window.scrollTo({ top: 0 });
   }
-  function award(id: string, isLesson: boolean, correct: boolean, understanding?: { correctFirstTry: boolean }) {
+  function award(id: string, isLesson: boolean, correct: boolean, understanding?: { correctFirstTry: boolean }, focusSessionId?: string) {
     update((p) => {
       const isNew = isLesson
         ? !p.completed.includes(id)
@@ -582,6 +587,7 @@ export default function Academy({
       const days = [...new Set([...p.days, today()])];
       return {
         ...p,
+        focusSessions: focusSessionId ? completeFocusStep(p.focusSessions, focusSessionId, id, isLesson ? "lesson" : "puzzle", correct) : p.focusSessions,
         explanations: understanding ? [...(p.explanations || []).filter(item => !(item.id === id && item.at.slice(0,10) === new Date().toISOString().slice(0,10))), {id,correctFirstTry:understanding.correctFirstTry,at:new Date().toISOString()}].slice(-500) : (p.explanations || []),
         days,
         lessonDates: isLesson
@@ -617,7 +623,7 @@ export default function Academy({
           [id]: {
             due: new Date(
               Date.now() +
-                (correct ? (p.reviews[id]?.interval || 1) * 2 : 1) * 86400000,
+                (correct ? Math.min((p.reviews[id]?.interval || 1) * 2, 30) : 1) * 86400000,
             ).toISOString(),
             interval: correct
               ? Math.min((p.reviews[id]?.interval || 1) * 2, 30)
@@ -1004,13 +1010,15 @@ export default function Academy({
               bookmarked={(progress.savedExercises || []).includes(active.exercise.id)}
               onToggleBookmark={() => toggleBookmark(active.exercise.id)}
               onNext={
-                !active.lesson
+                active.focusSessionId ? () => setActive(null) : !active.lesson
                   ? () => train(practiceRecommendation(stateRef.current).puzzle)
                   : undefined
               }
+              backLabel={active.focusSessionId ? "focus session" : undefined}
+              nextLabel={active.focusSessionId ? "Continue focus session" : undefined}
               onClose={() => setActive(null)}
               onComplete={(correct, understanding) =>
-                award(active.exercise.id, !!active.lesson, correct, understanding)
+                award(active.exercise.id, !!active.lesson, correct, understanding, active.focusSessionId)
               }
             />
           ) : workspace ? (
@@ -1164,6 +1172,7 @@ export default function Academy({
               )}
               {page === "reminders" && <PracticeReminders value={progress.practiceReminder} minutes={progress.minutes} signedIn={!!user} onSave={value => update(p => ({...p,practiceReminder:value}))} />}
               {page === "saved" && <SavedPractice ids={progress.savedExercises || []} onPractice={train} onRemove={toggleBookmark} onNavigate={go} />}
+              {page === "focus" && <FocusSession progress={progress} signedIn={!!user} onStart={minutes => update(p => ({ ...p, focusSessions: appendFocusSession(p.focusSessions, createFocusSession(p, minutes, crypto.randomUUID())) }))} onPractice={(exercise, lesson, focusSessionId) => { setActive({ exercise, lesson, focusSessionId }); window.scrollTo({top:0}); }} />}
               {page !== "reminders" && <ReminderNudge value={progress.practiceReminder} practicedDays={progress.days} onChange={value => update(p => ({...p,practiceReminder:value}))} onStart={() => train(nextLesson,nextLesson)} />}
               {page === "dashboard" && (
                 <HomeDashboard

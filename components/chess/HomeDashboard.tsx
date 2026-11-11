@@ -17,6 +17,7 @@ import {
   Trophy,
   Bell,
   Bookmark,
+  Target,
 } from "lucide-react";
 import { type Progress, type Lesson, levels } from "../../lib/chess/content";
 import { ProfileAvatar } from "./ChessComProfile";
@@ -137,6 +138,11 @@ export default function HomeDashboard({
             </button>
           ))}
         </div>
+      </section>
+      <section className="home-focus-session" aria-labelledby="home-focus-title">
+        <span><Target size={23}/></span>
+        <div><h2 id="home-focus-title">One session. A clear next step.</h2><p>A lesson, fresh puzzles, and spaced reviews in a 5, 10, or 15-minute plan.</p></div>
+        <button className="secondary" onClick={() => onNavigate("focus")}>{progress.focusSessions?.at(-1) && !progress.focusSessions.at(-1)?.finishedAt ? "Resume session" : "Try a focus session"}<ArrowRight size={16}/></button>
       </section>
       <div className="home-v2-top-grid">
         <section
