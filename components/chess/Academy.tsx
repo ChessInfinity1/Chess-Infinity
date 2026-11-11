@@ -570,7 +570,7 @@ export default function Academy({
       if (p === "review" && progress.games.length === 0)
         setWorkspace({ mode: "review" });
       window.scrollTo({ top: 0 });
-    }, !sidebar && !profileOpen);
+    });
   }
   function toggleBookmark(id: string) {
     update(p => ({...p,savedExercises:(p.savedExercises || []).includes(id) ? p.savedExercises!.filter(value => value !== id) : [...(p.savedExercises || []),id]}));
