@@ -73,12 +73,15 @@ import {
   mergeImportedGames,
   type ImportedGame,
 } from "../../lib/chess/imported-games";
+import PuzzleTrail from "./PuzzleTrail";
+import { stampStop, trailExercise, type TrailId, type TrailStop } from "../../lib/chess/puzzle-trail";
 import TrainingArcade from "./TrainingArcade";
 import InstallCenter, { useAppInstall } from "./InstallCenter";
 import {
   saveArcadeResult,
   arcadeXp,
   type ArcadeResult,
+  type ArcadeMode,
 } from "../../lib/chess/arcade";
 import {
   OFFLINE_PROGRESS_KEY,
@@ -129,7 +132,7 @@ const titleMap: Record<string, string> = {
   saved: "Saved practice",
   focus: "Focus session",
   learn: "Learning path",
-  puzzles: "Tactics lab",
+  puzzles: "Puzzle trail",
   openings: "Opening library",
   play: "Practice arena",
   review: "Game review",
@@ -178,6 +181,7 @@ export default function Academy({
     exercise: Exercise;
     lesson?: Lesson;
     focusSessionId?: string;
+    trailId?: TrailId;
   } | null>(null);
   const [workspace, setWorkspace] = useState<{
     mode: "play" | "review" | "opening";
@@ -187,6 +191,9 @@ export default function Academy({
   const [query, setQuery] = useState("");
   const motion = useAcademyMotion(`${ready}:${page}:${active?.exercise.id || ""}:${workspace?.mode || ""}:${workspace?.opening?.id || ""}:${workspace?.pgn || ""}`);
   const [level, setLevel] = useState(1);
+  const [puzzleLibrary, setPuzzleLibrary] = useState(false);
+  const [trailChapter, setTrailChapter] = useState<number | null>(null);
+  const [trailArcade, setTrailArcade] = useState<ArcadeMode | null>(null);
   const [puzzleTheme, setPuzzleTheme] = useState("All patterns");
   const [puzzleRange, setPuzzleRange] = useState("all");
   const [puzzleScope, setPuzzleScope] = useState("all");
@@ -558,9 +565,11 @@ export default function Academy({
       train(lesson, lesson);
     }
   }
-  function go(p: string) {
+  function go(p: string, openLibrary = false) {
     motion.changeView(() => {
       setPage(p);
+      setTrailArcade(null);
+      setPuzzleLibrary(openLibrary);
       setActive(null);
       setWorkspace(null);
       setQuery("");
@@ -583,7 +592,18 @@ export default function Academy({
       window.scrollTo({ top: 0 });
     });
   }
-  function award(id: string, isLesson: boolean, correct: boolean, understanding?: { correctFirstTry: boolean }, focusSessionId?: string) {
+  function startTrailStop(stop: TrailStop) {
+    const activity = stop.activity;
+    motion.changeView(() => {
+      if (activity.kind === "arcade") {
+        setTrailArcade(activity.mode);
+      } else {
+        setActive({ exercise: trailExercise(activity, stateRef.current, today()), trailId: stop.id });
+      }
+      window.scrollTo({ top: 0 });
+    });
+  }
+  function award(id: string, isLesson: boolean, correct: boolean, understanding?: { correctFirstTry: boolean }, focusSessionId?: string, trailId?: TrailId) {
     update((p) => {
       const isNew = isLesson
         ? !p.completed.includes(id)
@@ -595,6 +615,7 @@ export default function Academy({
       const days = [...new Set([...p.days, today()])];
       return {
         ...p,
+        trailStamps: trailId && correct ? stampStop(p.trailStamps, trailId) : p.trailStamps,
         focusSessions: focusSessionId ? completeFocusStep(p.focusSessions, focusSessionId, id, isLesson ? "lesson" : "puzzle", correct) : p.focusSessions,
         explanations: understanding ? [...(p.explanations || []).filter(item => !(item.id === id && item.at.slice(0,10) === new Date().toISOString().slice(0,10))), {id,correctFirstTry:understanding.correctFirstTry,at:new Date().toISOString()}].slice(-500) : (p.explanations || []),
         days,
@@ -809,6 +830,7 @@ export default function Academy({
   function finishArcade(result: ArcadeResult) {
     update((p) => ({
       ...p,
+      trailStamps: trailArcade === result.mode && result.score > 0 ? stampStop(p.trailStamps, result.mode) : p.trailStamps,
       arcade: saveArcadeResult(p.arcade, result),
       xp:
         p.xp +
@@ -1021,17 +1043,21 @@ export default function Academy({
               bookmarked={(progress.savedExercises || []).includes(active.exercise.id)}
               onToggleBookmark={() => toggleBookmark(active.exercise.id)}
               onNext={
-                active.focusSessionId ? () => motion.changeView(() => setActive(null)) : !active.lesson
+                active.focusSessionId || active.trailId ? () => motion.changeView(() => setActive(null)) : !active.lesson
                   ? () => train(practiceRecommendation(stateRef.current).puzzle)
                   : undefined
               }
-              backLabel={active.focusSessionId ? "focus session" : undefined}
-              nextLabel={active.focusSessionId ? "Continue focus session" : undefined}
+              backLabel={active.trailId ? "puzzle trail" : active.focusSessionId ? "focus session" : undefined}
+              nextLabel={active.trailId ? "Return to trail" : active.focusSessionId ? "Continue focus session" : undefined}
               onClose={() => motion.changeView(() => setActive(null))}
               onComplete={(correct, understanding) =>
-                award(active.exercise.id, !!active.lesson, correct, understanding, active.focusSessionId)
+                award(active.exercise.id, !!active.lesson, correct, understanding, active.focusSessionId, active.trailId)
               }
             />
+          ) : trailArcade ? (
+            <TrainingArcade initialMode={trailArcade} progress={progress.arcade} boardTheme={progress.boardTheme}
+              onFinish={finishArcade} onReturn={() => setTrailArcade(null)}
+              onPractice={exercise => { setTrailArcade(null); train(exercise); }} />
           ) : workspace ? (
             <Workspace
               key={
@@ -1178,7 +1204,7 @@ export default function Academy({
                   progress={progress}
                   onNavigate={go}
                   onPattern={(theme) => {
-                    go("puzzles");
+                    go("puzzles", true);
                     setPuzzleTheme(theme);
                   }}
                 />
@@ -1194,7 +1220,7 @@ export default function Academy({
                   streak={streak}
                   nextLesson={nextLesson}
                   installed={install.installed}
-                  onNavigate={(page) => {if (page === "new-drills") {go("puzzles");setPuzzleScope("new");} else go(page);}}
+                  onNavigate={(page) => {if (page === "new-drills") {go("puzzles", true);setPuzzleScope("new");} else go(page);}}
                   onLesson={(l) => train(l, l)}
                   onPuzzle={() => train(nextPractice.puzzle)}
                   onGame={(pgn) => openWorkspace("review", pgn)}
@@ -1232,74 +1258,14 @@ export default function Academy({
                   onLevel={setLevel}
                   onLesson={(l) => train(l, l)}
                   onAssessment={() => go("assessment")}
+                  onNavigate={go}
                 />
               )}
               {page === "puzzles" && (
                 <>
-                  {sectionHeading(
-                    "TRAIN YOUR TACTICAL EYE",
-                    "Find the move that matters.",
-                    "Slow down, look for forcing moves, and make the pattern yours.",
-                  )}
-                  <div className="puzzle-hero card">
-                    <div>
-                      <span className="pill lavender">DAILY PRACTICE</span>
-                      <h2>
-                        Good instincts are built
-                        <br />
-                        one puzzle at a time.
-                      </h2>
-                      <p>
-                        {puzzles.length.toLocaleString()} legally validated
-                        exercises, including CC0 puzzles from Lichess. Filter by
-                        pattern and strength.
-                      </p>
-                      <button
-                        className="primary"
-                        onClick={() => {
-                          train(nextPractice.puzzle);
-                        }}
-                      >
-                        Start training <ArrowRight size={17} />
-                      </button>
-                    </div>
-                    <div className="puzzle-score">
-                      <Puzzle size={50} />
-                      <strong>{progress.puzzleRating}</strong>
-                      <span>internal puzzle rating</span>
-                      <small>
-                        {rate}% clean solves · {progress.puzzles.length}{" "}
-                        attempts. Elo-style training estimate; independent of
-                        external ratings.
-                      </small>
-                    </div>
-                  </div>
-                  <section className="smart-practice card">
-                    <span className="icon-box">
-                      <Target size={24} />
-                    </span>
-                    <div>
-                      <span className="eyebrow">
-                        LESS GUESSWORK. BETTER PRACTICE.
-                      </span>
-                      <h3>
-                        {nextPractice.review
-                          ? "A pattern worth revisiting."
-                          : "A fresh position, chosen for you."}
-                      </h3>
-                      <p>
-                        {nextPractice.reason}. Your next position is{" "}
-                        {nextPractice.puzzle.theme.toLowerCase()}, difficulty{" "}
-                        {nextPractice.puzzle.rating}.
-                      </p>
-                    </div>
-                    <button
-                      className="secondary"
-                      onClick={() => train(nextPractice.puzzle)}
-                    >
-                      Start smart practice <ArrowRight size={15} />
-                    </button>
-                  </section>
+                  <PuzzleTrail stamps={progress.trailStamps} rating={progress.puzzleRating} library={puzzleLibrary}
+                    setLibrary={setPuzzleLibrary} selectedChapter={trailChapter} onChapter={setTrailChapter} onStart={startTrailStop} />
+                  {puzzleLibrary && <>
                   <div className="puzzle-scope-controls" aria-label="Puzzle practice filters">{[["all","All puzzles"],["unseen","Unseen"],["missed","Missed"],["saved","Saved"],["new","New drills"]].map(([value,label]) => <button key={value} aria-pressed={puzzleScope === value} onClick={() => setPuzzleScope(value)}>{label}</button>)}<span>{(progress.explanations || []).length} explanations practiced</span></div>
                   <div className="filter-bar">
                     <div className="search-field">
@@ -1437,6 +1403,7 @@ export default function Academy({
                       Source &amp; license ↗
                     </a>
                   </p>
+                  </>}
                 </>
               )}
               {page === "openings" && (
@@ -1875,7 +1842,7 @@ export default function Academy({
                           <button
                             key={skill.theme}
                             onClick={() => {
-                              go("puzzles");
+                              go("puzzles", true);
                               setPuzzleTheme(skill.theme);
                             }}
                           >
