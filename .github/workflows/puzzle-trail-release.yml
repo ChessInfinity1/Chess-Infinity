@@ -1,0 +1,83 @@
+name: Publish Puzzle Trail
+
+on:
+  push:
+    branches: [deploy/puzzle-trail]
+    tags: [release-puzzle-trail-762f427]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 762f427e3f0b74b52e81d547a4761e5f03add138
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm run install:ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - name: Check deployment package
+        run: |
+          node --input-type=module <<'JS'
+          import { readFileSync } from "node:fs";
+          import assert from "node:assert/strict";
+          const config = JSON.parse(readFileSync("dist/server/wrangler.json", "utf8"));
+          assert.equal(config.name, "chess-infinity-academy");
+          assert.equal(config.account_id, "4e64c6d202ec674cb9a965923d394cff");
+          assert.equal(config.d1_databases.find(db => db.binding === "DB")?.database_id, "34c90791-5167-4210-88a1-6ff117005332");
+          assert.deepEqual(readFileSync("public/puzzle-trail-valley.webp"), readFileSync("dist/client/puzzle-trail-valley.webp"));
+          JS
+          tar -czf puzzle-trail.tgz dist/server dist/client
+      - uses: actions/upload-artifact@v4
+        with:
+          name: puzzle-trail-worker
+          path: puzzle-trail.tgz
+          retention-days: 3
+
+  publish:
+    if: github.ref == 'refs/tags/release-puzzle-trail-762f427'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: academy-worker
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 762f427e3f0b74b52e81d547a4761e5f03add138
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm run install:ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: puzzle-trail-worker
+      - run: tar -xzf puzzle-trail.tgz
+      - name: Deploy the existing Academy Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN" || { echo "Add CLOUDFLARE_API_TOKEN to the academy-worker environment or repository secrets."; exit 1; }
+          ./node_modules/.bin/wrangler deploy --config dist/server/wrangler.json --keep-vars
+      - name: Verify live Academy and trail artwork
+        run: |
+          origin=https://chess-infinity-academy.chessinfinity1.workers.dev
+          for attempt in {1..12}; do
+            if curl -fsS "$origin/api/health" | jq -e '.status == "ok"' >/dev/null &&
+               curl -fsS "$origin/puzzle-trail-valley.webp" -o /tmp/live-trail.webp &&
+               cmp -s public/puzzle-trail-valley.webp /tmp/live-trail.webp; then
+              exit 0
+            fi
+            sleep 5
+          done
+          exit 1
