@@ -1232,6 +1232,7 @@ export default function Academy({
                   onLevel={setLevel}
                   onLesson={(l) => train(l, l)}
                   onAssessment={() => go("assessment")}
+                  onNavigate={go}
                 />
               )}
               {page === "puzzles" && (
