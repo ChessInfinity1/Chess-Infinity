@@ -13,6 +13,7 @@ const exercise = z.object({ id: str, fen: str, line: strings, title: str, theme:
 const move = z.object({ ply: count, fen: str, uci: str, san: str, at: str, loss: number, label: str, best: str, line: str, depth: count, explanation: str });
 const game = z.object({ id: str, pgn: str, white: str, black: str, result: str, source: str, date: str }).passthrough();
 const schema = z.object({
+  trailStamps: z.array(str.max(40)).max(100).optional(),
   focusSessions: z.array(z.object({ id: str.max(100), minutes: z.union([z.literal(5), z.literal(10), z.literal(15)]), startedAt: z.iso.datetime(), finishedAt: z.iso.datetime().optional(), steps: z.array(z.object({ id: str.max(100), kind: z.enum(["lesson", "puzzle"]), reason: str.max(200), completedAt: z.iso.datetime().optional(), clean: z.boolean().optional() })).min(1).max(7) })).max(20).optional(),
   completed: strings, puzzles: z.array(z.object({ id: str, correct: z.boolean(), at: str })),
   xp: count, puzzleRating: number.nonnegative(), days: strings, lessonDates: record(str),
