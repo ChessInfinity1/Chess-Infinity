@@ -60,7 +60,11 @@ export default function TrainingArcade({
   boardTheme = "violet",
   onFinish,
   onPractice,
+  initialMode,
+  onReturn,
 }: {
+  initialMode?: ArcadeMode;
+  onReturn?: () => void;
   progress?: ArcadeProgress;
   boardTheme?: string;
   onFinish: (result: ArcadeResult) => void;
@@ -157,6 +161,13 @@ export default function TrainingArcade({
       setTarget(square);
     } else choose();
   }
+  const launched = useRef(false);
+  useEffect(() => {
+    if (initialMode && !launched.current) {
+      launched.current = true;
+      start(initialMode);
+    }
+  }, [initialMode]);
   function finish() {
     if (done.current || !mode) return;
     done.current = true;
@@ -360,11 +371,12 @@ export default function TrainingArcade({
           <button
             className="secondary"
             onClick={() => {
+              if (onReturn) return onReturn();
               setMode(null);
               setResult(null);
             }}
           >
-            Back to arcade
+            {onReturn ? "Back to puzzle trail" : "Back to arcade"}
           </button>
         </div>
         {result.misses.length > 0 && (

@@ -39,6 +39,7 @@ export type Opening = {
   mistake: string;
 };
 export type Progress = {
+  trailStamps?: string[];
   focusSessions?: FocusSession[];
   practiceReminder?: PracticeReminder;
   explainMoves?: boolean;
