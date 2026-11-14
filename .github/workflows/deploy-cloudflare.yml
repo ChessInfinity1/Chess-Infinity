@@ -36,15 +36,19 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
-      - name: Verify existing Worker and database identity
+      - name: Prepare and verify existing Worker deployment
         run: |
           node --input-type=module <<'JS'
           import assert from 'node:assert/strict';
-          import { readFileSync } from 'node:fs';
+          import { readFileSync, writeFileSync } from 'node:fs';
           const config = JSON.parse(readFileSync('dist/server/wrangler.json', 'utf8'));
           assert.equal(config.name, 'chess-infinity-academy');
           assert.equal(config.account_id, '4e64c6d202ec674cb9a965923d394cff');
           assert.equal(config.d1_databases.find(db => db.binding === 'DB')?.database_id, '34c90791-5167-4210-88a1-6ff117005332');
+          // The build plugin emits the former default; newer Wrangler removed this option.
+          assert.equal(config.legacy_env, true);
+          delete config.legacy_env;
+          writeFileSync('dist/server/wrangler.json', JSON.stringify(config, null, 2));
           JS
       - name: Install Wrangler with Worker-scoped token support
         run: npm install --prefix "$RUNNER_TEMP/chess-infinity-deploy" --no-package-lock --no-audit --no-fund wrangler@4.136.1
