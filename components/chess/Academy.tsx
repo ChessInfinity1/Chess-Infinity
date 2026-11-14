@@ -73,7 +73,6 @@ import {
   mergeImportedGames,
   type ImportedGame,
 } from "../../lib/chess/imported-games";
-import PuzzleTrail from "./PuzzleTrail";
 import { stampStop, trailExercise, type TrailId, type TrailStop } from "../../lib/chess/puzzle-trail";
 import TrainingArcade from "./TrainingArcade";
 import InstallCenter, { useAppInstall } from "./InstallCenter";
@@ -132,7 +131,7 @@ const titleMap: Record<string, string> = {
   saved: "Saved practice",
   focus: "Focus session",
   learn: "Learning path",
-  puzzles: "Puzzle trail",
+  puzzles: "Tactics lab",
   openings: "Opening library",
   play: "Practice arena",
   review: "Game review",
@@ -191,8 +190,6 @@ export default function Academy({
   const [query, setQuery] = useState("");
   const motion = useAcademyMotion(`${ready}:${page}:${active?.exercise.id || ""}:${workspace?.mode || ""}:${workspace?.opening?.id || ""}:${workspace?.pgn || ""}`);
   const [level, setLevel] = useState(1);
-  const [puzzleLibrary, setPuzzleLibrary] = useState(false);
-  const [trailChapter, setTrailChapter] = useState<number | null>(null);
   const [trailArcade, setTrailArcade] = useState<ArcadeMode | null>(null);
   const [puzzleTheme, setPuzzleTheme] = useState("All patterns");
   const [puzzleRange, setPuzzleRange] = useState("all");
@@ -569,7 +566,6 @@ export default function Academy({
     motion.changeView(() => {
       setPage(p);
       setTrailArcade(null);
-      setPuzzleLibrary(openLibrary);
       setActive(null);
       setWorkspace(null);
       setQuery("");
@@ -1262,15 +1258,77 @@ export default function Academy({
                 />
               )}
               {page === "puzzles" && (
-                <>
-                  <PuzzleTrail stamps={progress.trailStamps} rating={progress.puzzleRating} library={puzzleLibrary}
-                    setLibrary={setPuzzleLibrary} selectedChapter={trailChapter} onChapter={setTrailChapter} onStart={startTrailStop} />
-                  {puzzleLibrary && <>
+                <section className="puzzles-page" aria-label="Puzzle training">
+                  {sectionHeading(
+                    "TRAIN YOUR TACTICAL EYE",
+                    "Find the move that matters.",
+                    "Slow down, look for forcing moves, and make the pattern yours.",
+                  )}
+                  <div className="puzzle-hero card">
+                    <div>
+                      <span className="pill lavender">DAILY PRACTICE</span>
+                      <h2>
+                        Good instincts are built
+                        <br />
+                        one puzzle at a time.
+                      </h2>
+                      <p>
+                        {puzzles.length.toLocaleString()} legally validated
+                        exercises, including CC0 puzzles from Lichess. Filter by
+                        pattern and strength.
+                      </p>
+                      <button
+                        className="primary"
+                        onClick={() => {
+                          train(nextPractice.puzzle);
+                        }}
+                      >
+                        Start training <ArrowRight size={17} />
+                      </button>
+                    </div>
+                    <div className="puzzle-score">
+                      <Puzzle size={50} />
+                      <strong>{progress.puzzleRating}</strong>
+                      <span>internal puzzle rating</span>
+                      <small>
+                        {rate}% clean solves · {progress.puzzles.length}{" "}
+                        attempts. Elo-style training estimate; independent of
+                        external ratings.
+                      </small>
+                    </div>
+                  </div>
+                  <section className="smart-practice card">
+                    <span className="icon-box">
+                      <Target size={24} />
+                    </span>
+                    <div>
+                      <span className="eyebrow">
+                        LESS GUESSWORK. BETTER PRACTICE.
+                      </span>
+                      <h3>
+                        {nextPractice.review
+                          ? "A pattern worth revisiting."
+                          : "A fresh position, chosen for you."}
+                      </h3>
+                      <p>
+                        {nextPractice.reason}. Your next position is{" "}
+                        {nextPractice.puzzle.theme.toLowerCase()}, difficulty{" "}
+                        {nextPractice.puzzle.rating}.
+                      </p>
+                    </div>
+                    <button
+                      className="secondary"
+                      onClick={() => train(nextPractice.puzzle)}
+                    >
+                      Start smart practice <ArrowRight size={15} />
+                    </button>
+                  </section>
                   <div className="puzzle-scope-controls" aria-label="Puzzle practice filters">{[["all","All puzzles"],["unseen","Unseen"],["missed","Missed"],["saved","Saved"],["new","New drills"]].map(([value,label]) => <button key={value} aria-pressed={puzzleScope === value} onClick={() => setPuzzleScope(value)}>{label}</button>)}<span>{(progress.explanations || []).length} explanations practiced</span></div>
                   <div className="filter-bar">
                     <div className="search-field">
                       <Search size={17} />
                       <input
+                        aria-label="Search puzzles"
                         placeholder="Search tactical ideas…"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
@@ -1403,8 +1461,7 @@ export default function Academy({
                       Source &amp; license ↗
                     </a>
                   </p>
-                  </>}
-                </>
+                </section>
               )}
               {page === "openings" && (
                 <>
