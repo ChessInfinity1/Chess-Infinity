@@ -73,12 +73,14 @@ import {
   mergeImportedGames,
   type ImportedGame,
 } from "../../lib/chess/imported-games";
+import { stampStop, trailExercise, type TrailId, type TrailStop } from "../../lib/chess/puzzle-trail";
 import TrainingArcade from "./TrainingArcade";
 import InstallCenter, { useAppInstall } from "./InstallCenter";
 import {
   saveArcadeResult,
   arcadeXp,
   type ArcadeResult,
+  type ArcadeMode,
 } from "../../lib/chess/arcade";
 import {
   OFFLINE_PROGRESS_KEY,
@@ -109,6 +111,7 @@ import {
 } from "../../lib/chess/learning";
 import { parseProgressBackup } from "../../lib/progress-backup";
 import { useAcademyMotion, useAnimatedPresence } from "../../hooks/use-academy-motion";
+import GoogleAccountSettings from "./GoogleSignIn";
 const PUZZLES_PER_PAGE = 12;
 const today = () => new Date().toLocaleDateString("en-CA");
 function getStreak(days: string[]) {
@@ -177,6 +180,7 @@ export default function Academy({
     exercise: Exercise;
     lesson?: Lesson;
     focusSessionId?: string;
+    trailId?: TrailId;
   } | null>(null);
   const [workspace, setWorkspace] = useState<{
     mode: "play" | "review" | "opening";
@@ -186,6 +190,7 @@ export default function Academy({
   const [query, setQuery] = useState("");
   const motion = useAcademyMotion(`${ready}:${page}:${active?.exercise.id || ""}:${workspace?.mode || ""}:${workspace?.opening?.id || ""}:${workspace?.pgn || ""}`);
   const [level, setLevel] = useState(1);
+  const [trailArcade, setTrailArcade] = useState<ArcadeMode | null>(null);
   const [puzzleTheme, setPuzzleTheme] = useState("All patterns");
   const [puzzleRange, setPuzzleRange] = useState("all");
   const [puzzleScope, setPuzzleScope] = useState("all");
@@ -557,9 +562,10 @@ export default function Academy({
       train(lesson, lesson);
     }
   }
-  function go(p: string) {
+  function go(p: string, openLibrary = false) {
     motion.changeView(() => {
       setPage(p);
+      setTrailArcade(null);
       setActive(null);
       setWorkspace(null);
       setQuery("");
@@ -582,7 +588,18 @@ export default function Academy({
       window.scrollTo({ top: 0 });
     });
   }
-  function award(id: string, isLesson: boolean, correct: boolean, understanding?: { correctFirstTry: boolean }, focusSessionId?: string) {
+  function startTrailStop(stop: TrailStop) {
+    const activity = stop.activity;
+    motion.changeView(() => {
+      if (activity.kind === "arcade") {
+        setTrailArcade(activity.mode);
+      } else {
+        setActive({ exercise: trailExercise(activity, stateRef.current, today()), trailId: stop.id });
+      }
+      window.scrollTo({ top: 0 });
+    });
+  }
+  function award(id: string, isLesson: boolean, correct: boolean, understanding?: { correctFirstTry: boolean }, focusSessionId?: string, trailId?: TrailId) {
     update((p) => {
       const isNew = isLesson
         ? !p.completed.includes(id)
@@ -594,6 +611,7 @@ export default function Academy({
       const days = [...new Set([...p.days, today()])];
       return {
         ...p,
+        trailStamps: trailId && correct ? stampStop(p.trailStamps, trailId) : p.trailStamps,
         focusSessions: focusSessionId ? completeFocusStep(p.focusSessions, focusSessionId, id, isLesson ? "lesson" : "puzzle", correct) : p.focusSessions,
         explanations: understanding ? [...(p.explanations || []).filter(item => !(item.id === id && item.at.slice(0,10) === new Date().toISOString().slice(0,10))), {id,correctFirstTry:understanding.correctFirstTry,at:new Date().toISOString()}].slice(-500) : (p.explanations || []),
         days,
@@ -808,6 +826,7 @@ export default function Academy({
   function finishArcade(result: ArcadeResult) {
     update((p) => ({
       ...p,
+      trailStamps: trailArcade === result.mode && result.score > 0 ? stampStop(p.trailStamps, result.mode) : p.trailStamps,
       arcade: saveArcadeResult(p.arcade, result),
       xp:
         p.xp +
@@ -1020,17 +1039,21 @@ export default function Academy({
               bookmarked={(progress.savedExercises || []).includes(active.exercise.id)}
               onToggleBookmark={() => toggleBookmark(active.exercise.id)}
               onNext={
-                active.focusSessionId ? () => motion.changeView(() => setActive(null)) : !active.lesson
+                active.focusSessionId || active.trailId ? () => motion.changeView(() => setActive(null)) : !active.lesson
                   ? () => train(practiceRecommendation(stateRef.current).puzzle)
                   : undefined
               }
-              backLabel={active.focusSessionId ? "focus session" : undefined}
-              nextLabel={active.focusSessionId ? "Continue focus session" : undefined}
+              backLabel={active.trailId ? "puzzle trail" : active.focusSessionId ? "focus session" : undefined}
+              nextLabel={active.trailId ? "Return to trail" : active.focusSessionId ? "Continue focus session" : undefined}
               onClose={() => motion.changeView(() => setActive(null))}
               onComplete={(correct, understanding) =>
-                award(active.exercise.id, !!active.lesson, correct, understanding, active.focusSessionId)
+                award(active.exercise.id, !!active.lesson, correct, understanding, active.focusSessionId, active.trailId)
               }
             />
+          ) : trailArcade ? (
+            <TrainingArcade initialMode={trailArcade} progress={progress.arcade} boardTheme={progress.boardTheme}
+              onFinish={finishArcade} onReturn={() => setTrailArcade(null)}
+              onPractice={exercise => { setTrailArcade(null); train(exercise); }} />
           ) : workspace ? (
             <Workspace
               key={
@@ -1177,7 +1200,7 @@ export default function Academy({
                   progress={progress}
                   onNavigate={go}
                   onPattern={(theme) => {
-                    go("puzzles");
+                    go("puzzles", true);
                     setPuzzleTheme(theme);
                   }}
                 />
@@ -1193,7 +1216,7 @@ export default function Academy({
                   streak={streak}
                   nextLesson={nextLesson}
                   installed={install.installed}
-                  onNavigate={(page) => {if (page === "new-drills") {go("puzzles");setPuzzleScope("new");} else go(page);}}
+                  onNavigate={(page) => {if (page === "new-drills") {go("puzzles", true);setPuzzleScope("new");} else go(page);}}
                   onLesson={(l) => train(l, l)}
                   onPuzzle={() => train(nextPractice.puzzle)}
                   onGame={(pgn) => openWorkspace("review", pgn)}
@@ -1231,10 +1254,11 @@ export default function Academy({
                   onLevel={setLevel}
                   onLesson={(l) => train(l, l)}
                   onAssessment={() => go("assessment")}
+                  onNavigate={go}
                 />
               )}
               {page === "puzzles" && (
-                <>
+                <section className="puzzles-page" aria-label="Puzzle training">
                   {sectionHeading(
                     "TRAIN YOUR TACTICAL EYE",
                     "Find the move that matters.",
@@ -1304,6 +1328,7 @@ export default function Academy({
                     <div className="search-field">
                       <Search size={17} />
                       <input
+                        aria-label="Search puzzles"
                         placeholder="Search tactical ideas…"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
@@ -1436,7 +1461,7 @@ export default function Academy({
                       Source &amp; license ↗
                     </a>
                   </p>
-                </>
+                </section>
               )}
               {page === "openings" && (
                 <>
@@ -1874,7 +1899,7 @@ export default function Academy({
                           <button
                             key={skill.theme}
                             onClick={() => {
-                              go("puzzles");
+                              go("puzzles", true);
                               setPuzzleTheme(skill.theme);
                             }}
                           >
@@ -2178,6 +2203,7 @@ export default function Academy({
                     </section>
                     <section className="card">
                       <h2>Your data & account</h2>
+                      {user && <GoogleAccountSettings/>}
                       <div className="feedback">
                         <strong>{saveStatus}</strong>
                         <p>

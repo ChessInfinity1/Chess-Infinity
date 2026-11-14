@@ -39,6 +39,8 @@ For `npm start` set `.dev.vars` `APP_ORIGIN` to the exact URL printed by Wrangle
 
 ## Deploy
 
+Optional **Continue with Google** sign-in and safe linking for existing accounts are described in [Google sign-in setup](docs/GOOGLE_SIGN_IN.md). The button requires real Google OAuth credentials stored as Worker secrets; it stays hidden until configured.
+
 See [Cloudflare deployment and data migration](docs/CLOUDFLARE.md). The checked-in `wrangler.jsonc` points at the new, separate Academy D1 database. Database IDs and account IDs are identifiers, not credentials. No secrets or database contents are committed.
 
 ```sh

@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { Bell, BellRing, CalendarPlus, Check, Clock, Smartphone } from "lucide-react";
 import { defaultReminder, normalizeReminder, practiceCalendar, reminderDayNames, type PracticeReminder } from "../../lib/chess/reminders";
-import { deviceSubscription, disableDeviceReminder, enableDeviceReminder, notificationSupport, reminderApi, type DeviceReminderStatus } from "../../lib/device-reminders";
+import { deviceSubscription, disableDeviceReminder, enableDeviceReminder, notificationSupport, notificationError, showDeviceNotificationTest, reminderApi, type DeviceReminderStatus } from "../../lib/device-reminders";
 
 export default function PracticeReminders({ value, minutes, signedIn = false, onSave }: { value?: PracticeReminder; minutes: number; signedIn?: boolean; onSave: (value: PracticeReminder) => void }) {
   const [draft, setDraft] = useState(() => normalizeReminder(value || defaultReminder));
@@ -30,7 +30,7 @@ export default function PracticeReminders({ value, minutes, signedIn = false, on
           const subscription = await deviceSubscription();
           if (subscription) {
             const state = await reminderApi<DeviceReminderStatus>("status", subscription);
-            if (live) setDevice(state);
+            if (live) { setDevice(state); if (state.enabled && state.schedule) setDraft(current => ({ ...current, enabled: true, time: state.schedule!.time, days: state.schedule!.days })); }
           }
         }
       } catch (e) { if (live) setError((e as Error).message); }
@@ -43,6 +43,13 @@ export default function PracticeReminders({ value, minutes, signedIn = false, on
   async function save() {
     if (!valid || busy) return; setBusy(true); changed();
     try {
+      if (draft.enabled && (!device.enabled || permission !== "granted") && signedIn && publicKey && !unsupported && permission !== "denied") {
+        const { status } = await enableDeviceReminder(publicKey, schedule());
+        setDevice(status); setPermission(Notification.permission);
+        onSave({ ...draft, dismissedDay: undefined, snoozeUntil: undefined });
+        setMessage("Schedule saved and device notifications enabled. Send a push test to check delivery.");
+        return;
+      }
       if (device.enabled) {
         if (!draft.enabled) { await disableDeviceReminder(); setDevice({ enabled: false }); }
         else {
@@ -53,17 +60,22 @@ export default function PracticeReminders({ value, minutes, signedIn = false, on
       }
       onSave({ ...draft, dismissedDay: undefined, snoozeUntil: undefined });
       setMessage(draft.enabled ? "Practice schedule saved." : "Practice reminders are off.");
-    } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
+    } catch (e) { setError(notificationError(e)); if ("Notification" in window) setPermission(Notification.permission); } finally { setBusy(false); }
   }
-  async function enable() {
+  async function enable(repair = false) {
     if (!valid || busy || !publicKey || !signedIn) return;
     setBusy(true); changed();
     try {
-      const { status } = await enableDeviceReminder(publicKey, schedule());
+      const { status } = await enableDeviceReminder(publicKey, schedule(), repair);
       setDevice(status); setPermission(Notification.permission);
       const next = { ...draft, enabled: true, dismissedDay: undefined, snoozeUntil: undefined };
       setDraft(next); onSave(next); setMessage("Device notifications enabled. Send a test to check delivery on your phone.");
-    } catch (e) { setError((e as Error).message); if ("Notification" in window) setPermission(Notification.permission); } finally { setBusy(false); }
+    } catch (e) { setError(notificationError(e)); if ("Notification" in window) setPermission(Notification.permission); } finally { setBusy(false); }
+  }
+  async function deviceTest() {
+    if (busy) return; setBusy(true); changed();
+    try { await showDeviceNotificationTest(); setPermission(Notification.permission); setMessage("Device alert requested. Check your notification tray. If nothing appears, allow alerts for this browser in your phone settings and turn off Do Not Disturb."); }
+    catch (e) { setError(notificationError(e)); } finally { setBusy(false); }
   }
   async function disable() {
     if (busy) return; setBusy(true); changed();
@@ -76,7 +88,7 @@ export default function PracticeReminders({ value, minutes, signedIn = false, on
       const subscription = await deviceSubscription();
       if (!subscription) { setDevice({ enabled: false }); throw new Error("This browser subscription expired. Enable device notifications again."); }
       await reminderApi("test", subscription);
-      setMessage(current => current.startsWith("Test notification displayed") ? current : "Test accepted by the push service. Check this device’s notifications. Delivery can take a moment.");
+      setMessage(current => current.startsWith("Test notification displayed") ? current : "Push test accepted. Check your notification tray. If no alert arrives, try Check device alert, then Repair device notifications.");
     } catch (e) { if ([404, 410].includes((e as Error & { status?: number }).status || 0)) setDevice({ enabled: false }); setError((e as Error).message); } finally { setBusy(false); }
   }
   function calendar() {
@@ -96,13 +108,15 @@ export default function PracticeReminders({ value, minutes, signedIn = false, on
     <p className="reminder-time-zone">{zone ? `Timezone: ${zone.replaceAll("_", " ")}` : "Checking your timezone…"}</p>
     <fieldset className="reminder-days" disabled={busy}><legend>Practice days</legend><div>{reminderDayNames.map((day, index) => <button key={day} type="button" aria-label={day} aria-pressed={draft.days.includes(index)} onClick={() => { setDraft({ ...draft, days: draft.days.includes(index) ? draft.days.filter(d => d !== index) : [...draft.days, index].sort() }); changed(); }}>{day.slice(0, 2)}</button>)}</div></fieldset>
     {!draft.days.length && <p className="feedback error" role="alert">Choose at least one day.</p>}
-    <button className="primary full" disabled={!valid || busy || loading} onClick={save}><Check size={17}/>{busy ? "Please wait…" : "Save reminder"}</button>
-    <div className="reminder-device"><div className="reminder-device-heading"><Smartphone size={23}/><h3>Notifications on this device</h3><span className={device.enabled && permission === "granted" ? "is-on" : ""}>{loading ? "Checking…" : permission === "denied" ? "Blocked" : device.enabled ? "Enabled" : "Off"}</span></div>
+    <button className="primary full" disabled={!valid || busy || loading} onClick={save}><Check size={17}/>{busy ? "Please wait…" : draft.enabled && (!device.enabled || permission !== "granted") && signedIn && publicKey && !unsupported && permission !== "denied" ? "Enable & save reminders" : "Save reminder"}</button>
+    <div className="reminder-device"><div className="reminder-device-heading"><Smartphone size={23}/><h3>Notifications on this device</h3><span className={device.enabled && permission === "granted" ? "is-on" : ""}>{loading ? "Checking…" : permission === "denied" ? "Blocked" : device.enabled && permission === "granted" ? "Enabled" : device.enabled ? "Needs permission" : "Off"}</span></div>
       {!signedIn ? <p><a href="/login?return_to=%2F%3Fscreen%3Dreminders">Sign in</a> to save a device notification schedule. You can still use in-app reminders or the calendar option.</p> : unsupported ? <p>{unsupported}</p> : permission === "denied" ? <p>Notifications are blocked for this website. Open your browser’s site settings, allow notifications, then return here. Also check that your phone allows notifications from your browser or installed app.</p> : <p>Get a real notification even when the academy is closed. Your device needs an internet connection; Focus, Do Not Disturb and battery settings can delay alerts.</p>}
       {!loading && !publicKey && <p>Device notifications are awaiting server setup. Your calendar and in-app reminders still work.</p>}
       {device.enabled && device.nextAt && <p className="reminder-next">Next scheduled: {new Date(device.nextAt).toLocaleString([], { weekday: "short", hour: "numeric", minute: "2-digit", timeZoneName: "short" })}</p>}
       {device.lastError && <p className="feedback error">The last reminder could not be delivered. Try a test; if it fails, disable and re-enable device notifications.</p>}
-      {device.enabled ? <div className="reminder-device-actions"><button className="secondary" disabled={busy || permission !== "granted"} onClick={test}><BellRing size={17}/>Send test notification</button><button className="text-btn" disabled={busy} onClick={disable}>Turn off on this device</button></div> : <button className="secondary full" disabled={busy || loading || !valid || !signedIn || !publicKey || !!unsupported || permission === "denied"} onClick={enable}><BellRing size={17}/>Enable device notifications</button>}
+      {device.enabled && permission === "granted" ? <div className="reminder-device-actions"><button className="secondary" disabled={busy} onClick={test}><BellRing size={17}/>Send push test</button><button className="text-btn" disabled={busy} onClick={disable}>Turn off on this device</button></div> : <button className="secondary full" disabled={busy || loading || !valid || !signedIn || !publicKey || !!unsupported || permission === "denied"} onClick={() => enable()}><BellRing size={17}/>Enable device notifications</button>}
+      {!unsupported && permission === "granted" && <div className="reminder-device-actions"><button className="secondary" disabled={busy} onClick={deviceTest}><Smartphone size={16}/>Check device alert</button>{signedIn && publicKey && <button className="text-btn" disabled={busy || !valid} onClick={() => enable(true)}>Repair device notifications</button>}</div>}
+      {draft.enabled && !device.enabled && !loading && <p className="reminder-next">A saved schedule alone does not send phone alerts. Enable notifications on this device to receive them when the academy is closed.</p>}
       <small>Enable alerts separately on each device. Schedule changes take effect after you tap Save reminder. Delivery is usually within a minute of your practice time.</small>
     </div>
     <div className="reminder-calendar"><CalendarPlus size={23}/><h3>Prefer a calendar alert?</h3><p>Add a repeating practice event to your calendar. Finish importing the file and check your calendar’s notification settings.</p><button className="secondary full" disabled={!valid || busy} onClick={calendar}>Add to my calendar <CalendarPlus size={17}/></button><small>If you change your calendar schedule, remove the old event before importing a replacement.</small></div>

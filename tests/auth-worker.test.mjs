@@ -10,7 +10,7 @@ test('credential hashing, sessions and D1 saves execute inside the actual Worker
  import {readProgress,writeProgress} from './lib/progress-store.ts';
  export default {async fetch(request,env){
   const db=drizzle(env.DB);
-  const auth=createAuth(db,'worker-test-secret-at-least-32-characters','https://academy.example');
+  const auth=createAuth(db,'worker-test-secret-at-least-32-characters','https://academy.example',{GOOGLE_CLIENT_ID:'123456-worker-test.apps.googleusercontent.com',GOOGLE_CLIENT_SECRET:'test-only-worker-google-secret'});
   if(new URL(request.url).pathname.startsWith('/api/auth/')) return auth.handler(request);
   const session=await auth.api.getSession({headers:request.headers});
   if(!session)return new Response(null,{status:401});
@@ -31,6 +31,13 @@ test('credential hashing, sessions and D1 saves execute inside the actual Worker
   const cookie=signup.headers.getSetCookie().map(s=>s.split(';')[0]).join('; ');
   const authed={...headers,cookie};
   assert.equal((await mf.dispatchFetch('https://academy.example/api/progress')).status,401);
+  const google=await mf.dispatchFetch('https://academy.example/api/auth/sign-in/social',{method:'POST',headers,body:JSON.stringify({provider:'google',callbackURL:'/?screen=focus',disableRedirect:true})});
+  assert.equal(google.status,200,await google.clone().text());
+  const googleURL=new URL((await google.json()).url);
+  assert.equal(googleURL.origin,'https://accounts.google.com');
+  assert.equal(googleURL.searchParams.get('code_challenge_method'),'S256');
+  assert.equal(googleURL.searchParams.get('redirect_uri'),'https://academy.example/api/auth/callback/google');
+
   const save=await mf.dispatchFetch('https://academy.example/api/progress',{method:'PUT',headers:authed,body:JSON.stringify({data:{completed:['l1'],xp:50},version:0})});
   assert.equal(save.status,200);assert.equal((await save.json()).version,1);
   const read=await mf.dispatchFetch('https://academy.example/api/progress',{headers:authed});
