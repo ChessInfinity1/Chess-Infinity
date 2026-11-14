@@ -53,6 +53,8 @@ import {
 } from "../../lib/chess/content";
 import Board, { Piece } from "./Board";
 import Training from "./Training";
+import PuzzleLibrary from "./PuzzleLibrary";
+import AcademyPreferences from "./AcademyPreferences";
 import Workspace from "./Workspace";
 import ChessComProfile, { ProfileAvatar } from "./ChessComProfile";
 import AcademySidebar from "./AcademySidebar";
@@ -188,6 +190,7 @@ export default function Academy({
     opening?: Opening;
   } | null>(null);
   const [query, setQuery] = useState("");
+  const [settingsSection, setSettingsSection] = useState<"appearance" | "training" | "account">("appearance");
   const motion = useAcademyMotion(`${ready}:${page}:${active?.exercise.id || ""}:${workspace?.mode || ""}:${workspace?.opening?.id || ""}:${workspace?.pgn || ""}`);
   const [level, setLevel] = useState(1);
   const [trailArcade, setTrailArcade] = useState<ArcadeMode | null>(null);
@@ -1258,210 +1261,12 @@ export default function Academy({
                 />
               )}
               {page === "puzzles" && (
-                <section className="puzzles-page" aria-label="Puzzle training">
-                  {sectionHeading(
-                    "TRAIN YOUR TACTICAL EYE",
-                    "Find the move that matters.",
-                    "Slow down, look for forcing moves, and make the pattern yours.",
-                  )}
-                  <div className="puzzle-hero card">
-                    <div>
-                      <span className="pill lavender">DAILY PRACTICE</span>
-                      <h2>
-                        Good instincts are built
-                        <br />
-                        one puzzle at a time.
-                      </h2>
-                      <p>
-                        {puzzles.length.toLocaleString()} legally validated
-                        exercises, including CC0 puzzles from Lichess. Filter by
-                        pattern and strength.
-                      </p>
-                      <button
-                        className="primary"
-                        onClick={() => {
-                          train(nextPractice.puzzle);
-                        }}
-                      >
-                        Start training <ArrowRight size={17} />
-                      </button>
-                    </div>
-                    <div className="puzzle-score">
-                      <Puzzle size={50} />
-                      <strong>{progress.puzzleRating}</strong>
-                      <span>internal puzzle rating</span>
-                      <small>
-                        {rate}% clean solves · {progress.puzzles.length}{" "}
-                        attempts. Elo-style training estimate; independent of
-                        external ratings.
-                      </small>
-                    </div>
-                  </div>
-                  <section className="smart-practice card">
-                    <span className="icon-box">
-                      <Target size={24} />
-                    </span>
-                    <div>
-                      <span className="eyebrow">
-                        LESS GUESSWORK. BETTER PRACTICE.
-                      </span>
-                      <h3>
-                        {nextPractice.review
-                          ? "A pattern worth revisiting."
-                          : "A fresh position, chosen for you."}
-                      </h3>
-                      <p>
-                        {nextPractice.reason}. Your next position is{" "}
-                        {nextPractice.puzzle.theme.toLowerCase()}, difficulty{" "}
-                        {nextPractice.puzzle.rating}.
-                      </p>
-                    </div>
-                    <button
-                      className="secondary"
-                      onClick={() => train(nextPractice.puzzle)}
-                    >
-                      Start smart practice <ArrowRight size={15} />
-                    </button>
-                  </section>
-                  <div className="puzzle-scope-controls" aria-label="Puzzle practice filters">{[["all","All puzzles"],["unseen","Unseen"],["missed","Missed"],["saved","Saved"],["new","New drills"]].map(([value,label]) => <button key={value} aria-pressed={puzzleScope === value} onClick={() => setPuzzleScope(value)}>{label}</button>)}<span>{(progress.explanations || []).length} explanations practiced</span></div>
-                  <div className="filter-bar">
-                    <div className="search-field">
-                      <Search size={17} />
-                      <input
-                        aria-label="Search puzzles"
-                        placeholder="Search tactical ideas…"
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                      />
-                    </div>
-                    <select
-                      aria-label="Puzzle pattern"
-                      value={puzzleTheme}
-                      onChange={(e) => setPuzzleTheme(e.target.value)}
-                    >
-                      {[
-                        "All patterns",
-                        ...new Set(puzzles.flatMap(puzzleTags)),
-                      ].map((t) => (
-                        <option key={t}>{t}</option>
-                      ))}
-                    </select>
-                    <select
-                      aria-label="Puzzle difficulty"
-                      value={puzzleRange}
-                      onChange={(e) => setPuzzleRange(e.target.value)}
-                    >
-                      <option value="all">All difficulties</option>
-                      <option value="beginner">Under 1000</option>
-                      <option value="improving">1000–1399</option>
-                      <option value="club">1400–1799</option>
-                      <option value="advanced">1800+</option>
-                    </select>
-                    <span className="muted">
-                      {filteredPuzzles.length.toLocaleString()} positions ·{" "}
-                      {correct} clean solutions
-                    </span>
-                  </div>
-                  <div className="puzzle-grid">
-                    {filteredPuzzles
-                      .slice(
-                        (visiblePuzzlePage - 1) * PUZZLES_PER_PAGE,
-                        visiblePuzzlePage * PUZZLES_PER_PAGE,
-                      )
-                      .map((p) => (
-                        <button
-                          className="card puzzle-card"
-                          key={p.id}
-                          onClick={() => train(p)}
-                        >
-                          <div className="puzzle-preview">
-                            <Board
-                              fen={p.fen}
-                              onMove={() => {}}
-                              disabled
-                              theme={progress.boardTheme}
-                            />
-                          </div>
-                          <div className="puzzle-card-copy">
-                            <span className="eyebrow">{p.theme}</span>
-                            <h3>{p.title}</h3>
-                            <span className="muted">
-                              Difficulty {p.rating} ·{" "}
-                              {Math.ceil(p.line.length / 2)} move
-                              {p.line.length > 2 ? "s" : ""}
-                            </span>
-                            <span className="puzzle-arrow">
-                              <ArrowUpRight size={18} />
-                            </span>
-                          </div>
-                        </button>
-                      ))}
-                  </div>
-                  {!filteredPuzzles.length && (
-                    <div className="card empty-puzzles">
-                      <Target size={30} />
-                      <h3>No positions match these filters.</h3>
-                      <p>Try another pattern, difficulty, or search.</p>
-                      <button
-                        className="secondary"
-                        onClick={() => {
-                          setQuery("");
-                          setPuzzleTheme("All patterns");
-                          setPuzzleRange("all");
-                          setPuzzleScope("all");
-                        }}
-                      >
-                        Reset filters
-                      </button>
-                    </div>
-                  )}
-                  {filteredPuzzles.length > PUZZLES_PER_PAGE && (
-                    <nav
-                      className="puzzle-pagination"
-                      aria-label="Puzzle library pages"
-                    >
-                      <button
-                        className="secondary"
-                        disabled={visiblePuzzlePage === 1}
-                        onClick={() => {
-                          setPuzzlePage((x) => Math.max(1, x - 1));
-                          window.scrollTo({ top: 0 });
-                        }}
-                      >
-                        Previous
-                      </button>
-                      <span>
-                        Page {visiblePuzzlePage} of{" "}
-                        {Math.ceil(filteredPuzzles.length / PUZZLES_PER_PAGE)}
-                      </span>
-                      <button
-                        className="secondary"
-                        disabled={
-                          visiblePuzzlePage >=
-                          Math.ceil(filteredPuzzles.length / PUZZLES_PER_PAGE)
-                        }
-                        onClick={() => {
-                          setPuzzlePage((x) => x + 1);
-                          window.scrollTo({ top: 0 });
-                        }}
-                      >
-                        Next 12 <ArrowRight size={15} />
-                      </button>
-                    </nav>
-                  )}
-                  <p className="library-credit">
-                    Lichess source puzzles are CC0 public-domain data. Starting
-                    positions and every solution move are validated with
-                    chess.js.{" "}
-                    <a
-                      href="https://database.lichess.org/#puzzles"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Source &amp; license ↗
-                    </a>
-                  </p>
-                </section>
+                <PuzzleLibrary
+                  progress={progress} recommendation={nextPractice} filtered={filteredPuzzles}
+                  query={query} pattern={puzzleTheme} range={puzzleRange} scope={puzzleScope} page={visiblePuzzlePage}
+                  onQuery={setQuery} onPattern={setPuzzleTheme} onRange={setPuzzleRange} onScope={setPuzzleScope}
+                  onPage={setPuzzlePage} onTrain={train} onNavigate={go}
+                />
               )}
               {page === "openings" && (
                 <>
@@ -2130,79 +1935,17 @@ export default function Academy({
                 </>
               )}
               {page === "settings" && (
-                <>
-                  {sectionHeading(
-                    "MAKE YOURSELF AT HOME",
-                    "A board that feels like yours.",
-                  )}
-                  <div className="settings-grid">
-                    <section className="card">
-                      <h2>Training preferences</h2><label className="explain-preference"><input type="checkbox" checked={progress.explainMoves !== false} onChange={e => update(p => ({...p,explainMoves:e.target.checked}))}/><span>Explain my move after puzzles<small>Answer a board-based question before saving the result.</small></span></label><div className="settings-learning-links"><button className="secondary full" onClick={() => go("reminders")}>Practice reminders <ArrowRight size={16}/></button><button className="secondary full" onClick={() => go("saved")}>Saved practice · {(progress.savedExercises || []).length} <ArrowRight size={16}/></button></div>
-                      <h2>Appearance</h2>
-                      <button
-                        className="secondary full replay-welcome"
-                        onClick={() => {
-                          setWelcomeOpen(true);
-                          setSyncError("");
-                        }}
-                      >
-                        Replay welcome walkthrough <ArrowRight size={15} />
-                      </button>
-                      <label>
-                        Interface
-                        <select
-                          value={progress.theme}
-                          onChange={(e) =>
-                            update((p) => ({ ...p, theme: e.target.value }))
-                          }
-                        >
-                          <option value="light">Light · Cloud</option>
-                          <option value="dark">Dark · Midnight</option>
-                        </select>
-                      </label>
-                      <label>
-                        Mobile dock
-                        <select
-                          value={progress.dockStyle || "glass"}
-                          onChange={(e) =>
-                            update((p) => ({
-                              ...p,
-                              dockStyle:
-                                e.target.value === "solid" ? "solid" : "glass",
-                            }))
-                          }
-                        >
-                          <option value="glass">Soft glass pill</option>
-                          <option value="solid">Solid · higher contrast</option>
-                        </select>
-                      </label>
-                      <label>
-                        Board palette
-                        <select
-                          value={progress.boardTheme}
-                          onChange={(e) =>
-                            update((p) => ({
-                              ...p,
-                              boardTheme: e.target.value,
-                            }))
-                          }
-                        >
-                          <option value="violet">Infinity violet</option>
-                          <option value="sage">Garden sage</option>
-                          <option value="wood">Classic walnut</option>
-                        </select>
-                      </label>
-                      <div className="settings-board">
-                        <Board
-                          fen={new Chess().fen()}
-                          onMove={() => {}}
-                          disabled
-                          theme={progress.boardTheme}
-                        />
-                      </div>
-                    </section>
-                    <section className="card">
-                      <h2>Your data & account</h2>
+                <section className="settings-page" aria-label="Academy settings">
+                  <header className="settings-page-heading"><div><span className="eyebrow">MADE FOR YOUR NEXT MOVE</span><h1>Make yourself at home.</h1><p>Your board, your learning, your space.</p></div><span className="settings-save-status" role="status"><CheckCheck size={16}/>{saveStatus}</span></header>
+                  <div className="settings-layout">
+                    <nav className="settings-navigation" aria-label="Settings sections">
+                      {([{id:"appearance",label:"Appearance",description:"Your board & interface",Icon:Settings},{id:"training",label:"Training",description:"The way you learn",Icon:Target},{id:"account",label:"Account & data",description:"Your progress, kept safe",Icon:Shield}] as const).map(({id,label,description,Icon}) => <button key={id} aria-pressed={settingsSection === id} onClick={() => setSettingsSection(id)}><Icon size={20}/><span><strong>{label}</strong><small>{description}</small></span><ChevronRight size={16}/></button>)}
+                      <p>Small details. A better place to play.</p>
+                    </nav>
+                    <div className="settings-main">
+                      {settingsSection !== "account" && <AcademyPreferences section={settingsSection} progress={progress} onChange={change => update(p => ({...p,...change}))} onNavigate={go} onWelcome={() => {setWelcomeOpen(true);setSyncError("");}}/>}
+                    <section className="card preference-panel account-preferences" hidden={settingsSection !== "account"}>
+                      <div className="preference-section-title"><span className="preference-icon"><Shield size={22}/></span><div><h2>Your progress belongs to you</h2><p>Manage your account and keep a copy of your chess journey.</p></div></div>
                       {user && <GoogleAccountSettings/>}
                       <div className="feedback">
                         <strong>{saveStatus}</strong>
@@ -2221,7 +1964,9 @@ export default function Academy({
                           Sign in / Create account
                         </a>
                       )}
-                      <label className="secondary full" style={{cursor: "pointer", margin: "12px 0"}}>
+                      <h3 className="preference-subheading">Your backups</h3>
+                      <p className="preference-description">Download a copy of your lessons, puzzles, and games, or restore an existing backup.</p>
+                      <label className="secondary full import-progress-button" style={{cursor: "pointer", margin: "12px 0"}}>
                         Import progress from the original site / JSON backup
                         <input type="file" accept=".json,application/json" aria-label="Import Academy progress backup" onChange={async event => {
                           const file = event.currentTarget.files?.[0];
@@ -2260,9 +2005,12 @@ export default function Academy({
                       >
                         Export this device’s backup
                       </button>
+                      <details className="advanced-save-tools"><summary>Advanced save tools</summary><p className="preference-description">Resolve a pending save or reload your last cloud copy.</p>
                       <button
                         className="secondary full"
+                        disabled={!user}
                         onClick={async () => {
+                          if (!window.confirm("Reload your cloud progress and discard unsaved changes on this device?")) return;
                           try {
                             const r = await fetch("/api/progress");
                             if (!r.ok) throw new Error();
@@ -2291,7 +2039,8 @@ export default function Academy({
                         <RefreshCw size={16} />
                         Retry pending save
                       </button>
-                      <details>
+                      </details>
+                      <details className="account-danger-zone">
                         <summary>Delete academy data</summary>
                         <p>
                           Deletion removes this account’s saved academy progress
@@ -2345,8 +2094,9 @@ export default function Academy({
                         </a>
                       )}
                     </section>
+                    </div>
                   </div>
-                  <div className="info-banner">
+                  <div className="info-banner settings-about">
                     <BookOpen size={21} />
                     <p>
                       <strong>Built with real chess tools.</strong> Rules:
@@ -2363,12 +2113,10 @@ export default function Academy({
                       >
                         Engine source
                       </a>
-                      . Expansion to extensive master courses, unlimited
-                      puzzles, authenticated study import, and conversational
-                      coaching remains future work.
+                      .
                     </p>
                   </div>
-                </>
+                </section>
               )}
             </>
           )}

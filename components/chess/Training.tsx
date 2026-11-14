@@ -11,6 +11,8 @@ import {
   Bookmark,
   ChevronLeft,
   ChevronRight,
+  Target,
+  Sparkles,
 } from "lucide-react";
 import Board from "./Board";
 import { explainMove } from "../../lib/chess/explain-move";
@@ -113,7 +115,7 @@ export default function Training({
     setSaved(true);
   }
   return (
-    <div className="training-page">
+    <div className="training-page training-refined">
       <div className="training-top-actions">
       <button className="text-btn back" onClick={onClose}>
         <ArrowLeft size={17} /> Back to {backLabel || (lesson ? "lessons" : "puzzles")}
@@ -135,7 +137,8 @@ export default function Training({
         </span>
       </div>
       <div className="board-layout">
-        <section>
+        <section className="training-board-card">
+          <div className="training-turn-bar"><span className={"training-side-piece " + (exercise.fen.split(" ")[1] === "w" ? "white" : "black")} aria-hidden="true">♟</span><div><strong>{done ? "Position solved" : busy ? "Watch the reply" : `${game.turn() === "w" ? "White" : "Black"} to move`}</strong><small>{done ? "Review the idea, then save your result." : "Find the strongest continuation."}</small></div>{done ? <Check size={21}/> : <Target size={21}/>}</div>
           <Board
             fen={done && replay !== null ? proof.fens[replay] : game.fen()}
             onMove={move}
@@ -177,6 +180,7 @@ export default function Training({
           {done && <div className="solution-replay" aria-label="Solution replay"><div><strong>Replay the solution</strong><span>{replay === 0 ? "Starting position" : `${replay ?? proof.moves.length} / ${proof.moves.length} plies`}</span></div><div className="solution-replay-controls"><button className="secondary" aria-label="Previous solution move" disabled={(replay ?? proof.moves.length) === 0} onClick={() => setReplay(Math.max(0, (replay ?? proof.moves.length) - 1))}><ChevronLeft size={18}/></button><span>{replay === 0 ? "Start" : proof.moves[(replay ?? proof.moves.length) - 1]}</span><button className="secondary" aria-label="Next solution move" disabled={(replay ?? proof.moves.length) === proof.moves.length} onClick={() => setReplay(Math.min(proof.moves.length, (replay ?? proof.moves.length) + 1))}><ChevronRight size={18}/></button></div></div>}
         </section>
         <aside className="card training-panel">
+          <div className="training-progress"><div><span><Sparkles size={14}/> {done ? "Pattern unlocked" : "One move at a time"}</span><strong>{Math.ceil(step / 2)} / {Math.ceil(exercise.line.length / 2)}</strong></div><progress aria-label="Solution progress" value={step} max={exercise.line.length}/></div>
           <span className="pill lavender">
             {lesson ? "Learn by doing" : "Find the idea"}
           </span>
@@ -186,7 +190,7 @@ export default function Training({
               "Study the position, look for checks and captures, then play the strongest continuation. You control " +
                 (exercise.fen.split(" ")[1] === "w" ? "White." : "Black.")}
           </p>
-          <div className={"feedback " + (done ? "success" : "")}>
+          <div role="status" className={"feedback " + (done ? "success" : "")}>
             {message ||
               "Tap a piece to see its legal moves. Tap a destination or drag the piece."}
           </div>
