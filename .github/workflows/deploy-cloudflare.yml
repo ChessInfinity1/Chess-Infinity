@@ -1,0 +1,67 @@
+name: Deploy Chess Infinity to Cloudflare
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: chess-infinity-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check Cloudflare deployment credential
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo '::error::Add CLOUDFLARE_API_TOKEN in repository Settings > Secrets and variables > Actions, then re-run this job.'
+            exit 1
+          fi
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm run install:ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - name: Verify existing Worker and database identity
+        run: |
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import { readFileSync } from 'node:fs';
+          const config = JSON.parse(readFileSync('dist/server/wrangler.json', 'utf8'));
+          assert.equal(config.name, 'chess-infinity-academy');
+          assert.equal(config.account_id, '4e64c6d202ec674cb9a965923d394cff');
+          assert.equal(config.d1_databases.find(db => db.binding === 'DB')?.database_id, '34c90791-5167-4210-88a1-6ff117005332');
+          JS
+      - name: Deploy existing Academy Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: 4e64c6d202ec674cb9a965923d394cff
+        run: ./node_modules/.bin/wrangler deploy --config dist/server/wrangler.json --keep-vars
+      - name: Verify the published release
+        run: |
+          origin=https://chess-infinity-academy.chessinfinity1.workers.dev
+          for attempt in {1..12}; do
+            if curl --fail --silent --show-error "$origin/api/health" | jq --exit-status '.status == "ok"' >/dev/null &&
+               curl --fail --silent --show-error "$origin/sw.js" --output /tmp/chess-infinity-live-sw.js &&
+               cmp --silent public/sw.js /tmp/chess-infinity-live-sw.js; then
+              echo "Published release verified at $origin"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo '::error::Deployment returned, but the published release could not be verified.'
+          exit 1
