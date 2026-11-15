@@ -38,3 +38,16 @@ test('an absent score or mismatched principal variation cannot become a zero-los
   try{engine=new Engine();await assert.rejects(engine.analyze(new Chess().fen()),/usable evaluation/);engine.worker.mode='mismatch';await assert.rejects(engine.analyze(new Chess().fen()),/usable evaluation/);}
   finally{engine?.destroy();globalThis.Worker=original;}
 });
+
+test('late shallower info and bundled UCI lines cannot overwrite the completed evaluation',async()=>{
+ const original=globalThis.Worker;
+ class FakeWorker{
+  listeners=new Set();addEventListener(t,f){this.listeners.add(f);}removeEventListener(t,f){this.listeners.delete(f);}
+  emit(data){for(const f of [...this.listeners])f({data});}
+  postMessage(cmd){if(cmd==='uci')queueMicrotask(()=>this.emit('uciok'));if(cmd.startsWith('go '))queueMicrotask(()=>this.emit('info depth 16 score cp 25 pv e2e4 e7e5\ninfo depth 2 score cp -900 pv e2e4\nbestmove e2e4'));}
+  terminate(){}
+ }
+ globalThis.Worker=FakeWorker;let engine;
+ try{engine=new Engine();const result=await engine.analyze(new Chess().fen());assert.equal(result.depth,16);assert.equal(result.score,.25);}
+ finally{engine?.destroy();globalThis.Worker=original;}
+});

@@ -107,14 +107,14 @@ export class Engine {
           this.worker.removeEventListener("message", on);
         };
         const on = (e: MessageEvent) => {
-          const line = String(e.data);
+          for (const line of String(e.data).split(/\r?\n/)) {
           if (line.startsWith("info ") && line.includes(" pv ")) {
             const depth = +(line.match(/depth (\d+)/)?.[1] || 0);
             const cp = line.match(/score cp (-?\d+)/);
             const mate = line.match(/score mate (-?\d+)/);
             const sign = fen.split(" ")[1] === "w" ? 1 : -1;
             const rank = +(line.match(/multipv (\d+)/)?.[1] || 1);
-            if (/\b(lowerbound|upperbound)\b/.test(line)) return;
+            if (/\b(lowerbound|upperbound)\b/.test(line)) continue;
             const candidate: EngineLine = {
               score: cp ? (+cp[1] * sign) / 100 : mate ? (+mate[1] > 0 ? 100 : -100) * sign : 0,
               mate: mate ? +mate[1] * sign : null,
@@ -123,7 +123,7 @@ export class Engine {
             };
             if (cp || mate) {
               if (depth >= (lines.get(rank)?.depth || 0)) lines.set(rank, candidate);
-              if (rank === 1) result = { ...result, ...candidate };
+              if (rank === 1 && depth >= result.depth) result = { ...result, ...candidate };
             }
           }
           if (line.startsWith("bestmove ")) {
@@ -139,9 +139,12 @@ export class Engine {
               if (skill === 20 && result.pv[0] !== best)
                 throw new Error("Inconsistent engine line");
               resolve({ ...result, best, lines: [...lines.values()] });
-            } catch {
+            } catch (error) {
+              if (process.env.NODE_ENV !== "production") console.warn("Incomplete Stockfish comparison", { reason: (error as Error).message, best, result, candidates: options.searchMoves });
               reject(new EngineResultError("Stockfish did not return a usable evaluation. Retry with more thinking time."));
             }
+            return;
+          }
           }
         };
         const timer = setTimeout(
@@ -177,6 +180,7 @@ export class Engine {
   }
 }
 export function classification(loss: number, best: boolean) {
+  if (!Number.isFinite(loss) || loss < 0) return "Uncertain";
   return best
     ? "Best"
     : loss < 0.15

@@ -44,13 +44,19 @@ test('game review honors the selected budget, constrains the actual move, carrie
   const calls=[], results=[];
   const rows=await analyzeGame('1. e4 e5',async(f,ms,opt)=>{
     calls.push({f,ms,opt});
-    return opt.searchMoves ? ev(opt.searchMoves[0],-2) : ev(opt.moves.length?'e7e5':'d2d4',0);
+    return opt.searchMoves ? ev(opt.searchMoves[0],-2) : ev(opt.moves.length?'e7e5':'d2d4',opt.moves.length ? -2 : 0);
   },{ms:650,cancelled:()=>false,onRow:r=>results.push(r)});
   assert.equal(rows.length,2); assert.equal(rows[0].label,'Blunder');
   assert.ok(calls.some(c=>c.ms===1500 && c.opt.searchMoves?.[0]==='e2e4'));
   assert.ok(calls.some(c=>c.ms===650 && c.opt.moves.join(' ')==='e2e4'));
   assert.ok(calls.every(c=>c.opt.startFen===fen));
+  assert.ok(calls.some(c=>c.opt.moves.join(' ')==='e2e4' && !c.opt.searchMoves && c.ms===1500));
   assert.equal(results.length,2);
+});
+test('a severe root grade is withheld when an independent reply search disagrees',async()=>{
+  const rows=await analyzeGame('1. e4',async(f,ms,opt)=>opt.moves.length ? ev('e7e5',0) : opt.searchMoves ? ev('e2e4',-3) : ev('d2d4',0),{ms:650,cancelled:()=>false,onRow:()=>{}});
+  assert.equal(rows[0].label,'Uncertain');assert.equal(rows[0].reliable,false);
+  assert.match(rows[0].explanation,/searches disagree/);
 });
 test('cancellation retains completed rows and never analyzes another move',async()=>{
   let stopped=false, searches=0;
@@ -80,4 +86,22 @@ test('an incomplete engine finish retries both candidates once with an equal lar
   const {EngineResultError}=await import('../lib/chess/engine.ts');let fail=true;const calls=[];
   const rows=await analyzeGame('1. e4',async(f,ms,opt)=>{calls.push({ms,opt});if(fail){fail=false;throw new EngineResultError('incomplete');}return opt.searchMoves?ev('e2e4',.1):ev('d2d4',.2);},{ms:650,cancelled:()=>false,onRow:()=>{}});
   assert.equal(rows.length,1);assert.deepEqual(calls.map(c=>c.ms),[650,1500,1500]);
+});
+
+test('a large pawn drop in a decisive position does not become a blunder in saved statistics',()=>{
+ const g=new Chess();g.move('e4');
+ const row=makeReviewRow(fen,'e4',1,ev('d2d4',-6),ev('e2e4',-9));
+ assert.equal(row.loss,3);assert.notEqual(row.label,'Blunder');
+ assert.equal(summarizeReview(g.pgn(),[row]).sides.w.blunders,0);
+});
+test('an incomplete independent confirmation keeps a move ungraded instead of stopping or inventing a blunder',async()=>{
+ const {EngineResultError}=await import('../lib/chess/engine.ts');
+ const rows=await analyzeGame('1. e4',async(f,ms,opt)=>{if(opt.moves.length)throw new EngineResultError('unfinished');return opt.searchMoves?ev('e2e4',-3):ev('d2d4',0);},{ms:650,cancelled:()=>false,onRow:()=>{}});
+ assert.equal(rows.length,1);assert.equal(rows[0].label,'Uncertain');assert.equal(rows[0].reliable,false);
+});
+
+test('repeated unfinished searches leave an explicit gap and the rest of the game is reviewed',async()=>{
+ const {EngineResultError}=await import('../lib/chess/engine.ts');
+ const rows=await analyzeGame('1. e4 e5',async(f,ms,opt)=>{if(!opt.moves.length)throw new EngineResultError('no exact score');return ev('e7e5',.2);},{ms:650,cancelled:()=>false,onRow:()=>{}});
+ assert.equal(rows.length,2);assert.equal(rows[0].label,'Uncertain');assert.equal(rows[0].score,null);assert.equal(rows[0].before,null);assert.equal(rows[1].label,'Best');
 });
