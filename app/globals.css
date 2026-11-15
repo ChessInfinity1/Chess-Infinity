@@ -3,6 +3,7 @@
 @import "../components/chess/board-experience.css";
 @import "../components/chess/puzzle-settings.css";
 @import "../components/chess/game-review.css";
+@import "../components/chess/review-practice.css";
 :root {
   --bg: #f7f8fa;
   --surface: #fff;

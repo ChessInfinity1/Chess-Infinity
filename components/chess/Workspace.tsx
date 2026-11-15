@@ -25,6 +25,8 @@ import { replayPosition } from "../../lib/chess/game-state";
 import { summarizeReview } from "../../lib/chess/guided";
 import { analyzeGame, type ReviewRow } from "../../lib/chess/review";
 import ReviewPanel, { type ReviewStatus } from "./ReviewPanel";
+import ReviewPractice from "./ReviewPractice";
+import { reviewPracticeSeed, type ReviewPracticeSeed } from "../../lib/chess/review-practice";
 import {
   Engine,
   Evaluation,
@@ -103,6 +105,7 @@ export default function Workspace({
   const [saved, setSaved] = useState(false);
   const [reportSaved, setReportSaved] = useState(false);
   const [reviewSide, setReviewSide] = useState("");
+  const [reviewPractice, setReviewPractice] = useState<ReviewPracticeSeed | null>(null);
   const [reviewStatus, setReviewStatus] = useState<ReviewStatus>("idle");
   const [variation, setVariation] = useState<{ positions: string[]; index: number; title: string } | null>(null);
   const engine = useRef<Engine | null>(null);
@@ -152,6 +155,7 @@ export default function Workspace({
   }, []);
   useEffect(() => {
     function keys(e: KeyboardEvent) {
+      if (reviewPractice) return;
       if (
         ["INPUT", "TEXTAREA", "SELECT"].includes(
           (e.target as HTMLElement).tagName,
@@ -171,7 +175,7 @@ export default function Workspace({
     }
     window.addEventListener("keydown", keys);
     return () => window.removeEventListener("keydown", keys);
-  }, [positions.length, index, variation]);
+  }, [positions.length, index, variation, reviewPractice]);
   useEffect(() => {
     if (time.clock.flagged) {
       generation.current++;
@@ -396,6 +400,7 @@ export default function Workspace({
       ? `Checkmate · ${game.turn() === "w" ? "Black" : "White"} wins`
       : "Draw"
     : status;
+  if (reviewPractice) return <ReviewPractice seed={reviewPractice} theme={boardTheme} onClose={() => {setReviewPractice(null); requestAnimationFrame(() => boardSection.current?.scrollIntoView({block:"start"}));}}/>;
   if (["play"].includes(mode)) return <PracticeArena
     bot={selectedBot} onBot={id => { if (!started && !working) { const next = botById(id); setBotId(next.id); setSkill(next.skill); setError(""); } }}
     fen={current} startFen={positions[0]} theme={boardTheme} flip={flip} blind={blind} skill={skill} seconds={seconds}
@@ -563,7 +568,11 @@ export default function Workspace({
           {error && <div className="feedback" role="alert">{error}</div>}
           {tab === "insights" && (
             <>
-              {mode === "review" && <ReviewPanel rows={rows} total={moves.length} index={index} status={reviewStatus} working={working} ms={depth} onMs={setDepth} onReview={review} onStop={stopReview} onSelect={goTo} onLine={showLine} saved={reportSaved} side={reviewSide} onSide={value=>{setReviewSide(value);setReportSaved(false);}} ev={ev} onAnalyze={analyze} onSave={()=>{
+              {mode === "review" && <ReviewPanel rows={rows} total={moves.length} index={index} status={reviewStatus} working={working} ms={depth} onMs={setDepth} onReview={review} onStop={stopReview} onSelect={goTo} onLine={showLine} onPlayHere={row => {
+                if (working) return;
+                try { const seed = reviewPracticeSeed(game.pgn(), row); generation.current++; engine.current?.destroy(); engine.current = null; setReviewPractice(seed); }
+                catch (reason) { setError((reason as Error).message); }
+              }} saved={reportSaved} side={reviewSide} onSide={value=>{setReviewSide(value);setReportSaved(false);}} ev={ev} onAnalyze={analyze} onSave={()=>{
                 onReport({pgn:game.pgn(),rows:rows.filter(r=>r.reliable).map(({before,played,playedPv,afterFen,...row})=>row),summary:summarizeReview(game.pgn(),rows),playerSide:reviewSide || null,complete:reviewStatus === "complete" && rows.length === moves.length && rows.every(r=>r.reliable),method:"context-verified-v3",thinkingTime:depth,date:new Date().toISOString()});setReportSaved(true);
               }} />}
               {opening && (
