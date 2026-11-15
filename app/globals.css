@@ -2,6 +2,7 @@
 @import "tailwindcss";
 @import "../components/chess/board-experience.css";
 @import "../components/chess/puzzle-settings.css";
+@import "../components/chess/game-review.css";
 :root {
   --bg: #f7f8fa;
   --surface: #fff;

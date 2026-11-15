@@ -1,12 +1,13 @@
 import { Chess, type Color } from "chess.js";
-import { classification, EngineResultError, type Evaluation, type SearchOptions } from "./engine.ts";
+import { EngineResultError, type Evaluation, type SearchOptions } from "./engine.ts";
+import { chanceLoss, reviewGrade } from "./review-metrics.ts";
 
 export type ReviewRow = {
   ply: number; moveNumber: number; color: Color; san: string;
   fen: string; afterFen: string; best: string; bestUci: string;
-  pv: string[]; playedPv: string[]; depth: number; score: number;
-  before: Evaluation; played: Evaluation; loss: number; label: string;
-  reliable: boolean; mateChange: "missed" | "allowed" | "preserved" | null;
+  pv: string[]; playedPv: string[]; depth: number; score: number | null;
+  before: Evaluation | null; played: Evaluation | null; loss: number; label: string;
+  reliable: boolean; chanceLoss: number; mateChange: "missed" | "allowed" | "preserved" | null;
   theme: string; explanation: string;
 };
 export type ReviewSearch = (fen: string, ms: number, options: SearchOptions) => Promise<Evaluation>;
@@ -62,6 +63,7 @@ export function makeReviewRow(fen: string, san: string, ply: number, before: Eva
   const reliable = !c.unstable && (depth >= REVIEW_MIN_DEPTH || (before.mate !== null && played.mate !== null) || g.isCheckmate());
   const isBest = actual === before.best || g.isCheckmate();
   const loss = isBest ? 0 : c.loss;
+  const impact = isBest ? 0 : chanceLoss(before, played, color);
   const best = new Chess(fen).move({ from: before.best.slice(0, 2), to: before.best.slice(2, 4), promotion: before.best[4] }).san;
   const mateChange = c.mateChange;
   const reply = new Chess(m.after);
@@ -80,9 +82,9 @@ export function makeReviewRow(fen: string, san: string, ply: number, before: Eva
     : mateChange === "preserved" ? "The same side still has a forced mate. A longer mating route is not treated as a blunder."
     : mateChange === "allowed" ? `After ${san}, the engine finds a forced mate for the opponent. Compare ${best} and check the opponent’s forcing replies.`
     : mateChange === "missed" ? `Before ${san}, the engine found a forced mate starting with ${best}. This search no longer finds that forced mate after your move; you may still have an advantage.`
-    : loss < 0.5 ? `${san} is close to the engine’s preferred move, ${best}. This search finds no major drop in the position.`
-    : `The engine estimates ${loss.toFixed(2)} pawns of evaluation lost compared with ${best}.${capture ? ` Its continuation after your move begins with the capture ${capture}; a capture alone does not prove material is lost.` : ""} Play through both lines to compare the opponent’s replies.`;
-  return { ply, moveNumber, color, san, fen, afterFen: m.after, best, bestUci: before.best, pv: before.pv, playedPv: played.pv, depth, score: played.score, before, played, loss, label: reliable ? classification(loss, isBest) : "Uncertain", reliable, mateChange, theme, explanation };
+    : impact < 5 ? `${san} keeps the position close to the engine’s preferred move, ${best}.${loss >= 1 ? " The evaluation changes, but the position was already strongly in one side’s favor; this is not automatically a blunder." : " This search finds no major drop in your chances."}`
+    : `Compare ${san} with ${best}. The engine estimates a ${impact.toFixed(1)}-point drop on the winning-chances scale.${capture ? ` Its continuation after your move includes ${capture}; play through the line to see whether that capture matters.` : " Look at the opponent’s forcing replies in both lines."}`;
+  return { ply, moveNumber, color, san, fen, afterFen: m.after, best, bestUci: before.best, pv: before.pv, playedPv: played.pv, depth, score: played.score, before, played, loss, chanceLoss: impact, label: reliable ? reviewGrade(impact, isBest) : "Uncertain", reliable, mateChange, theme, explanation };
 }
 export async function analyzeGame(pgn: string, search: ReviewSearch, options: {
   ms: number; cancelled: () => boolean; onRow: (rows: ReviewRow[]) => void;
@@ -109,6 +111,7 @@ export async function analyzeGame(pgn: string, search: ReviewSearch, options: {
       if (options.cancelled()) return null;
       return { before, played };
     }
+    try {
     let budget = options.ms;
     let comparison: Awaited<ReturnType<typeof pair>>;
     try { comparison = await pair(budget); }
@@ -123,12 +126,34 @@ export async function analyzeGame(pgn: string, search: ReviewSearch, options: {
     if (!comparison) break;
     let { before, played } = comparison;
     const initial = makeReviewRow(m.before, m.san, i + 1, before, played, terminal);
-    if (!initial.reliable || initial.loss >= 1 || (initial.mateChange && initial.mateChange !== "preserved")) {
+    let verifiedRow = initial;
+    if (!initial.reliable || initial.chanceLoss >= 10 || (initial.mateChange && initial.mateChange !== "preserved")) {
       const verified = await pair(Math.max(1500, budget * 2));
       if (!verified) break;
       before = verified.before; played = verified.played;
+      verifiedRow = makeReviewRow(m.before, m.san, i + 1, before, played, terminal);
     }
-    rows.push(makeReviewRow(m.before, m.san, i + 1, before, played, terminal));
+    if (verifiedRow.label === "Blunder" && !terminal) {
+      // A constrained root search can see a different horizon. Confirm severe
+      // findings from the resulting position, with the opponent free to reply.
+      let child: Evaluation | null = null;
+      try { child = await search(next.fen(), Math.max(1500, budget * 2), { startFen, moves: [...ucis, actual] }); }
+      catch (error) { if (options.cancelled()) break; if (!(error instanceof EngineResultError)) throw error; }
+      if (options.cancelled()) break;
+      if (child) usable(next.fen(), child);
+      const confirmedImpact = child ? chanceLoss(before, child, m.color) : NaN;
+      if (!child || (child.depth < REVIEW_MIN_DEPTH && child.mate === null) || !Number.isFinite(confirmedImpact) || confirmedImpact < 15 || initial.chanceLoss < 10) {
+        verifiedRow = { ...verifiedRow, label: "Uncertain", reliable: false, explanation: "The searches disagree about how serious this move is. It has not been marked as a blunder or included in the score. Try a thorough review to investigate." };
+      }
+    }
+    rows.push(verifiedRow);
+    } catch (error) {
+      if (options.cancelled()) break;
+      if (!(error instanceof EngineResultError)) throw error;
+      // No invented zero evaluation or default Blunder: keep the real move in
+      // the timeline, leave a gap in the graph, and continue reviewing the game.
+      rows.push({ ply: i + 1, moveNumber: +m.before.split(" ")[5], color: m.color, san: m.san, fen: m.before, afterFen: m.after, best: "", bestUci: "", pv: [], playedPv: [], depth: 0, score: null, before: null, played: null, loss: 0, chanceLoss: 0, reliable: false, label: "Uncertain", mateChange: null, theme: "Needs another look", explanation: "The engine could not finish a reliable comparison for this turn. It has no move grade or evaluation and is excluded from accuracy and practice. Try a thorough review for another look." });
+    }
     options.onRow([...rows]);
     replay.move(m.san); ucis.push(actual);
   }

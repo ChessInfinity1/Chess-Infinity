@@ -106,6 +106,7 @@ export function positionFromRow(
   try {
     if (
       row.reliable === false ||
+      (Number.isFinite(row.chanceLoss) && !["Mistake", "Blunder"].includes(row.label)) ||
       !Number.isInteger(row.ply) ||
       row.ply < 1 ||
       !Number.isFinite(row.loss) ||

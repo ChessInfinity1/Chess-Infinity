@@ -415,7 +415,7 @@ export default function Workspace({
     onExport={type => download(type === "pgn" ? game.pgn() : current, type === "pgn" ? "chess-infinity.pgn" : "position.fen")}
   />;
   return (
-    <>
+    <div className={mode === "review" ? "review-studio" : ""}>
       <button className="text-btn back" onClick={onClose}>
         <ArrowLeft size={16} /> Back to academy
       </button>
@@ -426,16 +426,16 @@ export default function Workspace({
               ? "YOUR PRACTICE ARENA"
               : mode === "opening"
                 ? "OPENING REPERTOIRE"
-                : "POST-GAME & TRAINING ONLY"}
+                : "YOUR GAME. A CLEARER PICTURE."}
           </span>
           <h1>
             {opening?.name ||
               (mode === "play"
                 ? "Play a practice game"
-                : "Understand every move.")}
+                : "Every game has a lesson.")}
           </h1>
         </div>
-        <span className="pill lavender">Stockfish 19 · Web Worker</span>
+        <span className="pill lavender">{mode === "review" ? "Game review · Stockfish 19" : "Stockfish 19 · Web Worker"}</span>
       </div>
       <div
         className={
@@ -556,7 +556,7 @@ export default function Workspace({
                 className={tab === t ? "active" : ""}
                 onClick={() => setTab(t)}
               >
-                {t}
+                {mode === "review" ? ({insights:"Overview",moves:"Move list",import:"Import game"}[t]) : t}
               </button>
             ))}
           </div>
@@ -564,7 +564,7 @@ export default function Workspace({
           {tab === "insights" && (
             <>
               {mode === "review" && <ReviewPanel rows={rows} total={moves.length} index={index} status={reviewStatus} working={working} ms={depth} onMs={setDepth} onReview={review} onStop={stopReview} onSelect={goTo} onLine={showLine} saved={reportSaved} side={reviewSide} onSide={value=>{setReviewSide(value);setReportSaved(false);}} ev={ev} onAnalyze={analyze} onSave={()=>{
-                onReport({pgn:game.pgn(),rows:rows.filter(r=>r.reliable).map(({before,played,playedPv,afterFen,...row})=>row),summary:summarizeReview(game.pgn(),rows),playerSide:reviewSide || null,complete:reviewStatus === "complete" && rows.length === moves.length && rows.every(r=>r.reliable),method:"root-candidate-v2",thinkingTime:depth,date:new Date().toISOString()});setReportSaved(true);
+                onReport({pgn:game.pgn(),rows:rows.filter(r=>r.reliable).map(({before,played,playedPv,afterFen,...row})=>row),summary:summarizeReview(game.pgn(),rows),playerSide:reviewSide || null,complete:reviewStatus === "complete" && rows.length === moves.length && rows.every(r=>r.reliable),method:"context-verified-v3",thinkingTime:depth,date:new Date().toISOString()});setReportSaved(true);
               }} />}
               {opening && (
                 <>
@@ -853,7 +853,7 @@ export default function Workspace({
                       setTablebase(null);
                     }}
                   >
-                    {positions[i].split(" ")[5]}{positions[i].split(" ")[1] === "w" ? "." : "…"} {m}{mode === "review" && rows[i] && <small className="review-move-label">{rows[i].label}</small>}
+                    {positions[i].split(" ")[5]}{positions[i].split(" ")[1] === "w" ? "." : "…"} {m}{mode === "review" && rows[i] && <small className={"review-move-label " + rows[i].label.toLowerCase() }>{rows[i].label}</small>}
                   </button>
                 ))}
               </div>
@@ -873,8 +873,8 @@ export default function Workspace({
             <>
               <h2>Bring your game.</h2>
               <p>
-                Paste a completed game or a training PGN. All moves are checked
-                with chess.js.
+                Paste your game’s PGN or upload a file. Then explore the moves,
+                turning points, and ideas on the board.
               </p>
               <textarea
                 rows={7}
@@ -975,6 +975,6 @@ export default function Workspace({
           </div>
         </aside>
       </div>
-    </>
+    </div>
   );
 }

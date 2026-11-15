@@ -181,8 +181,8 @@ export function summarizeReview(pgn: string, rows: any[]) {
       const s = sides[m.color];
       s.moves++;
       s.loss += r.loss;
-      if (r.loss >= 2) s.blunders++;
-      else if (r.loss >= 1) s.mistakes++;
+      if (Number.isFinite(r.chanceLoss) ? r.label === "Blunder" : r.loss >= 2) s.blunders++;
+      else if (Number.isFinite(r.chanceLoss) ? r.label === "Mistake" : r.loss >= 1) s.mistakes++;
       if (r.theme === "Missed checkmates" && r.loss >= 0.5) s.missedMates++;
     }
     return { version: 1 as const, plies: hist.length, sides };
