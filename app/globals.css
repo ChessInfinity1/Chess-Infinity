@@ -6,6 +6,7 @@
 @import "../components/chess/review-practice.css";
 @import "../components/chess/training-studio.css";
 @import "../components/chess/appearance.css";
+@import "../components/chess/mobile-glass.css";
 :root {
   --bg: #f7f8fa;
   --surface: #fff;

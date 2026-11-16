@@ -14,8 +14,12 @@ export type SearchOptions = {
   moves?: string[];
   searchMoves?: string[];
 };
-export function terminalEvaluation(fen: string): Evaluation | null {
-  const position = new Chess(fen);
+export function positionContext(position: Chess): SearchOptions {
+  const moves = position.history({verbose:true});
+  return {startFen:moves[0]?.before || position.fen(),moves:moves.map(move=>move.from+move.to+(move.promotion||""))};
+}
+export function terminalEvaluation(fen: string | Chess): Evaluation | null {
+  const position = typeof fen === "string" ? new Chess(fen) : fen;
   if (position.isCheckmate())
     return {
       best: "",

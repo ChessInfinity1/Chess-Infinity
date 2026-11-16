@@ -9,7 +9,7 @@ import {
   Download,
 } from "lucide-react";
 import Board from "./Board";
-import { Engine, type Evaluation } from "../../lib/chess/engine";
+import { Engine, positionContext, type Evaluation } from "../../lib/chess/engine";
 import {
   guidedFeedback,
   type GuidedMove,
@@ -105,7 +105,7 @@ export default function GuidedPractice({
     setError("");
     const gen = generation.current;
     try {
-      const r = await getEngine().analyze(g.fen(), 450, opponentSkill);
+      const r = await getEngine().analyze(g.fen(), 450, opponentSkill, 1, positionContext(g));
       if (gen !== generation.current) return;
       const next = new Chess();
       next.loadPgn(g.pgn());
@@ -159,10 +159,10 @@ export default function GuidedPractice({
     setError("");
     const gen = generation.current;
     try {
-      const before = await getEngine().analyze(item.before.fen(), 550, 20);
+      const before = await getEngine().analyze(item.before.fen(), 550, 20, 1, positionContext(item.before));
       const after: Evaluation = item.after.isDraw()
         ? { best: "", score: 0, mate: null, depth: 0, pv: [] }
-        : await getEngine().analyze(item.after.fen(), 550, 20);
+        : await getEngine().analyze(item.after.fen(), 550, 20, 1, positionContext(item.after));
       if (gen !== generation.current) return;
       const entry = {
         ...guidedFeedback(

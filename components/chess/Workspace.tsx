@@ -29,6 +29,8 @@ import ReviewPractice from "./ReviewPractice";
 import { reviewPracticeSeed, type ReviewPracticeSeed } from "../../lib/chess/review-practice";
 import {
   Engine,
+  positionContext,
+  terminalEvaluation,
   Evaluation,
 } from "../../lib/chess/engine";
 import { Opening } from "../../lib/chess/content";
@@ -242,7 +244,7 @@ export default function Workspace({
     setWorking(true);
     const gen = generation.current;
     try {
-      const u = await botReply(g.fen(), selectedBot, (fen, ms, strength, count) => getEngine().analyze(fen, ms, strength, count), skill);
+      const u = await botReply(g.fen(), selectedBot, (fen, ms, strength, count) => getEngine().analyze(fen, ms, strength, count, positionContext(g)), skill);
       if (gen !== generation.current) return;
       if (!u || u === "(none)")
         throw new Error(
@@ -332,7 +334,7 @@ export default function Workspace({
     const gen = generation.current;
     try {
       const context = mode === "review" && !variation ? { startFen: positions[0], moves: game.history({ verbose: true }).slice(0,index).map(m => m.from+m.to+(m.promotion || "")) } : {};
-      const r = await getEngine().analyze(captured, depth, 20, 1, context);
+      const r = terminalEvaluation(view) || await getEngine().analyze(captured, depth, 20, 1, context);
       if (gen === generation.current && currentRef.current === captured)
         setEv(r);
     } catch (e) {

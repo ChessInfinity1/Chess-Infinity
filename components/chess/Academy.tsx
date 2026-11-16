@@ -119,14 +119,16 @@ import {
 import { parseProgressBackup } from "../../lib/progress-backup";
 import { useAcademyMotion, useAnimatedPresence } from "../../hooks/use-academy-motion";
 import GoogleAccountSettings from "./GoogleSignIn";
+import { practiceDay, practicedToday } from "../../lib/practice-day";
+import { requestProgress, ProgressRequestError, cacheProgress, cloudSaveStatus } from "../../lib/progress-client";
 const PUZZLES_PER_PAGE = 12;
-const today = () => new Date().toLocaleDateString("en-CA");
+const today = () => practiceDay();
 function getStreak(days: string[]) {
   const set = new Set(days);
   const d = new Date();
-  if (!set.has(d.toLocaleDateString("en-CA"))) d.setDate(d.getDate() - 1);
+  if (!set.has(practiceDay(d))) d.setDate(d.getDate() - 1);
   let n = 0;
-  while (set.has(d.toLocaleDateString("en-CA"))) {
+  while (set.has(practiceDay(d))) {
     n++;
     d.setDate(d.getDate() - 1);
   }
@@ -459,44 +461,28 @@ export default function Academy({
     const data = stateRef.current;
     try {
       if (!cloudReady) {
-        const check = await fetch("/api/progress");
-        if (!check.ok) throw new Error("Cloud unavailable");
-        const remote: any = await check.json();
+        const remote = await requestProgress();
         if (remote.version !== version.current) {
           conflict.current = true;
           throw new Error("Save conflict");
         }
         setCloudReady(true);
       }
-      const r = await fetch("/api/progress", {
+      const b = await requestProgress({
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ data, version: version.current }),
       });
-      if (r.status === 409) {
-        conflict.current = true;
-        setSaveStatus("Save conflict · see settings");
-        return;
-      }
-      if (!r.ok) throw new Error();
-      const b: any = await r.json();
       version.current = b.version;
       if (rev === revision.current) dirty.current = false;
-      localStorage.setItem(
-        key,
-        JSON.stringify({
-          data: stateRef.current,
-          version: version.current,
-          pending: dirty.current,
-        }),
-      );
-      setSaveStatus(dirty.current ? "Pending sync" : "All changes saved");
-    } catch {
-      setSaveStatus(
-        conflict.current
-          ? "Save conflict · see settings"
-          : "Offline · changes queued",
-      );
+      const cached = cacheProgress(key, {
+        data: stateRef.current, version: version.current, pending: dirty.current,
+      });
+      setSaveStatus(cloudSaveStatus(dirty.current, cached));
+    } catch (error) {
+      if (error instanceof ProgressRequestError && error.status === 409) conflict.current = true;
+      setSaveStatus(conflict.current ? "Save conflict · see settings"
+        : error instanceof ProgressRequestError ? error.message : "Offline · changes queued");
     } finally {
       saveRunning.current = false;
     }
@@ -635,14 +621,14 @@ export default function Academy({
         : !p.puzzles.some(
             (x) =>
               x.id === id &&
-              x.at.slice(0, 10) === new Date().toISOString().slice(0, 10),
+              practicedToday(x.at),
           );
       const days = [...new Set([...p.days, today()])];
       return {
         ...p,
         trailStamps: trailId && correct ? stampStop(p.trailStamps, trailId) : p.trailStamps,
         focusSessions: focusSessionId ? completeFocusStep(p.focusSessions, focusSessionId, id, isLesson ? "lesson" : "puzzle", correct) : p.focusSessions,
-        explanations: understanding ? [...(p.explanations || []).filter(item => !(item.id === id && item.at.slice(0,10) === new Date().toISOString().slice(0,10))), {id,correctFirstTry:understanding.correctFirstTry,at:new Date().toISOString()}].slice(-500) : (p.explanations || []),
+        explanations: understanding ? [...(p.explanations || []).filter(item => !(item.id === id && practicedToday(item.at))), {id,correctFirstTry:understanding.correctFirstTry,at:new Date().toISOString()}].slice(-500) : (p.explanations || []),
         days,
         lessonDates: isLesson
           ? { ...p.lessonDates, [id]: today() }
