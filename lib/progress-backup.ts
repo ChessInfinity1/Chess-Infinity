@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { colorThemes, boardPalettes, pieceStyles } from "./chess/appearance.ts";
 import { Chess } from "chess.js";
 import { initialProgress, type Progress } from "./chess/content.ts";
 const str = z.string();
@@ -22,7 +23,8 @@ const schema = z.object({
   goal: str.max(200), minutes: z.union([z.literal(10),z.literal(15),z.literal(30),z.literal(45),z.literal(60),z.literal(90)]),
   repertoire: strings, reviews: record(z.object({ due: str, interval: number.nonnegative() })),
   games: z.array(game), accounts: record(object),
-  theme: z.enum(["light", "dark"]), boardTheme: z.enum(["violet", "sage", "wood"]), dockStyle: z.enum(["glass", "solid"]),
+  colorTheme: z.enum(colorThemes.map(item => item.id)).optional(), pieceStyle: z.enum(pieceStyles.map(item => item.id)).optional(),
+  theme: z.enum(["light", "dark"]), boardTheme: z.enum(boardPalettes.map(item => item.id)), dockStyle: z.enum(["glass", "solid"]),
   savedExercises: strings.optional(), explainMoves: z.boolean().optional(),
   explanations: z.array(z.object({ id: str, correctFirstTry: z.boolean(), at: str })).optional(),
   practiceReminder: z.object({ enabled: z.boolean(), time: str.regex(/^\d{2}:\d{2}$/), days: z.array(count.max(6)), dismissedDay: str.optional(), snoozeUntil: str.optional() }).optional(),

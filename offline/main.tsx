@@ -1,3 +1,5 @@
+import { readAppearance, APPEARANCE_KEY } from "../lib/chess/appearance";
+import { PieceStyleProvider } from "../components/chess/Piece";
 import { orderPuzzleLibrary } from "../lib/chess/learning";
 import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
@@ -34,9 +36,11 @@ function OfflineAcademy() {
   const [pattern, setPattern] = useState("All patterns");
   const [range, setRange] = useState("all");
   const [puzzlePage, setPuzzlePage] = useState(1);
-  const [theme, setTheme] = useState("light");
-  useThemeChrome(theme);
+  const [appearance] = useState(readAppearance);
+  const [theme, setTheme] = useState(appearance.theme);
+  useThemeChrome(theme, appearance.colorTheme);
   useEffect(() => {
+    try { if (localStorage.getItem(APPEARANCE_KEY)) return; } catch {}
     setTheme(
       matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light",
     );
@@ -99,7 +103,7 @@ function OfflineAcademy() {
     URL.revokeObjectURL(u);
   }
   return (
-    <div className="offline-academy">
+    <PieceStyleProvider value={appearance.pieceStyle}><div className="offline-academy">
       <header className="offline-app-header">
         <a className="offline-brand" href="/">
           <img src="/favicon.svg" alt="Chess Infinity" />
@@ -143,7 +147,7 @@ function OfflineAcademy() {
           <Training
             key={active.exercise.id}
             {...active}
-            boardTheme="violet"
+            boardTheme={appearance.boardTheme}
             onClose={() => setActive(null)}
             onComplete={(correct) =>
               save((p) =>
@@ -178,7 +182,7 @@ function OfflineAcademy() {
             }
           />
         ) : page === "arcade" ? (
-          <TrainingArcade
+          <TrainingArcade boardTheme={appearance.boardTheme}
             progress={progress.arcade}
             onPractice={(e) => practice(e)}
             onFinish={(r) =>
@@ -307,7 +311,7 @@ function OfflineAcademy() {
           </button>
         </footer>
       </main>
-    </div>
+    </div></PieceStyleProvider>
   );
 }
 createRoot(document.getElementById("offline-root")!).render(<OfflineAcademy />);

@@ -1,0 +1,5 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {initialProgress} from '../lib/chess/content.ts';import {parseProgressBackup} from '../lib/progress-backup.ts';import {colorThemes,boardPalettes,pieceStyles} from '../lib/chess/appearance.ts';
+test('cloud progress and backups preserve new themes and pieces without losing existing study data',()=>{
+ for(const color of colorThemes)for(const board of boardPalettes)for(const piece of pieceStyles){const p={...structuredClone(initialProgress),theme:'dark',colorTheme:color.id,boardTheme:board.id,pieceStyle:piece.id};const copy=parseProgressBackup(JSON.stringify(p));assert.equal(copy.colorTheme,p.colorTheme);assert.equal(copy.boardTheme,p.boardTheme);assert.equal(copy.pieceStyle,p.pieceStyle);assert.deepEqual(copy.study,p.study);}
+ const old=structuredClone(initialProgress);delete old.colorTheme;delete old.pieceStyle;const restored=parseProgressBackup(JSON.stringify(old));assert.equal(restored.colorTheme,'violet');assert.equal(restored.pieceStyle,'classic');assert.throws(()=>parseProgressBackup(JSON.stringify({...old,pieceStyle:'missing'})),/pieceStyle/);
+});
