@@ -39,6 +39,8 @@ export type Opening = {
   mistake: string;
 };
 export type Progress = {
+  colorTheme?: import("./appearance.ts").ColorTheme;
+  pieceStyle?: import("./appearance.ts").PieceStyle;
   study?: import("./study.ts").StudyState;
   trailStamps?: string[];
   focusSessions?: FocusSession[];
@@ -989,6 +991,8 @@ export const openings: Opening[] = [
 ];
 
 export const initialProgress: Progress = {
+  colorTheme: "violet",
+  pieceStyle: "classic",
   study: { attempts: [], notes: [] },
   focusSessions: [],
   practiceReminder: { enabled: false, time: "18:00", days: [1,2,3,4,5] },

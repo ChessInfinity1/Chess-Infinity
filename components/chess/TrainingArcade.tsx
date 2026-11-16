@@ -1,5 +1,6 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { boardPalette } from "../../lib/chess/appearance";
 import { Chess } from "chess.js";
 import {
   ArrowLeft,
@@ -581,6 +582,7 @@ export default function TrainingArcade({
               </div>
               <div
                 className={"vision-board " + boardTheme}
+                style={{"--square-light":boardPalette(boardTheme).light,"--square-dark":boardPalette(boardTheme).dark} as CSSProperties}
                 role="group"
                 aria-label={"Find square " + target}
               >

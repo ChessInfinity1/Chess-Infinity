@@ -55,6 +55,8 @@ import Board, { Piece } from "./Board";
 import Training from "./Training";
 import PuzzleLibrary from "./PuzzleLibrary";
 import AcademyPreferences from "./AcademyPreferences";
+import { PieceStyleProvider } from "./Piece";
+import { pieceStyle, normalizeAppearance, APPEARANCE_KEY } from "../../lib/chess/appearance";
 import Workspace from "./Workspace";
 import ChessComProfile, { ProfileAvatar } from "./ChessComProfile";
 import AcademySidebar from "./AcademySidebar";
@@ -338,7 +340,10 @@ export default function Academy({
       alive = false;
     };
   }, []);
-  useThemeChrome(progress.theme);
+  useThemeChrome(progress.theme, progress.colorTheme);
+  useEffect(() => {
+    if (ready) { try { localStorage.setItem(APPEARANCE_KEY, JSON.stringify(normalizeAppearance(progress))); } catch {} }
+  }, [ready, progress.theme, progress.colorTheme, progress.boardTheme, progress.pieceStyle]);
   useEffect(() => {
     if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator)
       navigator.serviceWorker
@@ -1003,6 +1008,7 @@ export default function Academy({
     );
   }
   return (
+    <PieceStyleProvider value={pieceStyle(progress.pieceStyle)}>
     <div className="app-shell" ref={motion.shell}>
       <AcademySidebar
         sidebarRef={sidebarRef}
@@ -2212,5 +2218,6 @@ export default function Academy({
         />
       )}
     </div>
+    </PieceStyleProvider>
   );
 }

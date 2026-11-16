@@ -1,14 +1,17 @@
 "use client";
 import { useEffect, useState } from "react";
+import { colorTheme } from "../../lib/chess/appearance";
 import { Maximize, Minimize } from "lucide-react";
-export function useThemeChrome(theme: string) {
+export function useThemeChrome(theme: string, selectedColor?: string) {
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
-    const color = theme === "dark" ? "#181820" : "#f7f8fa";
+    const palette = colorTheme(selectedColor);
+    document.documentElement.dataset.colorTheme = palette.id;
+    const color = theme === "dark" ? palette.dark : palette.light;
     document
       .querySelectorAll('meta[name="theme-color"]')
       .forEach((m) => m.setAttribute("content", color));
-  }, [theme]);
+  }, [theme, selectedColor]);
 }
 export default function ScreenMode({ label = false }: { label?: boolean }) {
   const [supported, setSupported] = useState(false);

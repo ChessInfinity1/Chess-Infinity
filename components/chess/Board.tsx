@@ -16,6 +16,7 @@ import {
 import { Piece } from "./Piece";
 export { Piece } from "./Piece";
 import PromotionDialog from "./PromotionDialog";
+import { boardPalette } from "../../lib/chess/appearance";
 import { CircleDot, Eraser, FlipVertical2, Grid2X2, PencilLine } from "lucide-react";
 import { dropOffset, motionEase } from "../../lib/ui-motion";
 export default function Board({
@@ -280,7 +281,7 @@ export default function Board({
   }, [fen, viewFlipped]);
   const SquareElement = disabled && !annotating ? "div" : "button";
   return (
-    <div className={"board-wrap " + theme}>
+    <div className={"board-wrap " + theme} style={{"--square-light":boardPalette(theme).light,"--square-dark":boardPalette(theme).dark} as React.CSSProperties}>
       <div
         ref={boardRef}
         className="chessboard"
