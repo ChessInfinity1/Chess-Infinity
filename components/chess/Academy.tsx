@@ -66,6 +66,9 @@ import HomeDashboard from "./HomeDashboard";
 import PracticeReminders from "./PracticeReminders";
 import ReminderNudge from "./ReminderNudge";
 import SavedPractice from "./SavedPractice";
+import TrainingStudio from "./TrainingStudio";
+import QuickSearch from "./QuickSearch";
+import { recordStudy, saveStudyNote } from "../../lib/chess/study";
 import FocusSession from "./FocusSession";
 import { appendFocusSession, createFocusSession, completeFocusStep } from "../../lib/chess/focus";
 import MobileDock from "./MobileDock";
@@ -129,6 +132,7 @@ function getStreak(days: string[]) {
 }
 const titleMap: Record<string, string> = {
   dashboard: "Your academy",
+  studio: "Training Studio",
   reminders: "Practice reminders",
   saved: "Saved practice",
   focus: "Focus session",
@@ -178,6 +182,18 @@ export default function Academy({
   const [profileOpen, setProfileOpen] = useState(false);
   const closeProfile = useCallback(() => setProfileOpen(false), []);
   const [keyboardOpen, setKeyboardOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [studioTab, setStudioTab] = useState("openings");
+  const [studioVisit, setStudioVisit] = useState(0);
+  useEffect(() => {
+    function searchShortcut(event: KeyboardEvent) {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault(); setSidebar(false); setProfileOpen(false); setSearchOpen(value => !value);
+      }
+    }
+    document.addEventListener("keydown", searchShortcut);
+    return () => document.removeEventListener("keydown", searchShortcut);
+  }, []);
   const [active, setActive] = useState<{
     exercise: Exercise;
     lesson?: Lesson;
@@ -300,6 +316,7 @@ export default function Academy({
         "reminders",
         "saved",
         "focus",
+        "studio",
       ].includes(requested)
     ) {
       setPage(requested);
@@ -566,6 +583,10 @@ export default function Academy({
     }
   }
   function go(p: string, openLibrary = false) {
+    const [route, section] = p.split(":");
+    if (route === "studio") { setStudioTab(section || "openings"); setStudioVisit(value => value + 1); }
+    p = route;
+    setSearchOpen(false);
     motion.changeView(() => {
       setPage(p);
       setTrailArcade(null);
@@ -1004,6 +1025,7 @@ export default function Academy({
       <main className="main" inert={sidebar || profileOpen}>
         <AcademyHeader
           title={titleMap[page]}
+          onSearch={() => setSearchOpen(true)}
           sidebarOpen={sidebar}
           onOpenNavigation={() => setSidebar(true)}
           theme={progress.theme}
@@ -1209,6 +1231,7 @@ export default function Academy({
                 />
               )}
               {page === "reminders" && <PracticeReminders value={progress.practiceReminder} minutes={progress.minutes} signedIn={!!user} onSave={value => update(p => ({...p,practiceReminder:value}))} />}
+              {page === "studio" && <TrainingStudio key={studioVisit} initialTab={studioTab} progress={progress} signedIn={!!user} onAttempt={attempt => update(p => recordStudy(p, attempt))} onNote={note => update(p => ({ ...p, study: saveStudyNote(p.study, note) }))} onNavigate={go} onPattern={theme => {go("puzzles", true); setPuzzleTheme(theme);}} />}
               {page === "saved" && <SavedPractice ids={progress.savedExercises || []} onPractice={train} onRemove={toggleBookmark} onNavigate={go} />}
               {page === "focus" && <FocusSession progress={progress} signedIn={!!user} onStart={minutes => update(p => ({ ...p, focusSessions: appendFocusSession(p.focusSessions, createFocusSession(p, minutes, crypto.randomUUID())) }))} onPractice={(exercise, lesson, focusSessionId) => motion.changeView(() => { setActive({ exercise, lesson, focusSessionId }); window.scrollTo({top:0}); })} />}
               {page !== "reminders" && <ReminderNudge value={progress.practiceReminder} practicedDays={progress.days} onChange={value => update(p => ({...p,practiceReminder:value}))} onStart={() => train(nextLesson,nextLesson)} />}
@@ -2139,6 +2162,11 @@ export default function Academy({
           />
         )}
       </main>
+      <QuickSearch open={searchOpen} onClose={() => setSearchOpen(false)} onChoose={result => {
+        if (result.kind === "tool") go(result.target);
+        else if (result.kind === "opening") { const opening = openings.find(item => item.id === result.target); if (opening) { setPage("openings"); openWorkspace("opening", undefined, opening); } }
+        else { const lesson = result.kind === "lesson" ? lessons.find(item => item.id === result.target) : undefined; const exercise = lesson || puzzles.find(item => item.id === result.target); if (exercise) { setPage(lesson ? "learn" : "puzzles"); train(exercise, lesson); } }
+      }} />
       {ready && welcomeOpen && (
         <WelcomeGuide
           name={user?.name}

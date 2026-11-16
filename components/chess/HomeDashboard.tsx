@@ -144,6 +144,7 @@ export default function HomeDashboard({
         <div><h2 id="home-focus-title">One session. A clear next step.</h2><p>A lesson, fresh puzzles, and spaced reviews in a 5, 10, or 15-minute plan.</p></div>
         <button className="secondary" onClick={() => onNavigate("focus")}>{progress.focusSessions?.at(-1) && !progress.focusSessions.at(-1)?.finishedAt ? "Resume session" : "Try a focus session"}<ArrowRight size={16}/></button>
       </section>
+      <section className="home-studio-invite" aria-label="New training tools"><span><Trophy size={23}/></span><div><strong>A new space to make it stick.</strong><p>Opening rehearsal, endgame drills, your study journal, and personal milestones.</p></div><button className="text-btn" onClick={() => onNavigate("studio")}>Explore the studio <ArrowRight size={16}/></button></section>
       <div className="home-v2-top-grid">
         <section
           className="home-v2-continue"
