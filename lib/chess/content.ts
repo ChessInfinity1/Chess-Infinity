@@ -39,6 +39,7 @@ export type Opening = {
   mistake: string;
 };
 export type Progress = {
+  study?: import("./study.ts").StudyState;
   trailStamps?: string[];
   focusSessions?: FocusSession[];
   practiceReminder?: PracticeReminder;
@@ -988,6 +989,7 @@ export const openings: Opening[] = [
 ];
 
 export const initialProgress: Progress = {
+  study: { attempts: [], notes: [] },
   focusSessions: [],
   practiceReminder: { enabled: false, time: "18:00", days: [1,2,3,4,5] },
   explainMoves: true,

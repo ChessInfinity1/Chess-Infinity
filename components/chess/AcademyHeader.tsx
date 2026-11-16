@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { Cloud, CloudOff, Download, EllipsisVertical, Flame, Infinity as InfinityIcon, Moon, Settings, Sun, Zap } from "lucide-react";
+import { Cloud, CloudOff, Download, EllipsisVertical, Flame, Infinity as InfinityIcon, Moon, Settings, Sun, Zap, Search } from "lucide-react";
 import ScreenMode from "./ScreenMode";
 import { useAnimatedPresence } from "../../hooks/use-academy-motion";
 
 type Props = {
   title: string;
+  onSearch?: () => void;
   sidebarOpen: boolean;
   onOpenNavigation: () => void;
   theme: string;
@@ -17,7 +18,7 @@ type Props = {
   onNavigate: (page: string) => void;
 };
 
-export default function AcademyHeader({ title, sidebarOpen, onOpenNavigation, theme, onToggleTheme, streak, xp, saveStatus, onNavigate }: Props) {
+export default function AcademyHeader({ title, onSearch, sidebarOpen, onOpenNavigation, theme, onToggleTheme, streak, xp, saveStatus, onNavigate }: Props) {
   const [open, setOpen] = useState(false);
   const presence = useAnimatedPresence(open);
   const panelId = useId();
@@ -68,6 +69,7 @@ export default function AcademyHeader({ title, sidebarOpen, onOpenNavigation, th
       </div>
       <div className="academy-header-title" title={title}>{title}</div>
       <div className="academy-header-actions" ref={actions}>
+        {onSearch && <button className="academy-search-trigger" aria-label="Search Chess Infinity" title="Search · Ctrl / ⌘ K" onClick={() => {setOpen(false);onSearch();}}><Search size={20}/></button>}
         <div className="academy-action-capsule">
           <button aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"} title={theme === "dark" ? "Light mode" : "Dark mode"} onClick={onToggleTheme}>
             {theme === "dark" ? <Sun /> : <Moon />}

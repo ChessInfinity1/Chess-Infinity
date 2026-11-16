@@ -16,6 +16,7 @@ const mainRoutes = [
   { id: "review", label: "Review", icon: ChartNoAxesCombined },
 ];
 const exploreRoutes = [
+  { id: "studio", label: "Training Studio", icon: Sparkles },
   { id: "focus", label: "Focus session", icon: Target },
   { id: "openings", label: "Openings", icon: Network },
   { id: "coach", label: "Training plan", icon: BrainCircuit },
