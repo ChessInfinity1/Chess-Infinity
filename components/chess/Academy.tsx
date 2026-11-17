@@ -995,7 +995,7 @@ export default function Academy({
   }
   return (
     <PieceStyleProvider value={pieceStyle(progress.pieceStyle)}>
-    <div className="app-shell" ref={motion.shell}>
+    <div className="app-shell mobile-layout" ref={motion.shell} data-page={page} data-board-active={!!active || !!workspace}>
       <AcademySidebar
         sidebarRef={sidebarRef}
         open={sidebar}
@@ -2145,12 +2145,13 @@ export default function Academy({
             </span>
           </footer>
         </div>
-        {!sidebar && !profileOpen && (
+        {!profileOpen && (
           <MobileDock
             page={page}
             keyboardOpen={keyboardOpen}
             solid={progress.dockStyle === "solid"}
             onNavigate={go}
+            onOpenNavigation={() => setSidebar(true)}
           />
         )}
       </main>

@@ -67,8 +67,9 @@ export default function AcademyHeader({ title, onSearch, sidebarOpen, onOpenNavi
         </button>
         <button className="academy-header-circle academy-header-home" aria-label="Go to academy home" onClick={() => onNavigate("dashboard")}><InfinityIcon size={24} /></button>
       </div>
-      <div className="academy-header-title" title={title}>{title}</div>
+      <div className="academy-header-title" title={title}><span className="mobile-brand-label">CHESS INFINITY</span>{title}</div>
       <div className="academy-header-actions" ref={actions}>
+        <button className="mobile-header-settings" aria-label="Open preferences" onClick={() => navigate("settings")}><Settings size={21}/></button>
         {onSearch && <button className="academy-search-trigger" aria-label="Search Chess Infinity" title="Search · Ctrl / ⌘ K" onClick={() => {setOpen(false);onSearch();}}><Search size={20}/></button>}
         <div className="academy-action-capsule">
           <button aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"} title={theme === "dark" ? "Light mode" : "Dark mode"} onClick={onToggleTheme}>
