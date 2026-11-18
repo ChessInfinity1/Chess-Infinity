@@ -137,7 +137,6 @@ function getStreak(days: string[]) {
 }
 const titleMap: Record<string, string> = {
   dashboard: "Your academy",
-  more: "More",
   studio: "Training Studio",
   reminders: "Practice reminders",
   saved: "Saved practice",
@@ -173,6 +172,7 @@ export default function Academy({
   user: { id: string; name: string; isOwner?: boolean } | null;
 }) {
   const [page, setPage] = useState("dashboard");
+  const [moreOpen, setMoreOpen] = useState(false);
   const install = useAppInstall();
   const [progress, setProgress] = useState<Progress>(initialProgress);
   const [ready, setReady] = useState(false);
@@ -194,7 +194,7 @@ export default function Academy({
   useEffect(() => {
     function searchShortcut(event: KeyboardEvent) {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
-        event.preventDefault(); setSidebar(false); setProfileOpen(false); setSearchOpen(value => !value);
+        event.preventDefault(); setMoreOpen(false); setSidebar(false); setProfileOpen(false); setSearchOpen(value => !value);
       }
     }
     document.addEventListener("keydown", searchShortcut);
@@ -305,11 +305,11 @@ export default function Academy({
     void init();
     const params = new URLSearchParams(location.search);
     const requested = params.get("screen");
+    if (requested === "more") setMoreOpen(true);
     if (
       requested &&
       [
         "settings",
-        "more",
         "connections",
         "puzzles",
         "arcade",
@@ -577,6 +577,7 @@ export default function Academy({
     }
   }
   function go(p: string, openLibrary = false) {
+    setMoreOpen(false);
     const [route, section] = p.split(":");
     if (route === "studio") { setStudioTab(section || "openings"); setStudioVisit(value => value + 1); }
     p = route;
@@ -1020,9 +1021,8 @@ export default function Academy({
       <main className="main" inert={sidebar || profileOpen}>
         <AcademyHeader
           title={titleMap[page]}
-          moreActive={page === "more"}
-          userName={user?.name}
-          onSearch={() => setSearchOpen(true)}
+          homePage={page === "dashboard"}
+          onSearch={() => { setMoreOpen(false); setSearchOpen(true); }}
           sidebarOpen={sidebar}
           onOpenNavigation={() => setSidebar(true)}
           theme={progress.theme}
@@ -1232,21 +1232,6 @@ export default function Academy({
               {page === "saved" && <SavedPractice ids={progress.savedExercises || []} onPractice={train} onRemove={toggleBookmark} onNavigate={go} />}
               {page === "focus" && <FocusSession progress={progress} signedIn={!!user} onStart={minutes => update(p => ({ ...p, focusSessions: appendFocusSession(p.focusSessions, createFocusSession(p, minutes, crypto.randomUUID())) }))} onPractice={(exercise, lesson, focusSessionId) => motion.changeView(() => { setActive({ exercise, lesson, focusSessionId }); window.scrollTo({top:0}); })} />}
               {page !== "reminders" && <ReminderNudge value={progress.practiceReminder} practicedDays={progress.days} onChange={value => update(p => ({...p,practiceReminder:value}))} onStart={() => train(nextLesson,nextLesson)} />}
-              {page === "more" && (
-                <AcademyMore
-                  profile={progress.accounts.chesscom?.profile}
-                  userName={user?.name}
-                  guestSignIn={user ? undefined : { href: "/login?return_to=%2F%3Fscreen%3Dmore", label: "Sign in or create an account" }}
-                  isOwner={user?.isOwner === true}
-                  xp={xp}
-                  streak={streak}
-                  saveStatus={saveStatus}
-                  theme={progress.theme}
-                  onToggleTheme={() => update((p) => ({ ...p, theme: p.theme === "dark" ? "light" : "dark" }))}
-                  onNavigate={go}
-                  onProfile={() => setProfileOpen(true)}
-                />
-              )}
               {page === "dashboard" && (
                 <HomeDashboard
                   progress={progress}
@@ -2170,10 +2155,27 @@ export default function Academy({
             page={page}
             keyboardOpen={keyboardOpen}
             solid={progress.dockStyle === "solid"}
+            moreOpen={moreOpen}
+            onOpenMore={() => setMoreOpen(true)}
             onNavigate={go}
           />
         )}
       </main>
+      <AcademyMore
+        open={moreOpen}
+        onClose={() => setMoreOpen(false)}
+        profile={progress.accounts.chesscom?.profile}
+        userName={user?.name}
+        guestSignIn={user ? undefined : { href: "/login?return_to=%2F%3Fscreen%3Dmore", label: "Sign in or create an account" }}
+        isOwner={user?.isOwner === true}
+        xp={xp}
+        streak={streak}
+        saveStatus={saveStatus}
+        theme={progress.theme}
+        onToggleTheme={() => update((p) => ({ ...p, theme: p.theme === "dark" ? "light" : "dark" }))}
+        onNavigate={go}
+        onProfile={() => { setMoreOpen(false); setProfileOpen(true); }}
+      />
       <QuickSearch open={searchOpen} onClose={() => setSearchOpen(false)} onChoose={result => {
         if (result.kind === "tool") go(result.target);
         else if (result.kind === "opening") { const opening = openings.find(item => item.id === result.target); if (opening) { setPage("openings"); openWorkspace("opening", undefined, opening); } }

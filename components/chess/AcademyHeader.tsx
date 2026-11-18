@@ -1,14 +1,13 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { Cloud, CloudOff, Download, EllipsisVertical, Flame, Infinity as InfinityIcon, Moon, Settings, Sun, UserRound, Zap, Search } from "lucide-react";
+import { Cloud, CloudOff, Download, EllipsisVertical, Flame, Infinity as InfinityIcon, Moon, Settings, Sun, Zap, Search } from "lucide-react";
 import ScreenMode from "./ScreenMode";
 import { useAnimatedPresence } from "../../hooks/use-academy-motion";
 
 type Props = {
   title: string;
-  moreActive: boolean;
-  userName?: string;
+  homePage: boolean;
   onSearch?: () => void;
   sidebarOpen: boolean;
   onOpenNavigation: () => void;
@@ -20,7 +19,7 @@ type Props = {
   onNavigate: (page: string) => void;
 };
 
-export default function AcademyHeader({ title, moreActive, userName, onSearch, sidebarOpen, onOpenNavigation, theme, onToggleTheme, streak, xp, saveStatus, onNavigate }: Props) {
+export default function AcademyHeader({ title, homePage, onSearch, sidebarOpen, onOpenNavigation, theme, onToggleTheme, streak, xp, saveStatus, onNavigate }: Props) {
   const [open, setOpen] = useState(false);
   const presence = useAnimatedPresence(open);
   const panelId = useId();
@@ -69,11 +68,11 @@ export default function AcademyHeader({ title, moreActive, userName, onSearch, s
         </button>
         <button className="academy-header-circle academy-header-home" aria-label="Go to academy home" onClick={() => onNavigate("dashboard")}><InfinityIcon size={24} /></button>
       </div>
-      <div className="academy-header-title" title={title}><span className="mobile-brand-label">Chess Infinity</span><span className="academy-header-page">{title}</span></div>
+      <div className="academy-header-title" title={title}><span className="academy-header-page">{title}</span>{homePage && <span className="mobile-wordmark">Chess Infinity</span>}</div>
       <div className="academy-header-actions" ref={actions}>
-        {onSearch && <button className="academy-search-trigger" aria-label="Search Chess Infinity" title="Search · Ctrl / ⌘ K" onClick={() => {setOpen(false);onSearch();}}><Search size={20}/></button>}
-        <button className="mobile-header-account" aria-label="Account and tools" aria-current={moreActive ? "page" : undefined} onClick={() => { if (!moreActive) onNavigate("more"); }}>
-          <span aria-hidden="true">{userName?.trim().slice(0, 1).toUpperCase() || <UserRound size={19} />}</span>
+        {onSearch && <button className="academy-search-trigger" aria-label="Search Chess Infinity" title="Search · Ctrl / ⌘ K" onClick={() => {setOpen(false);onSearch();}}><Search size={20} aria-hidden="true"/></button>}
+        <button className="header-streak" aria-label={`${streak}-day streak, view weekly report`} onClick={() => onNavigate("weekly")}>
+          <Flame size={17} aria-hidden="true" /><strong>{streak}</strong>
         </button>
         <div className="academy-action-capsule">
           <button aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"} title={theme === "dark" ? "Light mode" : "Dark mode"} onClick={onToggleTheme}>

@@ -20,6 +20,7 @@ import {
   Target,
 } from "lucide-react";
 import { type Progress, type Lesson, levels } from "../../lib/chess/content";
+import { Piece } from "./Piece";
 import { ProfileAvatar } from "./ChessComProfile";
 import { weeklyReport, localDay } from "../../lib/chess/weekly";
 import { gameSide } from "../../lib/chess/revenge";
@@ -86,31 +87,69 @@ export default function HomeDashboard({
   return (
     <div className="home-v2 home-calm home-mobile-ready">
       <div className="mobile-home">
-        <header className="mobile-home-heading"><div><span className="mobile-eyebrow">YOUR DAILY CHESS SPACE</span><h1>{playerName ? `Hey, ${playerName}.` : "Make your next move."}</h1><p>A little better, every day.</p></div><button className="mobile-streak" onClick={() => onNavigate("weekly")} aria-label={`${streak} day streak. View weekly report`}><Flame size={20}/><strong>{streak}</strong><small>day streak</small></button></header>
+        <header className="mobile-home-heading">
+          <h1>{playerName ? `Hey, ${playerName}.` : "Your chess practice"}</h1>
+        </header>
         <section className="mobile-next" aria-labelledby="mobile-next-heading">
-          <div className="mobile-next-top"><span><BookOpen size={15}/> YOUR LEARNING TRAIL</span><span>{nextLesson.minutes} MIN</span></div>
-          <div className="mobile-next-copy"><div><span>Track {nextLesson.level} · {levels[nextLesson.level - 1]}</span><h2 id="mobile-next-heading">{nextLesson.title}</h2></div><span className="mobile-next-piece" aria-hidden="true">♞</span></div>
-          <div className="mobile-lesson-meter" role="progressbar" aria-label="Learning track progress" aria-valuemin={0} aria-valuemax={track.length} aria-valuenow={trackDone}><i style={{width:`${trackDone / track.length * 100}%`}}/></div>
-          <div className="mobile-next-bottom"><span>{trackDone} / {track.length} completed</span><button onClick={() => onLesson(nextLesson)}>{isReview ? "Review lesson" : "Continue"}<ArrowRight size={17}/></button></div>
+          <div className="mobile-next-art" aria-hidden="true">
+            <div className="mobile-next-checkerboard" />
+            <Piece type="n" color="w" />
+          </div>
+          <div className="mobile-next-top"><BookOpen size={16} aria-hidden="true" /><span>Next lesson</span></div>
+          <div className="mobile-next-copy">
+            <h2 id="mobile-next-heading">{nextLesson.title}</h2>
+            <p>{levels[nextLesson.level - 1]} · {nextLesson.minutes} min</p>
+          </div>
+          <div className="mobile-lesson-meter" role="progressbar" aria-label="Learning track progress" aria-valuemin={0} aria-valuemax={track.length} aria-valuenow={trackDone}>
+            <i style={{ width: `${track.length ? trackDone / track.length * 100 : 0}%` }} />
+          </div>
+          <div className="mobile-next-bottom">
+            <button onClick={() => onLesson(nextLesson)}>{isReview ? "Review lesson" : "Continue lesson"}</button>
+            <span>{trackDone} of {track.length} complete</span>
+          </div>
         </section>
-        <section className="mobile-practice" aria-labelledby="mobile-practice-title"><div className="mobile-section-title"><h2 id="mobile-practice-title">Time for a little chess</h2><span>YOUR MOVE</span></div><div className="mobile-practice-grid">
-          {[{page:"puzzles",title:"Solve puzzles",detail:"Find the winning idea",Icon:Puzzle,tone:"purple"},{page:"play",title:"Play a game",detail:"Meet your next rival",Icon:Swords,tone:"green"},{page:"review",title:"Review a game",detail:"Learn from every move",Icon:BookOpen,tone:"orange"},{page:"studio",title:"Training studio",detail:"Build your chess skills",Icon:BrainCircuit,tone:"blue"}].map(item => <button key={item.page} className={"mobile-practice-card "+item.tone} onClick={() => onNavigate(item.page)}><span className="mobile-practice-icon"><item.Icon size={23}/></span><ArrowUpRight size={16} className="mobile-card-arrow"/><strong>{item.title}</strong><small>{item.detail}</small></button>)}
-        </div></section>
-        <section className="mobile-today" aria-labelledby="mobile-today-title"><div className="mobile-section-title"><h2 id="mobile-today-title">Your daily three</h2><span>{habits} OF 3</span></div>
-          {[{title:"Learn one idea",detail:`${nextLesson.minutes} minutes on your trail`,done:lessonDone,Icon:BookOpen,action:()=>onLesson(nextLesson)},{title:"Solve three puzzles",detail:`${Math.min(puzzleDone,3)} of 3 practiced today`,done:puzzleDone>=3,Icon:Puzzle,action:onPuzzle},{title:"Think a move ahead",detail:"Play with your guided coach",done:guidedDone,Icon:BrainCircuit,action:()=>onNavigate("guided")}].map(item=><button className={item.done?"is-done":""} key={item.title} onClick={item.action}><span className="mobile-task-icon">{item.done?<Check size={19}/>:<item.Icon size={19}/>}</span><span><strong>{item.title}</strong><small>{item.detail}</small></span><ChevronRight size={17}/></button>)}
+        <section className="mobile-practice" aria-labelledby="mobile-practice-title">
+          <div className="mobile-section-title"><h2 id="mobile-practice-title">Quick practice</h2></div>
+          <div className="mobile-practice-grid">
+            {[
+              { page: "puzzles", title: "Puzzles", detail: "Train tactics", Icon: Puzzle, tone: "purple" },
+              { page: "play", title: "Play a bot", detail: "Start a game", Icon: Swords, tone: "green" },
+              { page: "review", title: "Game review", detail: "Analyze your moves", Icon: BookOpen, tone: "orange" },
+              { page: "studio", title: "Training Studio", detail: "Practice by topic", Icon: BrainCircuit, tone: "blue" },
+            ].map(({ page, title, detail, Icon, tone }) => (
+              <button key={page} className={`mobile-practice-card ${tone}`} onClick={() => onNavigate(page)}>
+                <span className="mobile-practice-icon"><Icon size={21} aria-hidden="true" /></span>
+                <span><strong>{title}</strong><small>{detail}</small></span>
+              </button>
+            ))}
+          </div>
         </section>
-        <button className="mobile-week-link" onClick={()=>onNavigate("weekly")}><span><Trophy size={22}/></span><div><strong>See how far you’ve come</strong><small>Your weekly progress & highlights</small></div><ArrowRight size={18}/></button>
+        <section className="mobile-today" aria-labelledby="mobile-today-title">
+          <div className="mobile-section-title"><h2 id="mobile-today-title">Today’s goals</h2><span>{habits} of 3 done</span></div>
+          {[
+            { title: "Finish one lesson", detail: `${nextLesson.minutes} minutes on your trail`, done: lessonDone, Icon: BookOpen, action: () => onLesson(nextLesson) },
+            { title: "Solve three puzzles", detail: `${Math.min(puzzleDone, 3)} of 3 practiced today`, done: puzzleDone >= 3, Icon: Puzzle, action: onPuzzle },
+            { title: "Play a guided game", detail: "Practice choosing your next move", done: guidedDone, Icon: BrainCircuit, action: () => onNavigate("guided") },
+          ].map(({ title, detail, done, Icon, action }) => (
+            <button className={done ? "is-done" : ""} key={title} onClick={action}>
+              <span className="mobile-task-icon">{done ? <Check size={19} /> : <Icon size={19} />}</span>
+              <span><strong>{title}</strong><small>{detail}</small></span>
+              <ChevronRight size={16} aria-hidden="true" />
+            </button>
+          ))}
+        </section>
+        <button className="mobile-week-link" onClick={() => onNavigate("weekly")}>
+          <span><Trophy size={21} aria-hidden="true" /></span><div><strong>Weekly report</strong><small>Lessons, games, and puzzle practice</small></div>
+        </button>
       </div>
 
       <div className="home-v2-welcome">
         <div>
-          <span className="home-v2-kicker">CHESS INFINITY</span>
           <h1>
             {playerName
               ? `Welcome back, ${playerName}.`
-              : "Your next chapter starts here."}
+              : "Your chess practice"}
           </h1>
-          <p>A little practice. A stronger next move.</p>
         </div>
         <div className="home-v2-date">
           <CalendarDays size={15} />
@@ -123,45 +162,6 @@ export default function HomeDashboard({
           </span>
         </div>
       </div>
-      <section
-        className="home-v2-practice"
-        aria-labelledby="home-practice-heading"
-      >
-        <div className="home-v2-section-heading">
-          <h2 id="home-practice-heading">What would you like to do?</h2>
-          <button className="home-v2-text" onClick={() => onNavigate("arcade")}>
-            Try the arcade
-            <ArrowUpRight size={14} />
-          </button>
-        </div>
-        <div className="home-v2-practice-grid">
-          {[
-            { title: "Puzzles", text: "Train your tactics", Icon: Puzzle, page: "puzzles", color: "purple" },
-            { title: "Play a bot", text: "Find your opponent", Icon: Swords, page: "play", color: "mint" },
-            { title: "Review a game", text: "Learn from your moves", Icon: BookOpen, page: "review", color: "gold" },
-            { title: "My training plan", text: `${progress.minutes} minutes for you`, Icon: BrainCircuit, page: "coach", color: "purple" },
-          ].map((item) => (
-            <button
-              key={item.page}
-              className={"home-v2-practice-tile " + item.color}
-              onClick={() => onNavigate(item.page)}
-            >
-              <span className="home-v2-tile-icon">
-                <item.Icon size={23} />
-              </span>
-              <ArrowUpRight className="home-v2-tile-arrow" size={16} />
-              <strong>{item.title}</strong>
-              <small>{item.text}</small>
-            </button>
-          ))}
-        </div>
-      </section>
-      <section className="home-focus-session" aria-labelledby="home-focus-title">
-        <span><Target size={23}/></span>
-        <div><h2 id="home-focus-title">One session. A clear next step.</h2><p>A lesson, fresh puzzles, and spaced reviews in a 5, 10, or 15-minute plan.</p></div>
-        <button className="secondary" onClick={() => onNavigate("focus")}>{progress.focusSessions?.at(-1) && !progress.focusSessions.at(-1)?.finishedAt ? "Resume session" : "Try a focus session"}<ArrowRight size={16}/></button>
-      </section>
-      <section className="home-studio-invite" aria-label="New training tools"><span><Trophy size={23}/></span><div><strong>A new space to make it stick.</strong><p>Opening rehearsal, endgame drills, your study journal, and personal milestones.</p></div><button className="text-btn" onClick={() => onNavigate("studio")}>Explore the studio <ArrowRight size={16}/></button></section>
       <div className="home-v2-top-grid">
         <section
           className="home-v2-continue"
@@ -284,6 +284,44 @@ export default function HomeDashboard({
           </button>
         </details>
       </div>
+      <section
+        className="home-v2-practice"
+        aria-labelledby="home-practice-heading"
+      >
+        <div className="home-v2-section-heading">
+          <h2 id="home-practice-heading">Quick practice</h2>
+          <button className="home-v2-text" onClick={() => onNavigate("arcade")}>
+            Training arcade
+          </button>
+        </div>
+        <div className="home-v2-practice-grid">
+          {[
+            { title: "Puzzles", text: "Train your tactics", Icon: Puzzle, page: "puzzles", color: "purple" },
+            { title: "Play a bot", text: "Find your opponent", Icon: Swords, page: "play", color: "mint" },
+            { title: "Review a game", text: "Learn from your moves", Icon: BookOpen, page: "review", color: "gold" },
+            { title: "My training plan", text: `${progress.minutes} minutes for you`, Icon: BrainCircuit, page: "coach", color: "purple" },
+          ].map((item) => (
+            <button
+              key={item.page}
+              className={"home-v2-practice-tile " + item.color}
+              onClick={() => onNavigate(item.page)}
+            >
+              <span className="home-v2-tile-icon">
+                <item.Icon size={23} />
+              </span>
+              <ArrowUpRight className="home-v2-tile-arrow" size={16} />
+              <strong>{item.title}</strong>
+              <small>{item.text}</small>
+            </button>
+          ))}
+        </div>
+      </section>
+      <section className="home-focus-session" aria-labelledby="home-focus-title">
+        <span><Target size={23}/></span>
+        <div><h2 id="home-focus-title">One session. A clear next step.</h2><p>A lesson, fresh puzzles, and spaced reviews in a 5, 10, or 15-minute plan.</p></div>
+        <button className="secondary" onClick={() => onNavigate("focus")}>{progress.focusSessions?.at(-1) && !progress.focusSessions.at(-1)?.finishedAt ? "Resume session" : "Try a focus session"}<ArrowRight size={16}/></button>
+      </section>
+      <section className="home-studio-invite" aria-label="New training tools"><span><Trophy size={23}/></span><div><strong>A new space to make it stick.</strong><p>Opening rehearsal, endgame drills, your study journal, and personal milestones.</p></div><button className="text-btn" onClick={() => onNavigate("studio")}>Explore the studio <ArrowRight size={16}/></button></section>
       <div className="home-v2-lower-grid">
         <details className="home-v2-week home-summary-card">
           <summary><span className="home-summary-icon"><Trophy size={19} /></span><span><strong>Your weekly progress</strong><small>{week.lessonIds.length} lessons · {week.attempts} puzzle attempts</small></span><ChevronRight size={18} /></summary>
