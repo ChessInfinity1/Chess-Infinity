@@ -9,16 +9,13 @@ const tabs = [
   { id: "play", label: "Play", Icon: Swords },
   { id: "more", label: "More", Icon: Grid2X2 },
 ];
-export default function MobileDock({ page, keyboardOpen, solid, moreOpen = false, onOpenMore, onNavigate }: {
-  page: string; keyboardOpen: boolean; solid: boolean; moreOpen?: boolean; onOpenMore: () => void; onNavigate: (page: string) => void;
+export default function MobileDock({ page, keyboardOpen, solid, onNavigate, onOpenNavigation }: {
+  page: string; keyboardOpen: boolean; solid: boolean; onNavigate: (page: string) => void; onOpenNavigation?: () => void;
 }) {
   const nav=useRef<HTMLElement>(null),gesture=useRef<{id:number;x:number;y:number;dragging:boolean}|null>(null),suppress=useRef(false),clickTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
   const [draft,setDraft]=useState<number|null>(null);
-  const active = tabs.findIndex((tab) => tab.id === (moreOpen ? "more" : page));
-  function navigate(target: string) {
-    if (target === "more") onOpenMore();
-    else onNavigate(target);
-  }
+  function navigate(target: string) { if(target === "more") onOpenNavigation?.(); else onNavigate(target); }
+  const active = tabs.findIndex((t) => t.id === page);
   const lens=draft??Math.max(0,active),filterId="dock-glass-"+useId().replace(/[^a-z0-9]/gi,"");
   useEffect(()=>{gesture.current=null;setDraft(null);},[page,keyboardOpen]);
   useEffect(()=>()=>{if(clickTimer.current)clearTimeout(clickTimer.current);},[]);
@@ -32,7 +29,7 @@ export default function MobileDock({ page, keyboardOpen, solid, moreOpen = false
       onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={()=>{gesture.current=null;setDraft(null);}} onLostPointerCapture={()=>{gesture.current=null;setDraft(null);}}>
       <span className="liquid-dock-optics" aria-hidden="true"/>
       <span className="liquid-dock-highlight" aria-hidden="true" />
-      {tabs.map((t, i) => <button key={t.id} className={(draft===null?active===i:Math.round(draft)===i) ? "active" : ""} aria-current={t.id !== "more" && page === t.id ? "page" : undefined} aria-label={t.label} aria-haspopup={t.id === "more" ? "dialog" : undefined} aria-expanded={t.id === "more" ? moreOpen : undefined} aria-controls={t.id === "more" ? "academy-more" : undefined} onClick={event => {if(suppress.current){event.preventDefault();return;}navigate(t.id);}}>
+      {tabs.map((t, i) => <button key={t.id} className={(draft===null?active===i:Math.round(draft)===i) ? "active" : ""} aria-current={page === t.id ? "page" : undefined} aria-label={t.id === "more" ? "More tools and profile" : t.label} aria-haspopup={t.id === "more" ? "dialog" : undefined} aria-controls={t.id === "more" ? "academy-navigation" : undefined} onClick={event => {if(suppress.current){event.preventDefault();return;}navigate(t.id);}}>
         <t.Icon size={23} strokeWidth={active === i ? 2.3 : 1.9} /><span>{t.label}</span>
       </button>)}
     </nav>

@@ -15,7 +15,7 @@ const mainRoutes = [
   { id: "play", label: "Play", icon: Swords },
   { id: "review", label: "Review", icon: ChartNoAxesCombined },
 ];
-export const exploreRoutes = [
+const exploreRoutes = [
   { id: "studio", label: "Training Studio", icon: Sparkles },
   { id: "focus", label: "Focus session", icon: Target },
   { id: "openings", label: "Openings", icon: Network },
@@ -23,13 +23,13 @@ export const exploreRoutes = [
   { id: "weekly", label: "Weekly report", icon: CalendarDays },
   { id: "saved", label: "Saved practice", icon: Bookmark },
 ];
-export const moreRoutes = [
+const moreRoutes = [
   { id: "guided", label: "Guided game", icon: BrainCircuit },
   { id: "arcade", label: "Training arcade", icon: Sparkles },
   { id: "revenge", label: "Mistake Revenge", icon: RefreshCw },
   { id: "assessment", label: "Starting skill check", icon: Compass },
 ];
-export const profileRoutes = [
+const profileRoutes = [
   { id: "connections", label: "Connected accounts", icon: Link2 },
   { id: "reminders", label: "Practice reminders", icon: Bell },
   { id: "install", label: "Install & offline", icon: Download },

@@ -7,7 +7,6 @@ import { useAnimatedPresence } from "../../hooks/use-academy-motion";
 
 type Props = {
   title: string;
-  homePage: boolean;
   onSearch?: () => void;
   sidebarOpen: boolean;
   onOpenNavigation: () => void;
@@ -19,7 +18,7 @@ type Props = {
   onNavigate: (page: string) => void;
 };
 
-export default function AcademyHeader({ title, homePage, onSearch, sidebarOpen, onOpenNavigation, theme, onToggleTheme, streak, xp, saveStatus, onNavigate }: Props) {
+export default function AcademyHeader({ title, onSearch, sidebarOpen, onOpenNavigation, theme, onToggleTheme, streak, xp, saveStatus, onNavigate }: Props) {
   const [open, setOpen] = useState(false);
   const presence = useAnimatedPresence(open);
   const panelId = useId();
@@ -68,12 +67,10 @@ export default function AcademyHeader({ title, homePage, onSearch, sidebarOpen, 
         </button>
         <button className="academy-header-circle academy-header-home" aria-label="Go to academy home" onClick={() => onNavigate("dashboard")}><InfinityIcon size={24} /></button>
       </div>
-      <div className="academy-header-title" title={title}><span className="academy-header-page">{title}</span>{homePage && <span className="mobile-wordmark">Chess Infinity</span>}</div>
+      <div className="academy-header-title" title={title}><span className="mobile-brand-label">CHESS INFINITY</span>{title}</div>
       <div className="academy-header-actions" ref={actions}>
-        {onSearch && <button className="academy-search-trigger" aria-label="Search Chess Infinity" title="Search · Ctrl / ⌘ K" onClick={() => {setOpen(false);onSearch();}}><Search size={20} aria-hidden="true"/></button>}
-        <button className="header-streak" aria-label={`${streak}-day streak, view weekly report`} onClick={() => onNavigate("weekly")}>
-          <Flame size={17} aria-hidden="true" /><strong>{streak}</strong>
-        </button>
+        <button className="mobile-header-settings" aria-label="Open preferences" onClick={() => navigate("settings")}><Settings size={21}/></button>
+        {onSearch && <button className="academy-search-trigger" aria-label="Search Chess Infinity" title="Search · Ctrl / ⌘ K" onClick={() => {setOpen(false);onSearch();}}><Search size={20}/></button>}
         <div className="academy-action-capsule">
           <button aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"} title={theme === "dark" ? "Light mode" : "Dark mode"} onClick={onToggleTheme}>
             {theme === "dark" ? <Sun /> : <Moon />}
