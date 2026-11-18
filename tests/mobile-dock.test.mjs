@@ -3,4 +3,8 @@ const bundle=await build({entryPoints:['components/chess/MobileDock.tsx'],bundle
 test('keyboard-hidden mobile navigation is inert and removed from assistive navigation',()=>{const html=render('dashboard',true);assert.match(html,/<nav[^>]*inert=""/);assert.match(html,/<nav[^>]*aria-hidden="true"/);assert.equal((html.match(/<button/g)||[]).length,5);});
 test('the current route remains truthful, auxiliary pages have no misleading active tab',()=>{for(const route of ['dashboard','learn','puzzles','play'])assert.equal((render(route).match(/aria-current="page"/g)||[]).length,1);const other=render('studio');assert.ok(other.includes('no-selection'));assert.ok(!other.includes('aria-current="page"'));assert.ok(render('dashboard',false,true).includes('solid'));});
 
-test("More opens the tools dialog rather than claiming a current page",()=>{const html=render("openings");assert.match(html,/aria-label="More tools and profile"/);assert.match(html,/aria-controls="academy-navigation"/);assert.ok(!html.includes('aria-current="page"'));});
+test("More is a first-class tab with current-page semantics", () => {
+  const html = render("more");
+  assert.match(html, /<button[^>]*aria-current="page"[^>]*aria-label="More"/);
+  assert.doesNotMatch(html, /aria-haspopup|aria-controls|no-selection/);
+});

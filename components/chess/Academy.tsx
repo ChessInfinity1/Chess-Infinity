@@ -96,6 +96,7 @@ import {
 } from "../../lib/chess/offline-progress";
 import { useThemeChrome } from "./ScreenMode";
 import AcademyHeader from "./AcademyHeader";
+import AcademyMore from "./AcademyMore";
 import { applyChessComPage, chessComGames, parseChessComPage, syncChessComArchives } from "../../lib/chess/archive-sync";
 import MistakeRevenge from "./MistakeRevenge";
 import { filterPuzzles, puzzleTags } from "../../lib/chess/puzzle-library";
@@ -136,6 +137,7 @@ function getStreak(days: string[]) {
 }
 const titleMap: Record<string, string> = {
   dashboard: "Your academy",
+  more: "More",
   studio: "Training Studio",
   reminders: "Practice reminders",
   saved: "Saved practice",
@@ -307,6 +309,7 @@ export default function Academy({
       requested &&
       [
         "settings",
+        "more",
         "connections",
         "puzzles",
         "arcade",
@@ -1017,6 +1020,8 @@ export default function Academy({
       <main className="main" inert={sidebar || profileOpen}>
         <AcademyHeader
           title={titleMap[page]}
+          moreActive={page === "more"}
+          userName={user?.name}
           onSearch={() => setSearchOpen(true)}
           sidebarOpen={sidebar}
           onOpenNavigation={() => setSidebar(true)}
@@ -1227,6 +1232,21 @@ export default function Academy({
               {page === "saved" && <SavedPractice ids={progress.savedExercises || []} onPractice={train} onRemove={toggleBookmark} onNavigate={go} />}
               {page === "focus" && <FocusSession progress={progress} signedIn={!!user} onStart={minutes => update(p => ({ ...p, focusSessions: appendFocusSession(p.focusSessions, createFocusSession(p, minutes, crypto.randomUUID())) }))} onPractice={(exercise, lesson, focusSessionId) => motion.changeView(() => { setActive({ exercise, lesson, focusSessionId }); window.scrollTo({top:0}); })} />}
               {page !== "reminders" && <ReminderNudge value={progress.practiceReminder} practicedDays={progress.days} onChange={value => update(p => ({...p,practiceReminder:value}))} onStart={() => train(nextLesson,nextLesson)} />}
+              {page === "more" && (
+                <AcademyMore
+                  profile={progress.accounts.chesscom?.profile}
+                  userName={user?.name}
+                  guestSignIn={user ? undefined : { href: "/login?return_to=%2F%3Fscreen%3Dmore", label: "Sign in or create an account" }}
+                  isOwner={user?.isOwner === true}
+                  xp={xp}
+                  streak={streak}
+                  saveStatus={saveStatus}
+                  theme={progress.theme}
+                  onToggleTheme={() => update((p) => ({ ...p, theme: p.theme === "dark" ? "light" : "dark" }))}
+                  onNavigate={go}
+                  onProfile={() => setProfileOpen(true)}
+                />
+              )}
               {page === "dashboard" && (
                 <HomeDashboard
                   progress={progress}
@@ -2151,7 +2171,6 @@ export default function Academy({
             keyboardOpen={keyboardOpen}
             solid={progress.dockStyle === "solid"}
             onNavigate={go}
-            onOpenNavigation={() => setSidebar(true)}
           />
         )}
       </main>

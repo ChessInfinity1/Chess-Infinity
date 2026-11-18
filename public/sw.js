@@ -1,4 +1,4 @@
-const VERSION = "2fd3f94d73f2";
+const VERSION = "6d94abe0563d";
 const CORE = "chess-infinity-core-" + VERSION;
 const PACK = "chess-infinity-pack-" + VERSION;
 const MARKER = "/offline/__ready__";
